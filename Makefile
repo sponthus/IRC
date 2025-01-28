@@ -1,23 +1,28 @@
 NAME = ircserv
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
 
-CFL = -MMD -MP
+# CFL = -MMD -MP
 
-SRC_DIR = sources/
+SRC_DIR = ./sources/
 
-SRC = $(SRC_DIR)main.cpp
+# SRC = $(SRC_DIR)main.cpp \
+# 	$(SRC_DIR)parsing.cpp \
+# 	$(SRC_DIR)Server.cpp
+
+SRC = $(shell find $(SRC_DIR) -name "*.cpp")
 
 OBJ_DIR = ./OBJ/
 
-OBJ = $(SRC:%.cpp=$(OBJ_DIR)%.o)
+OBJ = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.o, $(SRC))
 
 DEP = $(OBJ:%.o=%.d)
 
 INCS_DIR = includes/
 
-INCS = $(INCS_DIR)
+INCS = $(INCS_DIR)messages.hpp \
+	$(INCS_DIR)Server.hpp
 
 all: $(NAME)
 
@@ -34,11 +39,11 @@ fclean: clean
 re: fclean all
 
 $(NAME): $(OBJ)
-	$(CC) $(CFL) $(CFLAGS) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(OBJ) -o $@
 	@echo "$(NAME) done"
 
-$(OBJ_DIR)%.o: %.cpp
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFL) $(CFLAGS) -o $@ -c $<
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
-.PHONY: all, clean, fclean, re
+.PHONY: all clean fclean re
