@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:16:46 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:08:26 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,43 +76,45 @@ void	Server::initSocket()
 void	Server::initPoll(int fd)
 {
 	struct pollfd poll;
-	poll.fd = this->_socketFD;
+	poll.fd = fd;
 	poll.events = POLLIN;
 	poll.revents = 0;
 	this->_fds.push_back(poll);
 }
 
-void	Server::recieveData(int fd) // fd from the client that sent a msg
+std::string	Server::recieveData(int fd, std::string msg) // fd from the client that sent a msg
 {
 	ssize_t	size = 1;
 	char	buffer[BUFF_SIZE];
-	for (size_t i = 0; i < BUFF_SIZE - 1; i++)
+	for (size_t i = 0; i < BUFF_SIZE - 1; i++) // memeset
 		buffer[i] = 0;
 
 	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	std::cout << "recv() returned " << size << " for fd " << fd << std::endl;
+	std::string str = msg;
 	if (size < 0)
 	{
 		if (errno == EWOULDBLOCK || errno == EAGAIN)
         {
             std::cout << "Would block, trying again later" << std::endl;
-            return;
         }
         std::cout << "recv() error: " << strerror(errno) << std::endl;
         clearClient(fd);
-        return;
 	}
 	else if (size == 0)
 	{
 		std::cout << "Client closed connection properly" << std::endl;
         clearClient(fd);
-        return;
 	}
 	else
 	{
 		buffer[size] = '\0';
-		std::cout << fd << " sent : //" << buffer << "//" << std::endl;
+		std::cout << size << std::endl;
+		str += buffer;
+		if (size + 1 == BUFF_SIZE)
+			str = recieveData(fd, str);
 	}
+	//parsing commande
+	return (str);
 }
 
 void	Server::clearClient(int fd)
@@ -219,7 +221,7 @@ void	Server::init()
 				}
 				else if (this->_fds[i].revents & POLLIN)
 				{
-					recieveData(this->_fds[i].fd);
+					std::cout << this->_fds[i].fd << " sent : //" << recieveData(this->_fds[i].fd, "") << "//" << std::endl;
 				}
 				else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 				{

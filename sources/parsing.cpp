@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/28 11:25:59 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 14:15:26 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ bool	isValidPort(std::string arg)
 {
 	int	port;
 	std::string::const_iterator it = arg.begin();
-	
+
 	while (it != arg.end())
 	{
 		if (std::isdigit((unsigned char)(*it)) == 0)

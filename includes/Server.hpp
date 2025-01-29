@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:17:55 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:03:06 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server {
 		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();
 
-		void	recieveData(int fd);
+		std::string	recieveData(int fd, std::string msg);
 		void	connectClient();
 		void	clearClient(int fd);
 
