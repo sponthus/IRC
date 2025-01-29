@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 15:03:06 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/01/29 16:28:34 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ class Server {
 		std::string	recieveData(int fd, std::string msg);
 		void	connectClient();
 		void	clearClient(int fd);
+
+		void	sendData(int fd, std::string response) const;
 
 	private :
 		Server();

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 16:20:56 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 16:31:38 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,14 @@ void	Server::connectClient()
     }
 }
 
+void	Server::sendData(int fd, std::string response) const // A surcharger avec tout un channel au lien de 1 FD
+{
+	if (send(fd, response.c_str(), sizeof(response.c_str()), 0) == -1)
+	{
+		std::cerr << "send failed on response : " << response << std::endl;
+	}
+}
+
 void	Server::init()
 {
 	initSocket();
@@ -209,7 +217,9 @@ void	Server::init()
 				}
 				else if (this->_fds[i].revents & POLLIN)
 				{
-					std::cout << this->_fds[i].fd << " sent : //" << recieveData(this->_fds[i].fd, "") << "//" << std::endl;
+					std::string message = recieveData(this->_fds[i].fd, "");
+					std::cout << this->_fds[i].fd << " sent : //" << message << "//" << std::endl;
+
 				}
 				else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 				{
