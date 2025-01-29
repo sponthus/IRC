@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 11:19:01 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 13:17:55 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@
 #include <netinet/in.h> // inet_ntoa
 #include <arpa/inet.h> // inet_ntoa
 #include <cerrno> 
+
 #include "Client.hpp"
+
+# define BUFF_SIZE 512
 
 class Server {
 	public: 
@@ -38,11 +41,12 @@ class Server {
 		std::string	getPW() const;
 
 		void	initSocket();
-		void	initPoll();
+		void	initPoll(int fd);
+		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();
 
 		void	recieveData(int fd);
-		void	acceptClient();
+		void	connectClient();
 		void	clearClient(int fd);
 
 	private :

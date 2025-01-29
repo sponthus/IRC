@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 11:31:07 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 13:16:46 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	Server::initSocket()
 	}
 }
 
-void	Server::initPoll()
+void	Server::initPoll(int fd)
 {
 	struct pollfd poll;
 	poll.fd = this->_socketFD;
@@ -85,8 +85,8 @@ void	Server::initPoll()
 void	Server::recieveData(int fd) // fd from the client that sent a msg
 {
 	ssize_t	size = 1;
-	char	buffer[1024];
-	for (size_t i = 0; i < 1024 - 1; i++)
+	char	buffer[BUFF_SIZE];
+	for (size_t i = 0; i < BUFF_SIZE - 1; i++)
 		buffer[i] = 0;
 
 	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
@@ -137,7 +137,15 @@ void	Server::clearClient(int fd)
 
 }
 
-void	Server::acceptClient()
+void	Server::initClient(int fd, struct sockaddr_in ClientAddress)
+{
+	Client client;
+	client.setFD(fd);
+	client.setAddress(inet_ntoa(ClientAddress.sin_addr));
+	this->_clients.push_back(client);
+}
+
+void	Server::connectClient()
 {
 	std::cout << "Accepting client" << std::endl;
 	struct sockaddr_in	ClientAddress;
@@ -163,16 +171,8 @@ void	Server::acceptClient()
 
 	try
 	{
-        Client client;
-        client.setFD(fd);
-        client.setAddress(inet_ntoa(ClientAddress.sin_addr));
-        this->_clients.push_back(client);
-
-        struct pollfd poll;
-        poll.fd = fd;
-        poll.events = POLLIN;
-        poll.revents = 0;
-        this->_fds.push_back(poll);
+		initClient(fd, ClientAddress);
+        initPoll(fd);
 
         std::cout << "Client " << fd << " connected successfully with IP " 
                   << inet_ntoa(ClientAddress.sin_addr) << std::endl;
@@ -188,7 +188,7 @@ void	Server::acceptClient()
 void	Server::init()
 {
 	initSocket();
-	initPoll();
+	initPoll(this->_socketFD);
 
 	std::cout << " >> Waiting for connections << " << std::endl;
 	while (this->_sig == false)
@@ -210,7 +210,7 @@ void	Server::init()
 				
 				if (this->_fds[i].fd == this->_socketFD)
 				{
-					acceptClient();
+					connectClient();
 				}
 				else if (this->_fds[i].revents & POLLNVAL)
 				{
