@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/28 17:17:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 11:31:07 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ Server::Server()
 
 Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1), _sig(false)
 {
-
 }
 
 Server::Server(const Server &src) : _port(src.getPort()), _pw(src.getPW()), _socketFD(-1), _sig(false)
@@ -27,7 +26,6 @@ Server::Server(const Server &src) : _port(src.getPort()), _pw(src.getPW()), _soc
 
 Server::~Server()
 {
-
 }
 
 int	Server::getPort() const
@@ -42,15 +40,15 @@ std::string	Server::getPW() const
 
 void	Server::initSocket()
 {
-	this->_socketFD = socket(PF_INET, SOCK_STREAM, 0);
-	if (this->_socketFD == -1)
+	this->_socketFD = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_socketFD <= 0)
 	{
 		throw std::runtime_error("socket creation failed");
 	}
 
 	int	val = 1;
 	// IPPROTO_IP for IP protocols or SOL_SOCKET for general configuration ?
-	if (setsockopt(this->_socketFD, IPPROTO_IP, SO_REUSEADDR, &val, sizeof(val)) == -1) // Parameters to allow immediate reuse of the port without waiting time
+	if (setsockopt(this->_socketFD, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) == -1) // Parameters to allow immediate reuse of the port without waiting time
 	{
 		throw std::runtime_error("setsockopt failed on socket");
 	}
@@ -79,36 +77,47 @@ void	Server::initPoll()
 {
 	struct pollfd poll;
 	poll.fd = this->_socketFD;
-	poll.events = POLLIN | POLLHUP | POLLERR;
+	poll.events = POLLIN;
 	poll.revents = 0;
 	this->_fds.push_back(poll);
 }
 
 void	Server::recieveData(int fd) // fd from the client that sent a msg
 {
-	std::cout << "Recieving data from " << fd << std::endl;
+	ssize_t	size = 1;
 	char	buffer[1024];
 	for (size_t i = 0; i < 1024 - 1; i++)
 		buffer[i] = 0;
 
-	ssize_t	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	
-	if (size <= 0)
+	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	std::cout << "recv() returned " << size << " for fd " << fd << std::endl;
+	if (size < 0)
 	{
-		std::cout << "Client disconnected, fd = " << fd << std::endl;
-		clearClient(fd);
-		close(fd);
+		if (errno == EWOULDBLOCK || errno == EAGAIN)
+        {
+            std::cout << "Would block, trying again later" << std::endl;
+            return;
+        }
+        std::cout << "recv() error: " << strerror(errno) << std::endl;
+        clearClient(fd);
+        return;
+	}
+	else if (size == 0)
+	{
+		std::cout << "Client closed connection properly" << std::endl;
+        clearClient(fd);
+        return;
 	}
 	else
 	{
 		buffer[size] = '\0';
 		std::cout << fd << " sent : //" << buffer << "//" << std::endl;
-		// Process data sent
 	}
 }
 
 void	Server::clearClient(int fd)
 {
+	close(fd);
 	for (size_t i = 0; i < this->_fds.size(); i++)
 	{
 		if (this->_fds[i].fd == fd)
@@ -140,25 +149,40 @@ void	Server::acceptClient()
 		std::cerr << "Accept failed" << std::endl;
 		return ; // Throw error ?
 	}
-
+	std::cout << "New connection accepted on fd " << fd << std::endl;
+	if (fcntl(fd, F_GETFL) == -1) 
+    {
+        std::cerr << "Failed to get socket flags: " << strerror(errno) << std::endl;
+        return;
+    }
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "fcntl failed on new client" << std::endl;
 		return ; // Throw error ?
 	}
 
-	struct pollfd poll;
-	poll.fd = fd;
-	poll.events = POLLIN | POLLHUP | POLLERR;
-	poll.revents = 0;
-	this->_fds.push_back(poll);
+	try
+	{
+        Client client;
+        client.setFD(fd);
+        client.setAddress(inet_ntoa(ClientAddress.sin_addr));
+        this->_clients.push_back(client);
 
-	Client	client;
-	client.setFD(fd);
-	client.setAddress(inet_ntoa(ClientAddress.sin_addr)); // Converts IP address to a string
-	this->_clients.push_back(client);
+        struct pollfd poll;
+        poll.fd = fd;
+        poll.events = POLLIN;
+        poll.revents = 0;
+        this->_fds.push_back(poll);
 
-	std::cout << "Client " << fd << " connected" << std::endl;
+        std::cout << "Client " << fd << " connected successfully with IP " 
+                  << inet_ntoa(ClientAddress.sin_addr) << std::endl;
+    }
+    catch (const std::exception& e)
+	{
+        std::cerr << "Error setting up client: " << e.what() << std::endl;
+        close(fd);
+        return;
+    }
 }
 
 void	Server::init()
@@ -171,19 +195,35 @@ void	Server::init()
 	{
 		if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1) // & sig == false ?, waits for messages
 			throw(std::runtime_error("poll failed"));
-		std::cout << "something detected" << std::endl;
 		for (size_t i = 0; i < this->_fds.size(); i++)
 		{
+			if (this->_fds[i].fd != this->_socketFD)  // Ne pas tester le socket serveur
+			{
+				if (fcntl(this->_fds[i].fd, F_GETFL) == -1)
+				{
+					std::cout << "fd " << this->_fds[i].fd << " became invalid: " << strerror(errno) << std::endl;
+				}
+			}
 			if (this->_fds[i].revents != 0)
 			{
-				std::cout << "found it comes from " << this->_fds[i].fd << std::endl;
+				std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
+				
 				if (this->_fds[i].fd == this->_socketFD)
+				{
 					acceptClient();
+				}
+				else if (this->_fds[i].revents & POLLNVAL)
+				{
+					std::cout << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
+					clearClient(this->_fds[i].fd);
+				}
 				else if (this->_fds[i].revents & POLLIN)
+				{
 					recieveData(this->_fds[i].fd);
+				}
 				else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 				{
-					std::cout << "Client " << this->_fds[i].fd << " disconnected or error" << std::endl;
+					std::cout << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
 					clearClient(this->_fds[i].fd);
 				}
 				this->_fds[i].revents = 0;

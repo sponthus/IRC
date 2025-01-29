@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/28 15:20:37 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/29 11:26:49 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ Client::Client() : _fd(-1), _address("")
 
 Client::~Client()
 {
-	if (this->_fd != -1)
-		close(this->_fd);
+
 }
 
 void		Client::setFD(int fd)
