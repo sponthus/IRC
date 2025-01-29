@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 15:08:26 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/01/29 16:20:56 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,11 +160,6 @@ void	Server::connectClient()
 		return ; // Throw error ?
 	}
 	std::cout << "New connection accepted on fd " << fd << std::endl;
-	if (fcntl(fd, F_GETFL) == -1) 
-    {
-        std::cerr << "Failed to get socket flags: " << strerror(errno) << std::endl;
-        return;
-    }
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "fcntl failed on new client" << std::endl;
@@ -199,13 +194,6 @@ void	Server::init()
 			throw(std::runtime_error("poll failed"));
 		for (size_t i = 0; i < this->_fds.size(); i++)
 		{
-			if (this->_fds[i].fd != this->_socketFD)  // Ne pas tester le socket serveur
-			{
-				if (fcntl(this->_fds[i].fd, F_GETFL) == -1)
-				{
-					std::cout << "fd " << this->_fds[i].fd << " became invalid: " << strerror(errno) << std::endl;
-				}
-			}
 			if (this->_fds[i].revents != 0)
 			{
 				std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
