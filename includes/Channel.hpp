@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 15:55:47 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:37:57 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Channel {
 		std::string 		_name;
 		std::string 		_topic;
 		std::string			_PW;
-		std::vector<Client>	_clients;
+		std::vector<Client>	_Clients;
 		std::vector<Client>	_ops;
 		int					_UserLimit;
 

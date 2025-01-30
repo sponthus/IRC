@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 15:57:11 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:37:57 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ const int&	Channel::getUserLimit() const
 
 int	Channel::getUserNb() const
 {
-	return (this->_clients.size());
+	return (this->_Clients.size());
 }
 
 bool	Channel::hasPW() const
@@ -60,7 +60,7 @@ bool	Channel::hasPW() const
 bool	Channel::isClient(Client &client) const
 {
 	std::vector<Client>::const_iterator it;
-	for (it = _clients.begin(); it != _clients.end(); it++)
+	for (it = _Clients.begin(); it != _Clients.end(); it++)
 	{
 		if (it->getNick() == client.getNick())
 			return (true);
@@ -105,7 +105,7 @@ void	Channel::joinChannel(Client &client)
 		return ; // Too many users connected
 	if (isInviteOnly())
 		return ; // Channel is invite only you should be invited
-	this->_clients.push_back(client);
+	this->_Clients.push_back(client);
 }
 
 void	Channel::joinChannel(Client &client, std::string &PW)
@@ -118,7 +118,7 @@ void	Channel::joinChannel(Client &client, std::string &PW)
 		return ; // Too many users connected
 	if (isInviteOnly())
 		return ; // Channel is invite only you should be invited
-	this->_clients.push_back(client);
+	this->_Clients.push_back(client);
 }
 
 void	Channel::addOP(Client &client)
@@ -133,11 +133,11 @@ void	Channel::removeOP(Client &client)
 	if (!isOP(client))
 		return ; // Is not an OP
 	std::vector<Client>::iterator it;
-	for (it = _clients.begin(); it != _clients.end(); it++)
+	for (it = _Clients.begin(); it != _Clients.end(); it++)
 	{
 		if (it->getNick() == client.getNick())
 		{
-			_clients.erase(it);
+			_Clients.erase(it);
 		}
 	}
 }

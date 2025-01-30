@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:10:45 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:37:43 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/30 18:22:19 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MESSAGES_HPP
 
 #include <iostream>
+#include <signal.h>
 
 # define ERROR "Error :"
 # define ERR_NB_ARG "Wrong number of arguments, expected 2 : <port> <password>"

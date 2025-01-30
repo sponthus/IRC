@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:07:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:37:06 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,17 @@ int			Client::getFD() const
 	return (this->_fd);
 }
 
-std::string	Client::getAddress() const
+const std::string	Client::getAddress() const
 {
 	return (this->_address);
 }
 
-std::string	Client::getNick() const
+const std::string	Client::getNick() const
 {
 	return (this->_nick);
 }
 
-std::string	Client::getUser() const
+const std::string	Client::getUser() const
 {
 	return (this->_user);
 }

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:06:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:37:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ class Client {
 		~Client();
 
 		int			getFD() const;
-		std::string	getAddress() const;
-		std::string	getNick() const;
-		std::string	getUser() const;
+		const std::string	getAddress() const;
+		const std::string	getNick() const;
+		const std::string	getUser() const;
 		bool		isRegistered() const;
 
 		void		setFD(int fd);
