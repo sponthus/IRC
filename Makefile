@@ -3,13 +3,7 @@ NAME = ircserv
 CC = c++
 CFLAGS = -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
 
-# CFL = -MMD -MP
-
 SRC_DIR = ./sources/
-
-# SRC = $(SRC_DIR)main.cpp \
-# 	$(SRC_DIR)parsing.cpp \
-# 	$(SRC_DIR)Server.cpp
 
 SRC = $(shell find $(SRC_DIR) -name "*.cpp")
 
@@ -19,10 +13,9 @@ OBJ = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.o, $(SRC))
 
 DEP = $(OBJ:%.o=%.d)
 
-INCS_DIR = includes/
+INC_DIR = includes/
 
-INCS = $(INCS_DIR)messages.hpp \
-	$(INCS_DIR)Server.hpp
+INC = SRC = $(shell find $(INC_DIR) -name "*.hpp")
 
 all: $(NAME)
 
