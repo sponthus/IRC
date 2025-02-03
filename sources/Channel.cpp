@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 17:37:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/03 11:08:25 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,23 +57,23 @@ bool	Channel::hasPW() const
 	return (this->_HasPW);
 }
 
-bool	Channel::isClient(Client &client) const
+bool	Channel::isClient(Client *client) const
 {
-	std::vector<Client>::const_iterator it;
+	std::vector<Client *>::const_iterator it;
 	for (it = _Clients.begin(); it != _Clients.end(); it++)
 	{
-		if (it->getNick() == client.getNick())
+		if ((*it)->getNick() == client->getNick())
 			return (true);
 	}
 	return (false);
 }
 
-bool	Channel::isOP(Client &client) const
+bool	Channel::isOP(Client *client) const
 {
-	std::vector<Client>::const_iterator it;
+	std::vector<Client *>::const_iterator it;
 	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
-		if (it->getNick() == client.getNick())
+		if ((*it)->getNick() == client->getNick())
 			return (true);
 	}
 	return (false);
@@ -95,7 +95,7 @@ bool	Channel::isTopicRestrict() const
 }
 
 // Channel management
-void	Channel::joinChannel(Client &client)
+void	Channel::joinChannel(Client *client)
 {
 	if (isClient(client))
 		return ; // Client is already registered in channel, send a response
@@ -108,7 +108,7 @@ void	Channel::joinChannel(Client &client)
 	this->_Clients.push_back(client);
 }
 
-void	Channel::joinChannel(Client &client, std::string &PW)
+void	Channel::joinChannel(Client *client, std::string &PW)
 {
 	if (isClient(client))
 		return ; // Client is already registered in channel, send a response
@@ -121,21 +121,40 @@ void	Channel::joinChannel(Client &client, std::string &PW)
 	this->_Clients.push_back(client);
 }
 
-void	Channel::addOP(Client &client)
+void	Channel::leaveChannel(Client *client)
+{
+	if (isOP(client))
+		removeOP(client);
+	removeClient(client);
+}
+
+void	Channel::addOP(Client *client)
 {
 	if (isOP(client))
 		return ; // Is already OP
 	this->_ops.push_back(client);
 }
 
-void	Channel::removeOP(Client &client)
+void	Channel::removeOP(Client *client)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
-	std::vector<Client>::iterator it;
+	std::vector<Client *>::iterator it;
 	for (it = _Clients.begin(); it != _Clients.end(); it++)
 	{
-		if (it->getNick() == client.getNick())
+		if ((*it)->getNick() == client->getNick())
+		{
+			_Clients.erase(it);
+		}
+	}
+}
+
+void	Channel::removeClient(Client *client)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _Clients.begin(); it != _Clients.end(); it++)
+	{
+		if ((*it)->getNick() == client->getNick())
 		{
 			_Clients.erase(it);
 		}
@@ -143,21 +162,21 @@ void	Channel::removeOP(Client &client)
 }
 
 // Modify channel settings
-void	Channel::setTopic(Client &client, std::string &topic)
+void	Channel::setTopic(Client *client, std::string &topic)
 {
 	if (isTopicRestrict() && !isOP(client))
 		return ; // You have no right to do this
 	this->_topic = topic;
 }
 
-void	Channel::setPW(Client &client, std::string &PW)
+void	Channel::setPW(Client *client, std::string &PW)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
 	this->_PW = PW;
 }
 
-void	Channel::setUserLimit(Client &client, int limit)
+void	Channel::setUserLimit(Client *client, int limit)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
@@ -168,7 +187,7 @@ void	Channel::setUserLimit(Client &client, int limit)
 	this->_UserLimit = limit;
 }
 
-void	Channel::deleteUserLimit(Client &client)
+void	Channel::deleteUserLimit(Client *client)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
@@ -177,7 +196,7 @@ void	Channel::deleteUserLimit(Client &client)
 		this->_HasUserLimit = false;
 }
 
-void	Channel::deletePW(Client &client)
+void	Channel::deletePW(Client *client)
 {
 	if (!isOP(client))
 		return ; // You have no right to do this you are not OP

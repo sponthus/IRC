@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 17:48:35 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/03 11:11:18 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,18 @@ Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 
 Server::~Server()
 {
+	close(this->_socketFD);
 	for (std::vector<Client*>::iterator it = _Clients.begin(); it != _Clients.end(); ++it)
 	{
 		delete *it;
 	}
 	_Clients.clear();
 	_ClientsByNick.clear();
+	for (std::map<std::string, Channel*>::iterator it = _ChannelsByName.begin(); it != _ChannelsByName.end(); ++it)
+    {
+        delete it->second;
+    }
+	_ChannelsByName.clear();
 }
 
 int	Server::getPort() const
@@ -97,17 +103,13 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 	std::string str = msg;
 	if (size < 0)
 	{
-		if (errno == EWOULDBLOCK || errno == EAGAIN)
-        {
-            std::cout << "Would block, trying again later" << std::endl;
-        }
-        std::cout << "recv() error: " << strerror(errno) << std::endl;
-        clearClient(fd);
+		std::cout << "recv() error: " << strerror(errno) << std::endl;
+		clearClient(fd);
 	}
 	else if (size == 0)
 	{
 		std::cout << "Client closed connection properly" << std::endl;
-        clearClient(fd);
+		clearClient(fd);
 	}
 	else
 	{
@@ -123,6 +125,7 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 void	Server::clearClient(int fd)
 {
 	close(fd);
+	this->_ClientsByFD[fd]->leaveChannels();
 	for (size_t i = 0; i < this->_fds.size(); i++)
 	{
 		if (this->_fds[i].fd == fd)
@@ -176,7 +179,7 @@ void	Server::connectClient()
 	try
 	{
 		initClient(fd, ClientAddress);
-        initPoll(fd);
+	    initPoll(fd);
 
         std::cout << "Client " << fd << " connected successfully with IP " 
                   << inet_ntoa(ClientAddress.sin_addr) << std::endl;
@@ -231,4 +234,12 @@ void	Server::run()
 			this->_fds[i].revents = 0;
 		}
 	}
+}
+
+void	Server::initChannel(Client *client, std::string name)
+{
+	Channel *channel = new Channel(name);
+	channel->joinChannel(client);
+	channel->addOP(client);
+	this->_ChannelsByName[name] = channel;
 }

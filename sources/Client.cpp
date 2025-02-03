@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 17:37:06 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/03 11:08:41 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,17 @@ Client::~Client()
 	std::cout << "Destructor called for fd " << this->_fd << std::endl;
 }
 
-void		Client::setFD(int fd)
+void	Client::setFD(int fd)
 {
 	this->_fd = fd;
 }
 
-void		Client::setAddress(std::string address)
+void	Client::setAddress(std::string address)
 {
 	this->_address = address;
 }
 
-int			Client::getFD() const
+int		Client::getFD() const
 {
 	return (this->_fd);
 }
@@ -51,17 +51,26 @@ const std::string	Client::getUser() const
 	return (this->_user);
 }
 
-bool		Client::isRegistered() const
+bool	Client::isRegistered() const
 {
 	return (this->_registered);
 }
 
-void		Client::setNick(std::string nickname)
+void	Client::setNick(std::string nickname)
 {
 	this->_nick = nickname;
 }
 
-void		Client::setUser(std::string username)
+void	Client::setUser(std::string username)
 {
 	this->_user = username;
+}
+
+void	Client::leaveChannels()
+{
+	std::vector<Channel *>::iterator	it;
+	for (it = _Channels.begin(); it != _Channels.end(); it++)
+	{
+		(*it)->leaveChannel(this);
+	}
 }
