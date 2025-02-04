@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/01/30 16:43:08 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/04 14:03:37 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,26 @@
 
 #include <iostream>
 #include <list>
+#include <vector>
+#include <array>
 
 class Command
 {
 	private:
-				/*			*/
-		Command();
-		~Command();
-		/*			private members functions				*/
+		/*															*/
+		Command(); // default constructor
+		Command(std::string msg); // parametric constructor
+		Command(Command &rhs); // copy constructor 
+		~Command(); // default destructor
+		Command	&operator=(Command &rhs); // operator = 
+
+		/*			private members functions						*/
 		void	Kick(std::string channel, std::list<std::string> users);
 		void	Invite(std::string pseudo, std::string channel);
 		void	Topic(std::string channel, std::string subject);
 		void	Mode(std::string ar1);
-				
+		
+		std::vector<std::array<std::string, 2>>		input;
 	public:
 		/*			members functions called by the server			*/
 		void	Kick(void);
@@ -35,6 +42,5 @@ class Command
 		void	Topic(void);
 		void	Mode(void);
 };
-
 
 #endif

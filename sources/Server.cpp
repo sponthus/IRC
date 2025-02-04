@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 16:35:16 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/04 13:41:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	Server::SetCmdMap()
 	this->CmdMap["INVITE"] = &Command::Invite;
 	this->CmdMap["TOPIC"] = &Command::Topic;
 	this->CmdMap["MODE"] = &Command::Mode;
-	return ;	
+	return ;
 }
 void	Server::initSocket()
 {
