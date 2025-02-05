@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/04 14:03:37 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/05 12:10:41 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Command
 		Command	&operator=(Command &rhs); // operator = 
 
 		/*			private members functions						*/
+
 		void	Kick(std::string channel, std::list<std::string> users);
 		void	Invite(std::string pseudo, std::string channel);
 		void	Topic(std::string channel, std::string subject);
