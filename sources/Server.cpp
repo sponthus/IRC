@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/03 11:11:18 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/03 11:26:20 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 	else
 	{
 		buffer[size] = '\0';
-		std::cout << size << std::endl;
+		// std::cout << size << std::endl;
 		str += buffer;
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
