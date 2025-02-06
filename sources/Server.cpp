@@ -3,18 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 16:31:38 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 13:44:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Command.hpp"
 
 // Private
 Server::Server()
-{}
+{
+}
 
 Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1), _sig(false)
 {
@@ -38,6 +40,14 @@ std::string	Server::getPW() const
 	return this->_pw;
 }
 
+void	Server::SetCmdMap()
+{
+	this->CmdMap["KICK"] = &Command::Kick;
+	this->CmdMap["INVITE"] = &Command::Invite;
+	this->CmdMap["TOPIC"] = &Command::Topic;
+	this->CmdMap["MODE"] = &Command::Mode;
+	return ;
+}
 void	Server::initSocket()
 {
 	this->_socketFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -113,6 +123,16 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
 	}
+	Command	cmd(str);
+	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
+	{
+		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
+		{
+			std::cout << "i = " << *i << std::endl;
+		}
+		
+	}
+	
 	//parsing commande
 	return (str);
 }

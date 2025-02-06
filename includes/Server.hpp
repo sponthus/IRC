@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 16:28:34 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:50:18 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,11 @@
 #include <netinet/in.h> // inet_ntoa
 #include <arpa/inet.h> // inet_ntoa
 #include <cerrno> 
+#include <map>
+
 
 #include "Client.hpp"
+#include "Command.hpp"
 
 # define BUFF_SIZE 512
 
@@ -40,16 +43,18 @@ class Server {
 		int			getPort() const;
 		std::string	getPW() const;
 
-		void	initSocket();
-		void	initPoll(int fd);
-		void	initClient(int fd, struct sockaddr_in ClientAddress);
-		void	init();
+		void		initSocket();
+		void		initPoll(int fd);
+		void		initClient(int fd, struct sockaddr_in ClientAddress);
+		void		init();
+		void		SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
-		void	connectClient();
-		void	clearClient(int fd);
+		void		connectClient();
+		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
+		
 
 	private :
 		Server();
@@ -58,12 +63,13 @@ class Server {
 		int			_socketFD;
 		bool		_sig;
 
+		std::map<std::string, void(Command::*)()>	CmdMap;
 		std::vector<struct pollfd>	_fds;
 		std::vector<Client>			_clients;
-		
 };
 
 bool	isValidPW(std::string arg);
 bool	isValidPort(std::string arg);
+
 
 #endif
