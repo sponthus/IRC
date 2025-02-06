@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 15:00:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:29:22 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void	Command::Topic(std::string channel, std::string subject)
 	if (_server->isChannel(channel) == false)
 	{
 		std::cerr << "ERR_NOSUCHCHANNEL" << std::endl;
-		return ; 
+		return ; // Replace with appropriate response sent to client
 	}
 	Channel *chan = _client->getChannel(channel);
 	if (chan == NULL)
@@ -164,7 +164,24 @@ void	Command::Topic(std::string channel, std::string subject)
 		std::cerr << "ERR_NOTONCHANNEL" << std::endl;
 		return ; 
 	}
-	chan->setTopic(_client, subject);
+	if (subject == "")
+	{
+		if (chan->getTopic().size() == 0)
+		{
+			std::cout << "RPL_NOTOPIC" << std::endl;
+			return;
+		}
+		else
+		{
+			std::cout << "RPL_TOPIC" << std::endl;
+			return ;
+		}
+
+	}
+	else
+	{
+		chan->setTopic(_client, subject);
+	}
 }
 
 void	Command::Topic()

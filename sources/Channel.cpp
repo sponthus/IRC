@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/03 11:08:25 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:28:57 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,8 +165,12 @@ void	Channel::removeClient(Client *client)
 void	Channel::setTopic(Client *client, std::string &topic)
 {
 	if (isTopicRestrict() && !isOP(client))
-		return ; // You have no right to do this
+	{
+		std::cerr << "ERR_CHANOPRIVSNEEDED" << std::endl;
+		return ;
+	}
 	this->_topic = topic;
+	std::cout << "TOPIC" << std::endl;
 }
 
 void	Channel::setPW(Client *client, std::string &PW)

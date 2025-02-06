@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/03 11:10:55 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:27:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream> // remove after adding link to sending msg
 
 #include "Client.hpp"
 
