@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 15:02:13 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 16:18:30 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ class Server {
 		void	sendData(int fd, std::string response) const;
 		
 		bool	isChannel(std::string name);
-		
+		Channel*	getChannel(std::string name);
 
 	private :
 		Server();

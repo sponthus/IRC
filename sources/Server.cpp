@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 15:04:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 16:19:29 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,4 +269,12 @@ void	Server::initChannel(Client *client, std::string name)
 bool	Server::isChannel(std::string name)
 {
 	return _ChannelsByName.count(name) > 0;
+}
+
+Channel*	Server::getChannel(std::string name)
+{
+	if (isChannel(name))
+		return (_ChannelsByName[name]);
+	else
+		return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 15:28:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 17:08:24 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,36 +26,11 @@ Channel::Channel(std::string name) : _name(name), _topic(""), _PW(""), \
 {
 }
 
-// Get channel settings
-const std::string&	Channel::getTopic() const
-{
-	return (this->_topic);
-}
-
 const std::string&	Channel::getName() const
 {
 	return (this->_name);
 }
 
-const std::string&	Channel::getPW() const
-{
-	return (this->_PW);
-}
-
-const int&	Channel::getUserLimit() const
-{
-	return (this->_UserLimit);
-}
-
-int	Channel::getUserNb() const
-{
-	return (this->_Clients.size());
-}
-
-bool	Channel::hasPW() const
-{
-	return (this->_HasPW);
-}
 
 bool	Channel::isClient(Client *client) const
 {
@@ -68,6 +43,74 @@ bool	Channel::isClient(Client *client) const
 	return (false);
 }
 
+void	Channel::removeClient(Client *client)
+{
+	std::vector<Client *>::iterator it;
+	for (it = _Clients.begin(); it != _Clients.end(); it++)
+	{
+		if ((*it)->getNick() == client->getNick())
+		{
+			_Clients.erase(it);
+		}
+	}
+}
+
+void	Channel::joinChannel(Client *client)
+{
+	if (isClient(client))
+		return ; // Client is already registered in channel, send a response
+	if (hasPW())
+	{
+		std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
+		return ; // Channel is PW protected, send a response
+	}
+	if (hasUserLimit() && getUserLimit() == getUserNb())
+	{
+		std::cerr << "ERR_CHANNELISFULL" << std::endl; // To client
+		return ; // Too many users connected
+	}
+	if (isInviteOnly() && !isInvited(client))
+	{
+		std::cerr << "ERR_INVITEONLYCHAN" << std::endl; // To client
+		return ; // Channel is invite only you should be invited
+	}
+	this->_Clients.push_back(client);
+}
+
+void	Channel::joinChannel(Client *client, std::string &PW)
+{
+	if (isClient(client))
+		return ; // Client is already registered in channel, send a response
+	if (hasPW() && PW != getPW())
+	{
+		std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
+		return ; // Wrong PW
+	}
+	if (hasUserLimit() && getUserLimit() == getUserNb())
+	{
+		std::cerr << "ERR_CHANNELISFULL" << std::endl; // To client
+		return ; // Too many users connected
+	}
+	if (isInviteOnly() && !isInvited(client))
+	{
+		std::cerr << "ERR_INVITEONLYCHAN" << std::endl; // To client
+		return ; // Channel is invite only you should be invited
+	}
+	this->_Clients.push_back(client);
+	std::cout << "JOIN" << std::endl; // To channel
+	if (this->_topic.size() > 0)
+		std::cout << "RPL_TOPIC" << std::endl; // To client
+	std::cout << "RPL_NAMREPLY" << std::endl; // To client
+}
+
+void	Channel::leaveChannel(Client *client)
+{
+	if (isOP(client))
+		removeOP(client);
+	std::cout << "PART" << std::endl; // To channel
+	removeClient(client);
+}
+
 bool	Channel::isOP(Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
@@ -77,55 +120,6 @@ bool	Channel::isOP(Client *client) const
 			return (true);
 	}
 	return (false);
-}
-
-bool	Channel::isInviteOnly() const
-{
-	return (this->_InviteOnly);
-}
-
-bool	Channel::hasUserLimit() const
-{
-	return (this->_HasUserLimit);
-}
-
-bool	Channel::isTopicRestrict() const
-{
-	return (this->_TopicRestrict);
-}
-
-// Channel management
-void	Channel::joinChannel(Client *client)
-{
-	if (isClient(client))
-		return ; // Client is already registered in channel, send a response
-	if (hasPW())
-		return ; // Channel is PW protected, send a response
-	if (hasUserLimit() && getUserLimit() == getUserNb())
-		return ; // Too many users connected
-	if (isInviteOnly())
-		return ; // Channel is invite only you should be invited
-	this->_Clients.push_back(client);
-}
-
-void	Channel::joinChannel(Client *client, std::string &PW)
-{
-	if (isClient(client))
-		return ; // Client is already registered in channel, send a response
-	if (hasPW() && PW != getPW())
-		return ; // Wrong PW
-	if (hasUserLimit() && getUserLimit() == getUserNb())
-		return ; // Too many users connected
-	if (isInviteOnly())
-		return ; // Channel is invite only you should be invited
-	this->_Clients.push_back(client);
-}
-
-void	Channel::leaveChannel(Client *client)
-{
-	if (isOP(client))
-		removeOP(client);
-	removeClient(client);
 }
 
 void	Channel::addOP(Client *client)
@@ -149,19 +143,87 @@ void	Channel::removeOP(Client *client)
 	}
 }
 
-void	Channel::removeClient(Client *client)
+bool	Channel::isInviteOnly() const
 {
-	std::vector<Client *>::iterator it;
-	for (it = _Clients.begin(); it != _Clients.end(); it++)
-	{
-		if ((*it)->getNick() == client->getNick())
-		{
-			_Clients.erase(it);
-		}
-	}
+	return (this->_InviteOnly);
 }
 
-// Modify channel settings
+bool	Channel::isInvited(Client *client) const
+{
+	std::vector<Client *>::const_iterator it;
+	for (it = _InvitedClients.begin(); it != _InvitedClients.end(); it++)
+	{
+		if ((*it)->getNick() == client->getNick())
+			return (true);
+	}
+	return (false);
+}
+
+void	Channel::invite(Client *client, Client *invited)
+{
+	if (isInviteOnly() && !isOP(client))
+	{
+		std::cerr << "ERR_CHANOPRIVSNEEDED" << std::endl; // To client
+	}
+	if (!isInvited(client))
+		_InvitedClients.push_back(invited);
+	std::cout << "RPL_INVITING" << std::endl; // To client
+	std::cout << "INVITE" << std::endl; // To invited
+}
+
+void	Channel::setInviteOnly(Client *client)
+{
+	if (!isOP(client))
+		return ; // Is not an OP
+	this->_InviteOnly = true;
+}
+
+void	Channel::deleteInviteOnly(Client *client)
+{
+	if (!isOP(client))
+		return ; // Is not an OP
+	this->_InviteOnly = false;
+	_InvitedClients.clear();
+}
+
+
+const std::string&	Channel::getPW() const
+{
+	return (this->_PW);
+}
+
+bool	Channel::hasPW() const
+{
+	return (this->_HasPW);
+}
+
+void	Channel::setPW(Client *client, std::string &PW)
+{
+	if (!isOP(client))
+		return ; // Is not an OP
+	this->_PW = PW;
+}
+
+void	Channel::deletePW(Client *client)
+{
+	if (!isOP(client))
+		return ; // You have no right to do this you are not OP
+	if (!hasPW())
+		return ; // Has no PW
+	this->_PW = "";
+	this->_HasPW = false;
+}
+
+bool	Channel::isTopicRestrict() const
+{
+	return (this->_TopicRestrict);
+}
+
+const std::string&	Channel::getTopic() const
+{
+	return (this->_topic);
+}
+
 void	Channel::setTopic(Client *client, std::string &topic)
 {
 	if (isTopicRestrict() && !isOP(client))
@@ -173,11 +235,19 @@ void	Channel::setTopic(Client *client, std::string &topic)
 	std::cout << "TOPIC" << std::endl;
 }
 
-void	Channel::setPW(Client *client, std::string &PW)
+bool	Channel::hasUserLimit() const
 {
-	if (!isOP(client))
-		return ; // Is not an OP
-	this->_PW = PW;
+	return (this->_HasUserLimit);
+}
+
+const int&	Channel::getUserLimit() const
+{
+	return (this->_UserLimit);
+}
+
+int	Channel::getUserNb() const
+{
+	return (this->_Clients.size());
 }
 
 void	Channel::setUserLimit(Client *client, int limit)
@@ -200,12 +270,3 @@ void	Channel::deleteUserLimit(Client *client)
 		this->_HasUserLimit = false;
 }
 
-void	Channel::deletePW(Client *client)
-{
-	if (!isOP(client))
-		return ; // You have no right to do this you are not OP
-	if (!hasPW())
-		return ; // Has no PW
-	this->_PW = "";
-	this->_HasPW = false;
-}

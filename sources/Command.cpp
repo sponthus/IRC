@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 15:29:22 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 17:18:38 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,12 +151,12 @@ void	Command::Invite()
 {
 }
 
-void	Command::Topic(std::string channel, std::string subject)
+void	Command::Topic(std::string channel, std::string *subject = NULL)
 {
 	if (_server->isChannel(channel) == false)
 	{
 		std::cerr << "ERR_NOSUCHCHANNEL" << std::endl;
-		return ; // Replace with appropriate response sent to client
+		return ;
 	}
 	Channel *chan = _client->getChannel(channel);
 	if (chan == NULL)
@@ -164,28 +164,46 @@ void	Command::Topic(std::string channel, std::string subject)
 		std::cerr << "ERR_NOTONCHANNEL" << std::endl;
 		return ; 
 	}
-	if (subject == "")
+	if (!subject)
 	{
-		if (chan->getTopic().size() == 0)
+		if (chan->getTopic().empty())
 		{
 			std::cout << "RPL_NOTOPIC" << std::endl;
-			return;
 		}
 		else
 		{
 			std::cout << "RPL_TOPIC" << std::endl;
-			return ;
 		}
-
 	}
 	else
 	{
-		chan->setTopic(_client, subject);
+		chan->setTopic(_client, *subject);
+		std::cout << "TOPIC" << std::endl; // To channel ?
 	}
 }
 
 void	Command::Topic()
 {
+}
+
+void	Command::Join(std::string channel, std::string *key = NULL)
+{
+	if (channel == "0")
+	{
+		_client->leaveChannels();
+	}
+	else if (_server->isChannel(channel) == false)
+	{
+		_server->initChannel(_client, channel);
+	}
+	else
+	{
+		Channel *chan = _server->getChannel(channel);
+		if (!key)
+			chan->joinChannel(_client);
+		else
+			chan->joinChannel(_client, *key);
+	}
 }
 
 // void	Command::Mode(std::string ar)

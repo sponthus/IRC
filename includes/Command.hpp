@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 15:03:37 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 17:17:27 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,9 @@ class Command
 
 		void	Kick(std::string channel, std::list<std::string> user);
 		void	Invite(std::string pseudo, std::string channel);
-		void	Topic(std::string channel, std::string subject);
+		void	Topic(std::string channel, std::string *subject);
 		void	Mode(std::string ar1);
+		void	Join(std::string channel, std::string *key);
 
 		Server *_server;
 		Client *_client; // Client who sent cmd, necessary to exec
