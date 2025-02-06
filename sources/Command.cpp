@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/05 14:44:29 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 11:29:07 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int		FindWichNext(std::string msg, size_t &pos)
 
 std::string		FindArgs(int s, std::string msg, size_t pos)
 {
-	std::string args;(msg, pos, pos- msg.find("\r\n", pos));
+	std::string args(msg, pos, pos - msg.find("\r\n", pos));
 	return (args);
 }
 Command::Command(std::string msg)
