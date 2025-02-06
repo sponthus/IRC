@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 14:21:05 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:02:13 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 
 # define BUFF_SIZE 512
 
+class Command;
+
 class Server {
 	public: 
 		Server(int port, std::string pw);
@@ -53,6 +55,8 @@ class Server {
 		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
+		
+		bool	isChannel(std::string name);
 		
 
 	private :

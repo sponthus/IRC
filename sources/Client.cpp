@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/03 11:08:41 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 14:57:26 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,17 @@ const std::string	Client::getUser() const
 bool	Client::isRegistered() const
 {
 	return (this->_registered);
+}
+
+Channel*		Client::getChannel(std::string name)
+{
+	std::vector<Channel *>::iterator	it;
+	for (it = _Channels.begin(); it != _Channels.end(); it++)
+	{
+		if ((*it)->getName() == name)
+			return (*it);
+	}
+	return (NULL);
 }
 
 void	Client::setNick(std::string nickname)

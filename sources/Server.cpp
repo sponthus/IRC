@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 14:19:26 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:04:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,8 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 	}
 
 	//parsing commande
-	Command	cmd(str);
+	Command	cmd(this, this->_ClientsByFD[fd], str);
+	std::cout << "Created cmd with str = " << str << std::endl;
 	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
 	{
 		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
@@ -263,4 +264,9 @@ void	Server::initChannel(Client *client, std::string name)
 	channel->joinChannel(client);
 	channel->addOP(client);
 	this->_ChannelsByName[name] = channel;
+}
+
+bool	Server::isChannel(std::string name)
+{
+	return _ChannelsByName.count(name) > 0;
 }

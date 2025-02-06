@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/03 11:14:52 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 14:50:38 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Client {
 		const std::string	getNick() const;
 		const std::string	getUser() const;
 		bool		isRegistered() const;
+		Channel		*getChannel(std::string name);
 
 		void		setFD(int fd);
 		void		setAddress(std::string address);

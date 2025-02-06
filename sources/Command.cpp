@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 14:20:39 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:00:57 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int		FindWichNext(std::string msg, size_t &pos)
 	size_t pos1 = msg.find("/kick", pos);
 	size_t pos2 = msg.find("/invite", pos);
 	size_t pos3 = msg.find("/topic", pos);
-	size_t pos4 = msg.find("/mode", pos);
+	size_t pos4 = msg.find("/mode", pos); // Manque JOIN, NICK, PASS, USER, PRIVMSG, +/- QUIT
 	if (pos1 == msg.npos && pos2 == msg.npos && pos3 == msg.npos && pos4 == msg.npos)
 	{
 		pos = msg.npos;
@@ -82,7 +82,7 @@ std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg
 	return (lst);
 }
 
-Command::Command(std::string msg)
+Command::Command(Server *server, Client *client, std::string msg) : _server(server), _client(client)
 {
 	std::list<size_t>	cmdpos;
 	size_t			 	pos = 0;
@@ -110,10 +110,13 @@ Command::Command(std::string msg)
 				pos += 5;
 				this->input.push_back(SetListCMd("MODE", pos, msg));
 				break ;
+			default :
+				std::cout << "default called" << std::endl;
 		}
 	}
 	return ;
 }
+
 Command::Command(Command &rhs)
 {
 	// if (*this != rhs)
@@ -133,9 +136,10 @@ Command	&Command::operator=(Command &rhs)
 
 
 /*			members functions				*/
-// void	Command::Kick(std::string channel, std::list<std::string> users)
-// {
+// void	Command::Kick(std::string channel, std::list<std::string> user)
+// {	
 // }
+
 void	Command::Kick()
 {	
 }
@@ -147,9 +151,22 @@ void	Command::Invite()
 {
 }
 
-// void	Command::Topic(std::string channel, std::string subject)
-// {
-// }
+void	Command::Topic(std::string channel, std::string subject)
+{
+	if (_server->isChannel(channel) == false)
+	{
+		std::cerr << "ERR_NOSUCHCHANNEL" << std::endl;
+		return ; 
+	}
+	Channel *chan = _client->getChannel(channel);
+	if (chan == NULL)
+	{
+		std::cerr << "ERR_NOTONCHANNEL" << std::endl;
+		return ; 
+	}
+	chan->setTopic(_client, subject);
+}
+
 void	Command::Topic()
 {
 }
