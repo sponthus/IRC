@@ -1,25 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   messages.hpp                                       :+:      :+:    :+:   */
+/*   Timer.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/23 16:10:45 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 18:22:19 by sponthus         ###   ########.fr       */
+/*   Created: 2025/02/06 11:54:35 by sponthus          #+#    #+#             */
+/*   Updated: 2025/02/06 14:11:37 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MESSAGES_HPP
-# define MESSAGES_HPP
+#ifndef TIMER_HPP
+# define TIMER_HPP
 
+#include <sys/time.h>
 #include <iostream>
-#include <signal.h>
+#include <string>
 
-# define ERROR "Error :"
-# define ERR_NB_ARG "Wrong number of arguments, expected 2 : <port> <password>"
-# define ERR_PORT_NUM "Port value should be numeric"
-# define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
-# define ERR_PW "Password should not contain spaces, \' or \""
+class Timer {
+
+public:
+	~Timer();
+	Timer();
+
+	void start();
+	void stop();
+	void reset();
+	double	getElapsedMicroseconds() const;
+	
+private:
+	struct timeval startTime, endTime;
+	bool isRunning;
+
+	double	getElapsedMilliseconds() const;
+	double	getElapsedSeconds() const;
+	void	getCurrentTime(struct timeval& result) const;
+};
 
 #endif

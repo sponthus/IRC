@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 13:44:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 14:19:26 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,26 @@ Server::Server()
 {
 }
 
-Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1), _sig(false)
+Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 {
-}
-
-Server::Server(const Server &src) : _port(src.getPort()), _pw(src.getPW()), _socketFD(-1), _sig(false)
-{
+	initSocket();
+	initPoll(this->_socketFD);
 }
 
 Server::~Server()
 {
+	close(this->_socketFD);
+	for (std::vector<Client*>::iterator it = _Clients.begin(); it != _Clients.end(); ++it)
+	{
+		delete *it;
+	}
+	_Clients.clear();
+	_ClientsByNick.clear();
+	for (std::map<std::string, Channel*>::iterator it = _ChannelsByName.begin(); it != _ChannelsByName.end(); ++it)
+    {
+        delete it->second;
+    }
+	_ChannelsByName.clear();
 }
 
 int	Server::getPort() const
@@ -35,7 +45,7 @@ int	Server::getPort() const
 	return this->_port;
 }
 
-std::string	Server::getPW() const
+const std::string	Server::getPW() const
 {
 	return this->_pw;
 }
@@ -103,26 +113,24 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 	std::string str = msg;
 	if (size < 0)
 	{
-		if (errno == EWOULDBLOCK || errno == EAGAIN)
-        {
-            std::cout << "Would block, trying again later" << std::endl;
-        }
-        std::cout << "recv() error: " << strerror(errno) << std::endl;
-        clearClient(fd);
+		std::cout << "recv() error: " << strerror(errno) << std::endl;
+		clearClient(fd);
 	}
 	else if (size == 0)
 	{
 		std::cout << "Client closed connection properly" << std::endl;
-        clearClient(fd);
+		clearClient(fd);
 	}
 	else
 	{
 		buffer[size] = '\0';
-		std::cout << size << std::endl;
+		// std::cout << size << std::endl;
 		str += buffer;
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
 	}
+
+	//parsing commande
 	Command	cmd(str);
 	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
 	{
@@ -130,16 +138,15 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 		{
 			std::cout << "i = " << *i << std::endl;
 		}
-		
 	}
 	
-	//parsing commande
 	return (str);
 }
 
 void	Server::clearClient(int fd)
 {
 	close(fd);
+	this->_ClientsByFD[fd]->leaveChannels();
 	for (size_t i = 0; i < this->_fds.size(); i++)
 	{
 		if (this->_fds[i].fd == fd)
@@ -148,23 +155,27 @@ void	Server::clearClient(int fd)
 			break;
 		}
 	}
-	for (size_t i = 0; i < this->_clients.size(); i++)
+	for (std::vector<Client*>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it)
 	{
-		if (this->_clients[i].getFD() == fd)
-		{
-			this->_clients.erase(this->_clients.begin() + i);
+		if ((*it)->getFD() == fd) {
+			if (!(*it)->getNick().empty()) {
+				this->_ClientsByNick.erase((*it)->getNick());
+			}
+			this->_ClientsByFD.erase(fd);
+			delete *it;
+			this->_Clients.erase(it);
 			break;
 		}
 	}
-
 }
 
 void	Server::initClient(int fd, struct sockaddr_in ClientAddress)
 {
-	Client client;
-	client.setFD(fd);
-	client.setAddress(inet_ntoa(ClientAddress.sin_addr));
-	this->_clients.push_back(client);
+	Client *client = new Client();
+	client->setFD(fd);
+	client->setAddress(inet_ntoa(ClientAddress.sin_addr));
+	this->_Clients.push_back(client);
+	this->_ClientsByFD[fd] = client;
 }
 
 void	Server::connectClient()
@@ -189,7 +200,7 @@ void	Server::connectClient()
 	try
 	{
 		initClient(fd, ClientAddress);
-        initPoll(fd);
+	    initPoll(fd);
 
         std::cout << "Client " << fd << " connected successfully with IP " 
                   << inet_ntoa(ClientAddress.sin_addr) << std::endl;
@@ -210,44 +221,46 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 	}
 }
 
-void	Server::init()
+void	Server::run()
 {
-	initSocket();
-	initPoll(this->_socketFD);
-
-	std::cout << " >> Waiting for connections << " << std::endl;
-	while (this->_sig == false)
+	if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1) // & sig == false ?, waits for messages
+		throw(std::runtime_error("poll failed"));
+	for (size_t i = 0; i < this->_fds.size(); i++)
 	{
-		if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1) // & sig == false ?, waits for messages
-			throw(std::runtime_error("poll failed"));
-		for (size_t i = 0; i < this->_fds.size(); i++)
+		if (this->_fds[i].revents != 0)
 		{
-			if (this->_fds[i].revents != 0)
+			std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
+			
+			if (this->_fds[i].fd == this->_socketFD)
 			{
-				std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
-				
-				if (this->_fds[i].fd == this->_socketFD)
-				{
-					connectClient();
-				}
-				else if (this->_fds[i].revents & POLLNVAL)
-				{
-					std::cout << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
-					clearClient(this->_fds[i].fd);
-				}
-				else if (this->_fds[i].revents & POLLIN)
-				{
-					std::string message = recieveData(this->_fds[i].fd, "");
-					std::cout << this->_fds[i].fd << " sent : //" << message << "//" << std::endl;
-
-				}
-				else if (this->_fds[i].revents & (POLLHUP | POLLERR))
-				{
-					std::cout << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
-					clearClient(this->_fds[i].fd);
-				}
-				this->_fds[i].revents = 0;
+				connectClient();
 			}
+			else if (this->_fds[i].revents & POLLNVAL)
+			{
+				std::cout << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
+				clearClient(this->_fds[i].fd);
+			}
+			else if (this->_fds[i].revents & POLLIN)
+			{
+				std::string message = recieveData(this->_fds[i].fd, "");
+				std::cout << this->_fds[i].fd << " sent : //" << message << "//" << std::endl;
+				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
+
+			}
+			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
+			{
+				std::cout << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
+				clearClient(this->_fds[i].fd);
+			}
+			this->_fds[i].revents = 0;
 		}
 	}
+}
+
+void	Server::initChannel(Client *client, std::string name)
+{
+	Channel *channel = new Channel(name);
+	channel->joinChannel(client);
+	channel->addOP(client);
+	this->_ChannelsByName[name] = channel;
 }

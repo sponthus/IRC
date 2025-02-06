@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 13:06:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/03 11:14:52 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,19 @@
 #include <string>
 #include <unistd.h>
 
+#include <Channel.hpp>
+
+class Channel;
+
 class Client {
 	public:
 		Client();
 		~Client();
 
 		int			getFD() const;
-		std::string	getAddress() const;
-		std::string	getNick() const;
-		std::string	getUser() const;
+		const std::string	getAddress() const;
+		const std::string	getNick() const;
+		const std::string	getUser() const;
 		bool		isRegistered() const;
 
 		void		setFD(int fd);
@@ -32,12 +36,15 @@ class Client {
 		void		setNick(std::string nickname);
 		void		setUser(std::string username);
 
+		void		leaveChannels();
+
 	private:
-		int			_fd;
-		std::string	_address;
-		std::string	_nick;
-		std::string	_user;
-		bool		_registered;
+		int						_fd;
+		std::string				_address;
+		std::string				_nick;
+		std::string				_user;
+		bool					_registered;
+		std::vector<Channel *>	_Channels;
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 10:50:18 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 14:21:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,26 +28,25 @@
 #include <cerrno> 
 #include <map>
 
-
 #include "Client.hpp"
 #include "Command.hpp"
+#include "Channel.hpp"
 
 # define BUFF_SIZE 512
 
 class Server {
 	public: 
 		Server(int port, std::string pw);
-		Server(const Server &src);
 		~Server();
 
 		int			getPort() const;
-		std::string	getPW() const;
+		const std::string	getPW() const;
 
-		void		initSocket();
-		void		initPoll(int fd);
-		void		initClient(int fd, struct sockaddr_in ClientAddress);
-		void		init();
-		void		SetCmdMap();
+		void	initClient(int fd, struct sockaddr_in ClientAddress);
+		void	init();
+		void	SetCmdMap();
+		void	initChannel(Client *client, std::string name);
+		void	run();
 
 		std::string	recieveData(int fd, std::string msg);
 		void		connectClient();
@@ -58,14 +57,19 @@ class Server {
 
 	private :
 		Server();
+		void	initSocket();
+		void	initPoll(int fd);
+
 		int			_port;
 		std::string _pw;
 		int			_socketFD;
-		bool		_sig;
 
 		std::map<std::string, void(Command::*)()>	CmdMap;
-		std::vector<struct pollfd>	_fds;
-		std::vector<Client>			_clients;
+		std::vector<struct pollfd>			_fds;
+		std::vector<Client *>				_Clients;
+		std::map<std::string, Client *>		_ClientsByNick; // Add nickname validation
+		std::map<int, Client *>				_ClientsByFD;
+		std::map<std::string, Channel *>	_ChannelsByName;
 };
 
 bool	isValidPW(std::string arg);
