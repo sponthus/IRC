@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/04 13:41:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 13:44:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,16 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
 	}
+	Command	cmd(str);
+	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
+	{
+		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
+		{
+			std::cout << "i = " << *i << std::endl;
+		}
+		
+	}
+	
 	//parsing commande
 	return (str);
 }

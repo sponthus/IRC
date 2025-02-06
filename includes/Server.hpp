@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 16:42:38 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 10:50:18 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,15 @@ class Server {
 		int			getPort() const;
 		std::string	getPW() const;
 
-		void	initSocket();
-		void	initPoll(int fd);
-		void	initClient(int fd, struct sockaddr_in ClientAddress);
-		void	init();
-		void	SetCmdMap();
+		void		initSocket();
+		void		initPoll(int fd);
+		void		initClient(int fd, struct sockaddr_in ClientAddress);
+		void		init();
+		void		SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
-		void	connectClient();
-		void	clearClient(int fd);
+		void		connectClient();
+		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
 		
@@ -66,7 +66,6 @@ class Server {
 		std::map<std::string, void(Command::*)()>	CmdMap;
 		std::vector<struct pollfd>	_fds;
 		std::vector<Client>			_clients;
-		
 };
 
 bool	isValidPW(std::string arg);

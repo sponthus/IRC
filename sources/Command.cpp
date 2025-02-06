@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/05 14:44:29 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/06 13:38:18 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,19 +55,39 @@ int		FindWichNext(std::string msg, size_t &pos)
 		pos = pos4;
 		return (4);
 	}
+	return (0);
 }
 
-std::string		FindArgs(int s, std::string msg, size_t pos)
+
+std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg)	
 {
-	std::string args;(msg, pos, pos- msg.find("\r\n", pos));
-	return (args);
+	std::list<std::string>	lst;
+
+	lst.push_back(cmd);
+	size_t	posendl	= msg.find("\n", pos);
+	std::cout << "posendl = " << posendl << std::endl;
+	std::cout << "cmd = " << cmd << std::endl;
+	while (msg[pos] && pos + 1 <= posendl)
+	{
+		while(msg[pos] == ' ')
+			pos++;
+		if (msg[pos])
+		{
+			std::string arg(msg, pos, (msg.find(" ", pos) - pos));
+			std::cout << "arg = " << arg << std::endl;
+			lst.push_back(arg);
+			pos += arg.size();
+		}
+	}
+	return (lst);
 }
+
 Command::Command(std::string msg)
 {
 	std::list<size_t>	cmdpos;
 	size_t			 	pos = 0;
 	
-	while (pos != msg.npos)
+	while (pos <= msg.npos && pos <= msg.size())
 	{
 		int s = FindWichNext(msg, pos);
 		switch(s)
@@ -75,16 +95,20 @@ Command::Command(std::string msg)
 			case -1:
 				return ;
 			case 1 :
-				this->input.push_back({"KICK", FindArgs(s, msg, pos + 5)});
+				pos += 5;
+				this->input.push_back(SetListCMd("KICK", pos, msg));
 				break ;
 			case 2 :
-				this->input.push_back({"INVITE", FindArgs(s, msg, pos + 7)});
+				pos += 7;
+				this->input.push_back(SetListCMd("INVITE", pos, msg));
 				break ;
 			case 3 :
-				this->input.push_back({"TOPIC", FindArgs(s, msg, pos + 6)});
+				pos += 6;
+				this->input.push_back(SetListCMd("TOPIC", pos, msg));
 				break ;
 			case 4 :
-				this->input.push_back({"MODE", FindArgs(s, msg, pos + 5)});
+				pos += 5;
+				this->input.push_back(SetListCMd("MODE", pos, msg));
 				break ;
 		}
 	}
@@ -92,6 +116,8 @@ Command::Command(std::string msg)
 }
 Command::Command(Command &rhs)
 {
+	// if (*this != rhs)
+	*this = rhs;
 	return ;
 }
 
@@ -101,35 +127,36 @@ Command::~Command()
 }
 Command	&Command::operator=(Command &rhs)
 {
+	*this = rhs;
 	return (*this);
 }
 
 
 /*			members functions				*/
-void	Command::Kick(std::string channel, std::list<std::string> users)
-{
-}
+// void	Command::Kick(std::string channel, std::list<std::string> users)
+// {
+// }
 void	Command::Kick()
 {	
 }
 
-void	Command::Invite(std::string pseudo, std::string channel)
-{
-}
+// void	Command::Invite(std::string pseudo, std::string channel)
+// {
+// }
 void	Command::Invite()
 {
 }
 
-void	Command::Topic(std::string channel, std::string subject)
-{
-}
+// void	Command::Topic(std::string channel, std::string subject)
+// {
+// }
 void	Command::Topic()
 {
 }
 
-void	Command::Mode(std::string ar)
-{
-}
+// void	Command::Mode(std::string ar)
+// {
+// }
 
 void	Command::Mode()
 {
