@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 11:37:44 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:30:39 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
 #include "Client.hpp"
 #include "Command.hpp"
 #include "Channel.hpp"
+
+#include "Builder.hpp"
 
 # define BUFF_SIZE 512
 

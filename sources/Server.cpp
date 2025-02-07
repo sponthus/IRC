@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 14:17:50 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:31:01 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,11 +293,11 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
     std::map<std::string, Client *>::const_iterator it = _ClientsByNick.find(nick);
     if (it != _ClientsByNick.end())
 	{
-		sendData(it->second->getFD(), message);
+		sendData(it->second->getFD(), Builder::buildPrivMsg(sender->getNick(), nick, message));
     }
 	else
 	{
-		SendToClient(sender, "ERR_NOSUCHNICK");
+		SendToClient(sender, Builder::buildErrorNoSuchNick(sender->getNick(), nick));
 	}
 }
 
