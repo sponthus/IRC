@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 16:18:30 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:37:44 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 # define BUFF_SIZE 512
 
 class Command;
+class Channel;
+class Client;
 
 class Server {
 	public: 
@@ -55,6 +57,9 @@ class Server {
 		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
+		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
+		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
+		void	SendToClient(const Client *client, const std::string message) const;
 		
 		bool	isChannel(std::string name);
 		Channel*	getChannel(std::string name);

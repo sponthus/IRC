@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 16:19:29 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 14:17:50 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,8 +260,8 @@ void	Server::run()
 
 void	Server::initChannel(Client *client, std::string name)
 {
-	Channel *channel = new Channel(name);
-	channel->joinChannel(client);
+	Channel *channel = new Channel(this, name);
+	channel->joinChannel(client, NULL);
 	channel->addOP(client);
 	this->_ChannelsByName[name] = channel;
 }
@@ -277,4 +277,31 @@ Channel*	Server::getChannel(std::string name)
 		return (_ChannelsByName[name]);
 	else
 		return (NULL);
+}
+
+void	Server::SendToGroup(const std::vector<Client *> clients, const std::string message) const
+{
+	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		sendData((*it)->getFD(), message);
+	}
+}
+
+// For PRIVMSG
+void	Server::SendToNick(const Client *sender, const std::string nick, const std::string message) const
+{
+    std::map<std::string, Client *>::const_iterator it = _ClientsByNick.find(nick);
+    if (it != _ClientsByNick.end())
+	{
+		sendData(it->second->getFD(), message);
+    }
+	else
+	{
+		SendToClient(sender, "ERR_NOSUCHNICK");
+	}
+}
+
+void	Server::SendToClient(const Client *client, const std::string message) const
+{
+	sendData(client->getFD(), message);
 }

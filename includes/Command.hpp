@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 17:17:27 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:37:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
+class Client;
 class Server;
 
 class Command

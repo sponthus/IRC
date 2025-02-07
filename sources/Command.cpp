@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 17:18:38 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:38:23 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,9 +200,9 @@ void	Command::Join(std::string channel, std::string *key = NULL)
 	{
 		Channel *chan = _server->getChannel(channel);
 		if (!key)
-			chan->joinChannel(_client);
+			chan->joinChannel(_client, NULL);
 		else
-			chan->joinChannel(_client, *key);
+			chan->joinChannel(_client, key);
 	}
 }
 

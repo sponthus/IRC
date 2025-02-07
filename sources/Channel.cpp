@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 17:08:24 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:06:16 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Channel::~Channel()
 {
 }
 
-Channel::Channel(std::string name) : _name(name), _topic(""), _PW(""), \
+Channel::Channel(Server *server, std::string name) : _server(server), _name(name), _topic(""), _PW(""), \
 	 _UserLimit(0), _InviteOnly(false), _HasPW(false), _HasUserLimit(false), \
 	 _TopicRestrict(false)
 {
@@ -55,36 +55,17 @@ void	Channel::removeClient(Client *client)
 	}
 }
 
-void	Channel::joinChannel(Client *client)
+void	Channel::joinChannel(Client *client, std::string *PW = NULL)
 {
 	if (isClient(client))
 		return ; // Client is already registered in channel, send a response
 	if (hasPW())
 	{
-		std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
-		return ; // Channel is PW protected, send a response
-	}
-	if (hasUserLimit() && getUserLimit() == getUserNb())
-	{
-		std::cerr << "ERR_CHANNELISFULL" << std::endl; // To client
-		return ; // Too many users connected
-	}
-	if (isInviteOnly() && !isInvited(client))
-	{
-		std::cerr << "ERR_INVITEONLYCHAN" << std::endl; // To client
-		return ; // Channel is invite only you should be invited
-	}
-	this->_Clients.push_back(client);
-}
-
-void	Channel::joinChannel(Client *client, std::string &PW)
-{
-	if (isClient(client))
-		return ; // Client is already registered in channel, send a response
-	if (hasPW() && PW != getPW())
-	{
-		std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
-		return ; // Wrong PW
+		if (!PW || (PW && *PW != getPW()))
+		{
+			std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
+			return ; // Wrong PW
+		}
 	}
 	if (hasUserLimit() && getUserLimit() == getUserNb())
 	{
@@ -270,3 +251,7 @@ void	Channel::deleteUserLimit(Client *client)
 		this->_HasUserLimit = false;
 }
 
+void	Channel::SendToAll(std::string message) const
+{
+	_server->SendToGroup(this->_Clients, message);
+}
