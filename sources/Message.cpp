@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 16:42:57 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 16:46:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:22:23 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,20 @@ Message::Message() {}
 std::string Message::toString() const
 {
 	std::string result;
-	if (!_prefix.empty()) {
+	if (!_prefix.empty())
+	{
 		result += ":" + _prefix + " ";
 	}
-	result += _code + " " + _content;
-	if (!_suffix.empty()) {
+	if (!_code.empty())
+	{
+		result += _code;
+		if (!_content.empty())
+			result += " ";
+	}
+	if (!_content.empty())
+		result += _content;
+	if (!_suffix.empty())
+	{
 		result += " :" + _suffix;
 	}
 	return result;

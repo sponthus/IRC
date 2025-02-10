@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 16:30:39 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:01:55 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ class Server {
 
 		void	sendData(int fd, std::string response) const;
 		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
+		// TODO function to send to all channels, excluding double response for users in 2 channels
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
 		
