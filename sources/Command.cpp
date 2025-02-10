@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/06 15:29:22 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/10 16:23:57 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
-
+#include <algorithm>
 /*						functions 							*/
 
 Command::Command()
@@ -23,39 +23,54 @@ size_t	FindPosCmd(std::string msg, std::string tf, size_t pos)
 {
 	return (msg.find(tf, pos));
 }
+void		FindMindCmd(size_t &min, size_t pos ,std::string msg)
+{
+	if (min < pos && pos != msg.npos)
+	{
+		std::cout << "min = " << min << " pos = " << pos << std::endl;
+		min = pos;
+	}
+	return ;
+}
+bool single_digit (const size_t& value) { return (value == std::string::npos); }
 
 int		FindWichNext(std::string msg, size_t &pos)
 {
-	size_t pos1 = msg.find("/kick", pos);
-	size_t pos2 = msg.find("/invite", pos);
-	size_t pos3 = msg.find("/topic", pos);
-	size_t pos4 = msg.find("/mode", pos); // Manque JOIN, NICK, PASS, USER, PRIVMSG, +/- QUIT
-	if (pos1 == msg.npos && pos2 == msg.npos && pos3 == msg.npos && pos4 == msg.npos)
+	std::map<int, size_t> cmd;
+	cmd[1] = msg.find("/kick", pos);
+	cmd[2] = msg.find("/invite", pos);
+	cmd[3] = msg.find("/topic", pos);
+	cmd[4] = msg.find("/mode", pos);
+	cmd[5] = msg.find("/join", pos);
+	cmd[6] = msg.find("/nick", pos);
+	cmd[7] = msg.find("/pass", pos);
+	cmd[8] = msg.find("/user", pos);
+	cmd[9] = msg.find("/privmsg", pos);
+	cmd[10] = msg.find("/quit", pos);
+	cmd[11] = msg.find("/part", pos);
+
+	size_t second_min;
+	int		first_min;
+	for (std::map<int, size_t>::iterator it = cmd.begin(); it != cmd.end(); it++)
 	{
-		pos = msg.npos;
+		if (second_min && it->second != std::string::npos && second_min > it->second)
+		{
+			first_min = it->first;
+			second_min = it->second;
+		}
+		if (!second_min && it->second != std::string::npos)
+		{
+			first_min = it->first;
+			second_min = it->second;
+			std::cout << "min = " << first_min << std::endl; // don't work as espect
+		}	
+	}
+	if (second_min)
+		pos = second_min;
+	if (first_min)
+		return (first_min);
+	else
 		return (-1);
-	}
-	else if (pos1 <= pos2 && pos1 <= pos3 && pos1 <= pos4)
-	{
-		pos = pos1;
-		return (1);
-	}
-	else if (pos2 <= pos1 && pos2 <= pos3 && pos2 <= pos4)
-	{
-		pos = pos2;
-		return (2);
-	}
-	else if (pos3 <= pos1 && pos3 <= pos2 && pos3 <= pos4)
-	{
-		pos = pos3;
-		return (3);
-	}
-	else if (pos4 <= pos1 && pos4 <= pos2 && pos4 <= pos3)
-	{
-		pos = pos4;
-		return (4);
-	}
-	return (0);
 }
 
 
@@ -65,8 +80,6 @@ std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg
 
 	lst.push_back(cmd);
 	size_t	posendl	= msg.find("\n", pos);
-	std::cout << "posendl = " << posendl << std::endl;
-	std::cout << "cmd = " << cmd << std::endl;
 	while (msg[pos] && pos + 1 <= posendl)
 	{
 		while(msg[pos] == ' ')
@@ -110,6 +123,34 @@ Command::Command(Server *server, Client *client, std::string msg) : _server(serv
 				pos += 5;
 				this->input.push_back(SetListCMd("MODE", pos, msg));
 				break ;
+			case 5 :
+				pos += 5;
+				this->input.push_back(SetListCMd("JOIN", pos, msg));
+				break ;
+			case 6 :
+				pos += 5;
+				this->input.push_back(SetListCMd("NICK", pos, msg));
+				break ;
+			case 7 :
+				pos += 5;
+				this->input.push_back(SetListCMd("PASS", pos, msg));
+				break ;
+			case 8 :
+				pos += 5;
+				this->input.push_back(SetListCMd("USER", pos, msg));
+				break ;
+			case 9 :
+				pos += 8;
+				this->input.push_back(SetListCMd("PRIVMSG", pos, msg));
+				break ;
+			case 10 :
+				pos += 5;
+				this->input.push_back(SetListCMd("QUIT", pos, msg));
+				break ;
+			case 11 :
+				pos += 5;
+				this->input.push_back(SetListCMd("PART", pos, msg));
+				break ;
 			default :
 				std::cout << "default called" << std::endl;
 		}
@@ -134,64 +175,70 @@ Command	&Command::operator=(Command &rhs)
 	return (*this);
 }
 
-
 /*			members functions				*/
-// void	Command::Kick(std::string channel, std::list<std::string> user)
-// {	
-// }
 
-void	Command::Kick()
-{	
-}
-
-// void	Command::Invite(std::string pseudo, std::string channel)
-// {
-// }
-void	Command::Invite()
+void	Command::Kick(std::list<std::string> *arg)
 {
+	std::cout << "kick" << std::endl;
+	(void)arg;
+	
 }
-
-void	Command::Topic(std::string channel, std::string subject)
+void	Command::Invite(std::list<std::string> *arg)
 {
-	if (_server->isChannel(channel) == false)
-	{
-		std::cerr << "ERR_NOSUCHCHANNEL" << std::endl;
-		return ; // Replace with appropriate response sent to client
-	}
-	Channel *chan = _client->getChannel(channel);
-	if (chan == NULL)
-	{
-		std::cerr << "ERR_NOTONCHANNEL" << std::endl;
-		return ; 
-	}
-	if (subject == "")
-	{
-		if (chan->getTopic().size() == 0)
-		{
-			std::cout << "RPL_NOTOPIC" << std::endl;
-			return;
-		}
-		else
-		{
-			std::cout << "RPL_TOPIC" << std::endl;
-			return ;
-		}
-
-	}
-	else
-	{
-		chan->setTopic(_client, subject);
-	}
+	std::cout << "Invite" << std::endl;
+	(void)arg;
+	
 }
-
-void	Command::Topic()
+void	Command::Topic(std::list<std::string> *arg)
 {
+	std::cout << "Topic" << std::endl;
+	(void)arg;
+
 }
-
-// void	Command::Mode(std::string ar)
-// {
-// }
-
-void	Command::Mode()
+void	Command::Mode(std::list<std::string> *arg)
 {
+	std::cout << "Mode" << std::endl;
+	(void)arg;
+
+}
+void	Command::join(std::list<std::string> *arg)
+{
+	std::cout << "join" << std::endl;
+	(void)arg;
+}
+void	Command::nick(std::list<std::string> *arg)
+{
+	std::cout << "nick" << std::endl;
+	(void)arg;
+
+}
+void	Command::pass(std::list<std::string> *arg)
+{
+	std::cout << "pass" << std::endl;
+	(void)arg;
+
+}
+void	Command::user(std::list<std::string> *arg)
+{
+	std::cout << "user" << std::endl;
+	(void)arg;
+
+}
+void	Command::privmsg(std::list<std::string> *arg)
+{
+	std::cout << "privmsg" << std::endl;
+	(void)arg;
+
+}
+void	Command::quit(std::list<std::string> *arg)
+{
+	std::cout << "quit" << std::endl;
+	(void)arg;
+	
+}
+void	Command::part(std::list<std::string> *arg)
+{
+	std::cout << "part" << std::endl;
+	(void)arg;
+	
 }

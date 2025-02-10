@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 15:04:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/10 13:40:16 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,13 @@ void	Server::SetCmdMap()
 	this->CmdMap["INVITE"] = &Command::Invite;
 	this->CmdMap["TOPIC"] = &Command::Topic;
 	this->CmdMap["MODE"] = &Command::Mode;
+	this->CmdMap["JOIN"] = &Command::join;
+	this->CmdMap["NICK"] = &Command::nick;
+	this->CmdMap["PASS"] = &Command::pass;
+	this->CmdMap["USER"] = &Command::user;
+	this->CmdMap["PRIVMSG"] = &Command::privmsg;
+	this->CmdMap["QUIT"] = &Command::quit;
+	this->CmdMap["PART"] = &Command::part;
 	return ;
 }
 void	Server::initSocket()

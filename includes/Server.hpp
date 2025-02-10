@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 15:02:13 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/10 13:38:40 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,9 @@ class Server {
 		std::string _pw;
 		int			_socketFD;
 
-		std::map<std::string, void(Command::*)()>	CmdMap;
+		std::map<std::string, void(Command::*)(std::list<std::string> *arg)>	CmdMap;
+	
+
 		std::vector<struct pollfd>			_fds;
 		std::vector<Client *>				_Clients;
 		std::map<std::string, Client *>		_ClientsByNick; // Add nickname validation
