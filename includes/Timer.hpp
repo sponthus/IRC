@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 11:54:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 14:11:37 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/11 11:11:08 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ public:
 	void stop();
 	void reset();
 	double	getElapsedMicroseconds() const;
+	double	getUnixTimeSeconds() const;
 	
 private:
 	struct timeval startTime, endTime;
