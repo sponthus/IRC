@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/11 10:08:32 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 10:11:40 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ Server::Server()
 
 Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 {
-	// SetCmdMap();
 	initSocket();
 	initPoll(this->_socketFD);
 }
@@ -57,13 +56,6 @@ void	Server::SetCmdMap()
 	this->CmdMap["INVITE"] = &Command::Invite;
 	this->CmdMap["TOPIC"] = &Command::Topic;
 	this->CmdMap["MODE"] = &Command::Mode;
-	this->CmdMap["JOIN"] = &Command::join;
-	this->CmdMap["NICK"] = &Command::nick;
-	this->CmdMap["PASS"] = &Command::pass;
-	this->CmdMap["USER"] = &Command::user;
-	this->CmdMap["PRIVMSG"] = &Command::privmsg;
-	this->CmdMap["QUIT"] = &Command::quit;
-	this->CmdMap["PART"] = &Command::part;
 	return ;
 }
 void	Server::initSocket()
@@ -138,14 +130,15 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 			str = recieveData(fd, str);
 	}
 
+	//parsing commande
 	Command	cmd(this, this->_ClientsByFD[fd], str);
 	std::cout << "Created cmd with str = " << str << std::endl;
-	std::cout << "bonjour " << std::endl;
-	for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
+	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
 	{
-		// std::list<std::string>::iterator i = cmd.input.begin()->begin();
-		// if (it->first == cmd.input.begin())
-		// 	std::cout << (*it->begin()) << std::endl;
+		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
+		{
+			std::cout << "i = " << *i << std::endl;
+		}
 	}
 	
 	return (str);
@@ -267,8 +260,8 @@ void	Server::run()
 
 void	Server::initChannel(Client *client, std::string name)
 {
-	Channel *channel = new Channel(name);
-	channel->joinChannel(client);
+	Channel *channel = new Channel(this, name);
+	channel->joinChannel(client, NULL);
 	channel->addOP(client);
 	this->_ChannelsByName[name] = channel;
 }
@@ -276,4 +269,39 @@ void	Server::initChannel(Client *client, std::string name)
 bool	Server::isChannel(std::string name)
 {
 	return _ChannelsByName.count(name) > 0;
+}
+
+Channel*	Server::getChannel(std::string name)
+{
+	if (isChannel(name))
+		return (_ChannelsByName[name]);
+	else
+		return (NULL);
+}
+
+void	Server::SendToGroup(const std::vector<Client *> clients, const std::string message) const
+{
+	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		sendData((*it)->getFD(), message);
+	}
+}
+
+// For PRIVMSG
+void	Server::SendToNick(const Client *sender, const std::string nick, const std::string message) const
+{
+    std::map<std::string, Client *>::const_iterator it = _ClientsByNick.find(nick);
+    if (it != _ClientsByNick.end())
+	{
+		sendData(it->second->getFD(), Builder::PrivMsg(sender->getNick(), nick, message));
+    }
+	else
+	{
+		SendToClient(sender, Builder::ErrNoSuchNick(sender->getNick(), nick));
+	}
+}
+
+void	Server::SendToClient(const Client *client, const std::string message) const
+{
+	sendData(client->getFD(), message);
 }
