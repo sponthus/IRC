@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/10 13:40:16 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 10:06:51 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Server::Server()
 
 Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 {
+	// SetCmdMap();
 	initSocket();
 	initPoll(this->_socketFD);
 }
@@ -137,15 +138,14 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 			str = recieveData(fd, str);
 	}
 
-	//parsing commande
 	Command	cmd(this, this->_ClientsByFD[fd], str);
 	std::cout << "Created cmd with str = " << str << std::endl;
-	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
+	std::cout << "bonjour " << std::endl;
+	for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
 	{
-		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
-		{
-			std::cout << "i = " << *i << std::endl;
-		}
+		// std::list<std::string>::iterator i = cmd.input.begin()->begin();
+		// if (it->first == cmd.input.begin())
+		// 	std::cout << (*it->begin()) << std::endl;
 	}
 	
 	return (str);

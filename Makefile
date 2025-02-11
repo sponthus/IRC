@@ -1,7 +1,7 @@
 NAME = ircserv
 
 CC = c++
-CFLAGS = -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
+CFLAGS =  -g -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
 
 SRC_DIR = ./sources/
 
