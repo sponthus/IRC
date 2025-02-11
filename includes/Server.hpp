@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/10 13:38:40 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 10:13:51 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,13 @@
 #include "Command.hpp"
 #include "Channel.hpp"
 
+#include "Builder.hpp"
+
 # define BUFF_SIZE 512
 
 class Command;
+class Channel;
+class Client;
 
 class Server {
 	public: 
@@ -55,9 +59,13 @@ class Server {
 		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
+		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
+		// TODO function to send to all channels, excluding double response for users in 2 channels
+		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
+		void	SendToClient(const Client *client, const std::string message) const;
 		
 		bool	isChannel(std::string name);
-		
+		Channel*	getChannel(std::string name);
 
 	private :
 		Server();

@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/10 13:39:19 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 11:08:57 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
+class Client;
 class Server;
 
 class Command
@@ -31,11 +32,6 @@ class Command
 		Command(Command &rhs);
 
 		/*			private members functions						*/
-
-		void	Kick(std::string channel, std::list<std::string> user);
-		void	Invite(std::string pseudo, std::string channel);
-		void	Topic(std::string channel, std::string subject);
-		void	Mode(std::string ar1);
 
 		Server *_server;
 		Client *_client; // Client who sent cmd, necessary to exec

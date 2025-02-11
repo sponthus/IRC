@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/11 10:11:40 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 11:08:16 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Server::Server()
 
 Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 {
+	SetCmdMap();
 	initSocket();
 	initPoll(this->_socketFD);
 }
@@ -56,6 +57,13 @@ void	Server::SetCmdMap()
 	this->CmdMap["INVITE"] = &Command::Invite;
 	this->CmdMap["TOPIC"] = &Command::Topic;
 	this->CmdMap["MODE"] = &Command::Mode;
+	this->CmdMap["JOIN"] = &Command::join;
+	this->CmdMap["NICK"] = &Command::nick;
+	this->CmdMap["PASS"] = &Command::pass;
+	this->CmdMap["USER"] = &Command::user;
+	this->CmdMap["PRIVMSG"] = &Command::privmsg;
+	this->CmdMap["QUIT"] = &Command::quit;
+	this->CmdMap["PART"] = &Command::part;
 	return ;
 }
 void	Server::initSocket()
@@ -129,17 +137,20 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
 	}
-
-	//parsing commande
 	Command	cmd(this, this->_ClientsByFD[fd], str);
 	std::cout << "Created cmd with str = " << str << std::endl;
-	for (std::vector<std::list<std::string> >::iterator it = cmd.input.begin(); it != cmd.input.end(); it++)
+	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
-		for (std::list<std::string>::iterator i = it->begin(); i != it->end(); i++)
+		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
 		{
-			std::cout << "i = " << *i << std::endl;
+			if (!i->empty() && it->first == (*i->begin()))
+			{
+				(cmd.*(it->second))(&(*i));
+			}
 		}
 	}
+	
+	
 	
 	return (str);
 }

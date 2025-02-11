@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/11 09:42:05 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 11:15:33 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,16 @@ int		FindWichNext(std::string msg, size_t &pos)
 	cmd[10] = msg.find("/quit", pos);
 	cmd[11] = msg.find("/part", pos);
 
-	size_t second_min;
-	int		first_min;
+	size_t second_min = std::string::npos;
+	int		first_min = 0;
 	for (std::map<int, size_t>::iterator it = cmd.begin(); it != cmd.end(); it++)
 	{
-		if (second_min && it->second != std::string::npos && second_min > it->second)
+		if (it->second != std::string::npos && second_min && second_min > it->second)
 		{
 			first_min = it->first;
 			second_min = it->second;
 		}
-		if (!second_min && it->second != std::string::npos)
+		if (it->second != std::string::npos && !second_min)
 		{
 			first_min = it->first;
 			second_min = it->second;
@@ -175,70 +175,68 @@ Command	&Command::operator=(Command &rhs)
 	return (*this);
 }
 
+// std::string FindChannel(std::list<std::string> arg)
+// {
+// 	for (size_t i = 0; i < count; i++)
+// 	{
+// 		/* code */
+// 	}
+// 	return ;
+// }
 /*			members functions				*/
-
 void	Command::Kick(std::list<std::string> *arg)
 {
-	std::cout << "kick function called" << std::endl;
 	(void)arg;
-	
+	std::cout << "Kick function called " << std::endl;
 }
 void	Command::Invite(std::list<std::string> *arg)
 {
-	std::cout << "Invite function called" << std::endl;
 	(void)arg;
-	
+	std::cout << "Invite function called " << std::endl;
 }
 void	Command::Topic(std::list<std::string> *arg)
 {
-	std::cout << "Topic function called" << std::endl;
 	(void)arg;
-
+	std::cout << "Topic function called " << std::endl;
 }
 void	Command::Mode(std::list<std::string> *arg)
 {
-	std::cout << "Mode function called" << std::endl;
 	(void)arg;
-
+	std::cout << "Mode function called " << std::endl;
 }
 void	Command::join(std::list<std::string> *arg)
 {
-	std::cout << "join function called" << std::endl;
 	(void)arg;
+	std::cout << "join function called " << std::endl;
 }
 void	Command::nick(std::list<std::string> *arg)
 {
-	std::cout << "nick function called" << std::endl;
 	(void)arg;
-
+	std::cout << "nick function called " << std::endl;
 }
 void	Command::pass(std::list<std::string> *arg)
 {
-	std::cout << "pass function called" << std::endl;
 	(void)arg;
-
+	std::cout << "pass function called " << std::endl;
 }
 void	Command::user(std::list<std::string> *arg)
 {
-	std::cout << "user function called" << std::endl;
 	(void)arg;
-
+	std::cout << "user function called " << std::endl;
 }
 void	Command::privmsg(std::list<std::string> *arg)
 {
-	std::cout << "privmsg function called" << std::endl;
 	(void)arg;
-
+	std::cout << "privmsg function called " << std::endl;
 }
 void	Command::quit(std::list<std::string> *arg)
 {
-	std::cout << "quit function called" << std::endl;
 	(void)arg;
+	std::cout << "quit function called " << std::endl;
 	
 }
 void	Command::part(std::list<std::string> *arg)
 {
-	std::cout << "part function called" << std::endl;
 	(void)arg;
-	
+	std::cout << "part function called " << std::endl;
 }
