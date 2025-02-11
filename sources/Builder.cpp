@@ -64,7 +64,21 @@ Message Builder::build()
 	return result;
 }
 
-//////////////////////// RESPONSES CMD /////////////////////////
+//////////////////////// RESPONSES MESSAGES /////////////////////////
+
+// 001 Welcome
+// Response to a USER when logging in the server
+// ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
+std::string Builder::Welcome(const std::string& nick, const std::string&user)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("001")
+		.setContent(nick)
+		.setSuffix("Welcome to the IRC Network, " + nick + "!" + user + "@" + HOST)
+		.build()
+		.toString();
+}
 
 std::string Builder::Ping()
 {
@@ -75,12 +89,10 @@ std::string Builder::Ping()
 		.toString();
 }
 
-// To the recipient of a PRIVMSG only
-// ":<sender>!<senderUser>@<host> PRIVMSG <target> :<message>"
-std::string Builder::PrivMsg(const std::string& sender, const std::string& senderUser, const std::string& target, const std::string& message)
+std::string Builder::PrivMsg(const std::string& sender, const std::string& target, const std::string& message)
 {
 	return create()
-		.setPrefix(sender + "!" + senderUser + "@" + HOST)
+		.setPrefix(sender)
 		.setCode("PRIVMSG")
 		.setContent(target)
 		.setSuffix(message)
@@ -100,217 +112,24 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 		.toString();
 }
 
-// For the user + the canal
-// + User recieves 332 333 353 366 
-// ":<requestingNick>!<requestingUser>@<host> JOIN <channel>"
-std::string Builder::Join(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel)
-{
-	return create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("JOIN")
-		.setContent(channel)
-		.build()
-		.toString();
-}
-
-// Answer to setting a topic (user + channel)
-// ":<requestingNick>!<user>@<host> TOPIC #<channel> :<topic>"
-std::string Builder::Topic(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& topic)
-{
-	return create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("TOPIC")
-		.setContent(channel)
-		.setSuffix(topic)
-		.build()
-		.toString();
-}
-
-// Answer to MODE (user + channel)
-// ":<requestingNick>!<requestingUser>@<host> MODE <target> <modes> [parameters]"
-std::string Builder::Mode(const std::string& requestingNick, const std::string& requestingUser, const std::string& target, const std::string& modes, const std::string& parameters = "")
-{
-	std::string content;
-	if (parameters.empty())
-		content = modes;
-	else
-		content = modes + " " + parameters;
-	return create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("MODE")
-		.setContent(target + content)
-		.build()
-		.toString();
-}
-
-// Answer to PART (user + channel)
-// ":<requestingNick>!<requestingUser>@<host> PART <channel> [:message]"
-std::string Builder::Part(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& message = "")
-{
-	Builder	&result = create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("PART")
-		.setContent(channel);
-	if (!message.empty())
-		result.setSuffix(message);
-	return result.build()
-		.toString();
-}
-
-// Answer to QUIT (user + channel)
-// ":<requestingNick>!<requestingUser>@<host> QUIT [:message]"
-std::string Builder::Quit(const std::string& requestingNick, const std::string& requestingUser, const std::string& message = "")
-{
-	Builder	&result = create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("QUIT");
-	if (!message.empty())
-		result.setSuffix(message);
-	return result.build()
-		.toString();
-}
-
-// Answer to KICK (user + channel)
-// ":<requestingNick>!<requestingUser>@<host> KICK <channel> <targetNick> [:reason]"
-std::string Builder::Kick(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& targetNick, const std::string& reason = "")
-{
-	Builder	&result = create()
-		.setPrefix(requestingNick + "!" + requestingUser + "@" + HOST)
-		.setCode("KICK")
-		.setContent(channel + " " + targetNick);
-	if (!reason.empty())
-		result.setSuffix(reason);
-	return result.build()
-		.toString();
-}
-
-///////////////////////// NUMERIC REPLIES /////////////////////////
-
-// 001 RPL_WELCOME
-// Response to a USER when logging in the server
-// ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
-std::string Builder::RplWelcome(const std::string& nick, const std::string&user)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("001")
-		.setContent(nick)
-		.setSuffix("Welcome to the IRC Network, " + nick + "!" + user + "@" + HOST)
-		.build()
-		.toString();
-}
-
-// 263 RPL_TRYAGAIN // TODO : check if needed
-// ":<server> 263 <requestingNick> <command> :Please wait a while and try again."
-std::string Builder::RplTryAgain(const std::string& requestingNick, const std::string& command)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("263")
-		.setContent(requestingNick + " " + command)
-		.setSuffix("Please wait a while and try again.")
-		.build()
-		.toString();
-}
-
-
-// 324 RPL_CHANNELMODEIS
-// ":<server> 324 <requestingNick> #<channel> <modes> [parameters]"
-std::string Builder::RplChannelModeIs(const std::string& requestingNick, const std::string& channel, const std::string& modes, const std::string& parameters = "")
-{
-	std::string content;
-	if (parameters.empty())
-		content = modes;
-	else
-		content = modes + " " + parameters;
-	return create()
-		.setPrefix(SERVER)
-		.setCode("324")
-		.setContent(requestingNick + " " + channel + " " + content)
-		.build()
-		.toString();
-}
-
-// 331 RPL_NOTOPIC
-// ":<server> 331 <requestingNick> #<channel> :No topic is set"
-std::string Builder::RplNoTopic(const std::string& requestingNick, const std::string& channel)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("331")
-		.setContent(requestingNick + " " + channel)
-		.setSuffix("No topic is set")
-		.build()
-		.toString();
-}
-
-// 332 RPL_TOPIC
-// Answer to viewing a topic . ":<server> 332 <requestingNick> #<channel> :<topic>"
-std::string Builder::RplTopic(const std::string& requestingNick, const std::string& channel, const std::string& topic)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("332")
-		.setContent(requestingNick + " " + channel)
-		.setSuffix(topic)
-		.build()
-		.toString();
-}
-
-
-// 333 RPL_TOPICWHOTIME
-// ":<server> 333 <requestingNick> #<channel> <topicSetter> <timestamp>"
-// timestamp is unix
-std::string Builder::RplTopicWhoTime(const std::string& requestingNick, const std::string& channel, const std::string& topicSetter, const std::string& timestamp)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("333")
-		.setContent(requestingNick + " " + channel + " " + topicSetter + " " + timestamp)
-		.build()
-		.toString();
-}
-
-// 341 RPL_INVITING
-// To confirm sending an invitation
-// ":<server> 341 <requestingNick> #<channel> <targetNick>"
-std::string Builder::RplInviting(const std::string& requestingNick, const std::string& channel, const std::string& targetNick)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("341")
-		.setContent(requestingNick + " " + channel + " " + targetNick)
-		.build()
-		.toString();
-}
-
-// 353 RPL_NAMREPLY
-// ":<server> 353 <requestingNick> = <channel> :<nickList>"
-std::string Builder::RplNamReply(const std::string& requestingNick, const std::string& channel, const std::string& nickList)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("353")
-		.setContent(requestingNick + " = " + channel)
-		.setSuffix(nickList)
-		.build()
-		.toString();
-}
-
-// 366 RPL_ENDOFNAMES
-// ":<server> 366 <requestingNick> <channel> :End of /NAMES list."
-std::string Builder::RplEndOfNames(const std::string& requestingNick, const std::string& channel)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("366")
-		.setContent(requestingNick + " " + channel)
-		.setSuffix("End of /NAMES list.")
-		.build()
-		.toString();
-}
 
 ///////////////////////// ERROR MESSAGES /////////////////////////
+
+// 263 RPL_TRYAGAIN
+// "<command> :Please wait a while and try again."
+
+// 324 RPL_CHANNELMODEIS
+// "<channel> <mode> <mode params>"
+
+// 331 RPL_NOTOPIC
+// ":<server> 331 <nick> #<channel> :No topic is set"
+
+// 332 RPL_TOPIC
+// Answer to setting a topic : ":<nick> TOPIC #<channel> :<topic>"
+// Answer to viewing a topic . ":<server> 332 <nick> #<channel> :<topic>"
+
+// 341 RPL_INVITING
+// "#<channel> <nick>"
 
 // 401 ERR_NOSUCHNICK 
 // ":<server> 401 <targetNick> <invalidNick> :No such nick/channel" 
@@ -524,7 +343,7 @@ std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const 
 
 // 464 ERR_PASSWDMISMATCH
 // ":<server> 464 <requestingNick> :Password incorrect"
-std::string Builder::ErrPasswdMismatch(const std::string& requestingNick)
+std::string Builder::PasswdMismatch(const std::string& requestingNick)
 {
 	return create()
 		.setPrefix(SERVER)
@@ -589,7 +408,7 @@ std::string Builder::ErrInviteOnlyChan(const std::string& requestingNick, const 
 
 // 475 ERR_BADCHANNELKEY
 // ":<server> 475 <requestingNick> #<channel> :Cannot join channel (+k)"
-std::string Builder::ErrBadChannelKey(const std::string& requestingNick, const std::string& channel)
+std::string Builder::BadChannelKey(const std::string& requestingNick, const std::string& channel)
 {
 	return create()
 			.setPrefix(SERVER)

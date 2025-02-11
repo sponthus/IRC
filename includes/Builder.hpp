@@ -17,8 +17,7 @@
 #include "Message.hpp"
 
 # define SERVER "irc.server.42"
-# define HOST "localhost"
-
+# define HOST "HOSTTODEFINE" // TODO : what about host in IRC ?
 class Message;
 
 class Builder
@@ -36,27 +35,12 @@ class Builder
 		Message build();
 
 	public:
-		// Cmd
-		static std::string Ping();
-		static std::string PrivMsg(const std::string& sender, const std::string& senderUser, const std::string& target, const std::string& message);
-		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
-		static std::string Join(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel);
-		static std::string Topic(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& topic);
-		static std::string Mode(const std::string& requestingNick, const std::string& requestingUser, const std::string& target, const std::string& modes, const std::string& parameters);
-		static std::string Part(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& message);
-		static std::string Quit(const std::string& requestingNick, const std::string& requestingUser, const std::string& message);
-		static std::string Kick(const std::string& requestingNick, const std::string& requestingUser, const std::string& channel, const std::string& targetNick, const std::string& reason);
-		
 		// Responses
-		static std::string RplWelcome(const std::string& nick, const std::string&user);
-		static std::string RplTryAgain(const std::string& requestingNick, const std::string& command);
-		static std::string RplChannelModeIs(const std::string& requestingNick, const std::string& channel, const std::string& modes, const std::string& parameters);
-		static std::string RplNoTopic(const std::string& requestingNick, const std::string& channel);
-		static std::string RplTopic(const std::string& requestingNick, const std::string& channel, const std::string& topic);
-		static std::string RplTopicWhoTime(const std::string& requestingNick, const std::string& channel, const std::string& topicSetter, const std::string& timestamp);
-		static std::string RplInviting(const std::string& requestingNick, const std::string& channel, const std::string& targetNick);
-		static std::string RplNamReply(const std::string& requestingNick, const std::string& channel, const std::string& nickList);
-		static std::string RplEndOfNames(const std::string& requestingNick, const std::string& channel);
+		static std::string Welcome(const std::string& nick, const std::string&user);
+		static std::string Ping();
+		static std::string PrivMsg(const std::string& sender, const std::string& target, const std::string& message);
+		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
+		
 		// Errors
 		static std::string ErrNoSuchNick(const std::string& targetNick, const std::string& invalidNick);
 		static std::string ErrNoSuchChannel(const std::string& requestingNick, const std::string& channel);
@@ -74,12 +58,12 @@ class Builder
 		static std::string ErrUserOnChannel(const std::string& requestingNick, const std::string& targetNick, const std::string& channel);
 		static std::string ErrNotRegistered(const std::string& requestingNick);
 		static std::string ErrNeedMoreParams(const std::string& requestingNick, const std::string& command);
-		static std::string ErrPasswdMismatch(const std::string& requestingNick);
+		static std::string PasswdMismatch(const std::string& requestingNick);
 		static std::string ErrKeySet(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrChannelIsFull(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUnknownMode(const std::string& requestingNick, const std::string& mode, const std::string& channel);
 		static std::string ErrInviteOnlyChan(const std::string& requestingNick, const std::string& channel);
-		static std::string ErrBadChannelKey(const std::string& requestingNick, const std::string& channel);
+		static std::string BadChannelKey(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrNoPrivileges(const std::string& requestingNick);
 		static std::string ErrChanOPrivsNeeded(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUModeUnknownFlag(const std::string& requestingNick);
