@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/07 11:38:23 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:36:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,25 +61,10 @@ int		FindWichNext(std::string msg, size_t &pos)
 
 std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg)	
 {
-	std::list<std::string>	lst;
-
-	lst.push_back(cmd);
-	size_t	posendl	= msg.find("\n", pos);
-	std::cout << "posendl = " << posendl << std::endl;
-	std::cout << "cmd = " << cmd << std::endl;
-	while (msg[pos] && pos + 1 <= posendl)
-	{
-		while(msg[pos] == ' ')
-			pos++;
-		if (msg[pos])
-		{
-			std::string arg(msg, pos, (msg.find(" ", pos) - pos));
-			std::cout << "arg = " << arg << std::endl;
-			lst.push_back(arg);
-			pos += arg.size();
-		}
-	}
-	return (lst);
+	std::list<std::string> res;
+	(void)cmd;
+	std::string args(msg, pos, pos - msg.find("\r\n", pos));
+	return (res);
 }
 
 Command::Command(Server *server, Client *client, std::string msg) : _server(server), _client(client)
