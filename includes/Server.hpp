@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/11 10:13:51 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/02/11 11:20:02 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ class Server {
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
 		
-		bool	isChannel(std::string name);
+		bool		isChannel(std::string name);
 		Channel*	getChannel(std::string name);
 
 	private :
