@@ -58,6 +58,7 @@ class Builder
 		static std::string ErrNotOnChannel(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUserOnChannel(const std::string& requestingNick, const std::string& targetNick, const std::string& channel);
 		static std::string ErrNotRegistered(const std::string& requestingNick);
+		static std::string ErrAlreadyRegisted(const std::string& Username);
 		static std::string ErrNeedMoreParams(const std::string& requestingNick, const std::string& command);
 		static std::string PasswdMismatch(const std::string& requestingNick);
 		static std::string ErrKeySet(const std::string& requestingNick, const std::string& channel);

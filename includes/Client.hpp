@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 14:08:22 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 17:24:17 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Client {
 		void		setFullName(std::string fullname);
 		void		setHostname(std::string hostname);
 		void		setServerName(std::string servername);
+		void		registerUser();
 
 		void		leaveChannels();
 

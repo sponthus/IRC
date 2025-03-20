@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 14:56:35 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 17:13:48 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,18 @@ void	Server::SetClientByNick(std::string nick, Client *client)
 {
 	this->_ClientsByNick[nick] = client;
 }
+void	Server::EraseClientByNick(std::string nick)
+{
+	std::map<std::string, Client *>::iterator it = this->_ClientsByNick.find(nick);
+	this->_ClientsByNick.erase(it);
+}
+bool	Server::FindClientByNick(std::string nick)
+{
+	if (this->_ClientsByNick.find(nick) != this->_ClientsByNick.end())
+		return (true);
+	return (false);
+}
+
 void	Server::initSocket()
 {
 	this->_socketFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -142,7 +154,7 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 			str = recieveData(fd, str);
 	}
 	Command	cmd(this, this->_ClientsByFD[fd], str);
-	std::cout << "Created cmd with str = " << str << std::endl;
+	// std::cout << "Created cmd with str = " << str << std::endl;
 	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
 		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
@@ -227,7 +239,11 @@ void	Server::connectClient()
 
 void	Server::sendData(int fd, std::string response) const // A surcharger avec tout un channel au lien de 1 FD
 {
-	if (send(fd, response.c_str(), sizeof(response.c_str()), 0) == -1)
+	// if (send(fd, response.c_str(), sizeof(response.c_str()), 0) == -1)
+	// {
+	// 	std::cerr << "send failed on response : " << response << std::endl;
+	// }
+	if (send(fd, response.c_str(), response.size(), 0) == -1)
 	{
 		std::cerr << "send failed on response : " << response << std::endl;
 	}
@@ -259,8 +275,8 @@ void	Server::run()
 				if (cl && cl->getNick().empty())
 					std::cout << this->_fds[i].fd;
 				else if (cl)
-					std::cout << cl->getNick() << " : ";
-				std::cout << " sent : //" << message << "//" << std::endl;
+					std::cout << ":" << cl->getNick();
+				std::cout << " sent: //" << message << "//" << std::endl;
 				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
 
 			}

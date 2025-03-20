@@ -345,6 +345,18 @@ std::string Builder::ErrNotRegistered(const std::string& requestingNick)
 		.build()
 		.toString();
 }
+// 462 ERR_ALREADYREGISTRED
+// :<server> 451 <requestingUSER> :":You may not reregister
+std::string Builder::ErrAlreadyRegisted(const std::string& Username)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("462")
+		.setContent(Username)
+		.setSuffix("You may not reregister")
+		.build()
+		.toString();
+}
 
 // 461 ERR_NEEDMOREPARAMS
 // ":<server> 461 <requestingNick> <command> :Not enough parameters"

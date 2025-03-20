@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/20 14:57:07 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 17:34:22 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,7 @@ size_t	FindPosCmd(std::string msg, std::string tf, size_t pos)
 void		FindMindCmd(size_t &min, size_t pos ,std::string msg)
 {
 	if (min < pos && pos != msg.npos)
-	{
-		std::cout << "min = " << min << " pos = " << pos << std::endl;
 		min = pos;
-	}
 	return ;
 }
 // bool single_digit (const size_t& value) { return (value == std::string::npos); }
@@ -62,7 +59,6 @@ int		FindWichNext(std::string msg, size_t &pos)
 		{
 			first_min = it->first;
 			second_min = it->second;
-			std::cout << "min = " << first_min << std::endl; // don't work as espect
 		}
 	}
 	if (second_min)
@@ -72,7 +68,6 @@ int		FindWichNext(std::string msg, size_t &pos)
 	else
 		return (-1);
 }
-
 
 std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg)	
 {
@@ -87,24 +82,29 @@ std::list<std::string>		SetListCMd(std::string cmd, size_t &pos, std::string msg
 		if (msg[pos])
 		{
 			size_t	posendwrd = msg.find(" ", pos);
+			if (posendwrd == std::string::npos)
+				posendwrd = posendl;
 			if (msg[pos] == ':' || msg[pos] == ';')
 			{
 				posendwrd = posendl;
 				if (msg.find(";", pos + 1) < posendl && msg.find(";", pos + 1) != std::string::npos)
 				{
-					std::cout << "add ; endl " << std::endl;
+					// std::cout << "add ; endl " << std::endl;
 					posendwrd = msg.find(";", pos + 1);
 				}
 				if (msg.find(":", pos + 1) < posendwrd && msg.find(":", pos + 1) != std::string::npos)
 				{
-					std::cout << "add : endl " << std::endl;
+					// std::cout << "add : endl " << std::endl;
 					posendwrd = msg.find(":", pos + 1);
 				}
 			}
-			std::string arg(msg, pos, (posendwrd - pos));
-			lst.push_back(arg);
-			pos += arg.size();
-			// std::cout << "arg = " << arg << std::endl;
+			if (pos != posendwrd)
+			{
+				std::string arg(msg, pos, (posendwrd - pos));
+				lst.push_back(arg);
+				pos += arg.size();
+			}
+			// std::cout << "size arg = " << arg.size() <<std::endl;
 		}
 	}
 	return (lst);
@@ -262,21 +262,24 @@ void	Command::join(std::list<std::string> *arg)
 void	Command::nick(std::list<std::string> *arg)
 {
 	std::cout << "nick function called " << std::endl;
-	PrintArg(*arg);
-	if (arg->size() != 1)
+	if (arg->size() == 1)
+		this->_server->SendToClient(this->_client, Builder::ErrNoNickGiven(_client->getNick()) + "\n");
+	else
 	{
-		//check if arg already exist
 		std::list<std::string>::iterator i = arg->begin();
 		i++;
+		if (this->_server->FindClientByNick(*i))
+		{
+			this->_server->SendToClient(this->_client,  Builder::ErrNickInUse(_client->getAddress(), *i) + "\n");
+			return;
+		}
+		if (!this->_client->getNick().empty())
+			this->_server->EraseClientByNick(this->_client->getNick());
 		_client->setNick(*i);
 		this->_server->SetClientByNick(*i, this->_client);
-		// mettre dans _server->_ClientsByNick
 	}
-	else
-		std::cout << Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") << std::endl;
-		// this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC")); //  don't send the entire msg on client
-	// // ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
-	// // ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
+	//ERR_ERRONEUSNICKNAME
+	//ERR_NICKCOLLISION (pas sur de faire cette erreur car 1 seul serveur irc)
 }
 void	Command::pass(std::list<std::string> *arg)
 {
@@ -287,22 +290,23 @@ void	Command::user(std::list<std::string> *arg)
 {
 	std::cout << "user function called " << std::endl;
 	PrintArg(*arg);
-	// if (arg->size() != 5)
-	// {
-	// 	std::cout << Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") << std::endl;
-	// 	return ;
-	// }	
-	// // check arg and find if already exist
-	// std::list<std::string>::iterator i = arg->begin();
-	// i++;
-	// _client->setUser(*i);
-	// i++;
-	// _client->setHostname(*i);
-	// i++;
-	// _client->setServerName(*i);
-	// i++;
-	// _client->setFullName(*i); // enlever les : au debut
-	// //ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
+	if (this->_client->isRegistered())
+		this->_server->SendToClient(this->_client, Builder::ErrAlreadyRegisted(this->_client->getUser()) + "\n");
+	if (arg->size() >= 5)
+	{
+		std::list<std::string>::iterator i = arg->begin();
+		i++;
+		this->_client->setUser(*i);
+		i++;
+		this->_client->setHostname(*i);
+		i++;
+		this->_client->setServerName(*i);
+		i++;
+		this->_client->setFullName(*i);
+		this->_client->registerUser();
+	}
+	else
+		this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "USER") + "\n");
 }
 void	Command::privmsg(std::list<std::string> *arg)
 {

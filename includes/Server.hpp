@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 14:59:21 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 16:28:22 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ class Server {
 		void	run();
 		
 		void	SetClientByNick(std::string nick, Client *client);
+		void	EraseClientByNick(std::string nick);
+		bool	FindClientByNick(std::string nick);
 		void	SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
