@@ -40,7 +40,8 @@ class Builder
 		static std::string Ping();
 		static std::string PrivMsg(const std::string& sender, const std::string& target, const std::string& message);
 		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
-		
+		static std::string RplNoTopic(const std::string& Channel);
+		static std::string RplTopic(const std::string &Channel, const std::string &Topic);
 		// Errors
 		static std::string ErrNoSuchNick(const std::string& targetNick, const std::string& invalidNick);
 		static std::string ErrNoSuchChannel(const std::string& requestingNick, const std::string& channel);

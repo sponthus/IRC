@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/11 11:48:33 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 14:56:35 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,10 @@ void	Server::SetCmdMap()
 	this->CmdMap["QUIT"] = &Command::quit;
 	this->CmdMap["PART"] = &Command::part;
 	return ;
+}
+void	Server::SetClientByNick(std::string nick, Client *client)
+{
+	this->_ClientsByNick[nick] = client;
 }
 void	Server::initSocket()
 {
@@ -149,9 +153,6 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 			}
 		}
 	}
-	
-	
-	
 	return (str);
 }
 
@@ -208,7 +209,6 @@ void	Server::connectClient()
 		std::cerr << "fcntl failed on new client" << std::endl;
 		return ; // Throw error ?
 	}
-
 	try
 	{
 		initClient(fd, ClientAddress);
@@ -255,7 +255,12 @@ void	Server::run()
 			else if (this->_fds[i].revents & POLLIN)
 			{
 				std::string message = recieveData(this->_fds[i].fd, "");
-				std::cout << this->_fds[i].fd << " sent : //" << message << "//" << std::endl;
+				Client* cl = this->_ClientsByFD[this->_fds[i].fd];
+				if (cl && cl->getNick().empty())
+					std::cout << this->_fds[i].fd;
+				else if (cl)
+					std::cout << cl->getNick() << " : ";
+				std::cout << " sent : //" << message << "//" << std::endl;
 				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
 
 			}

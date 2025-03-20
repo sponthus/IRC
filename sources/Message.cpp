@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 16:42:57 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/10 18:22:23 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/17 13:17:49 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Message::Message() {}
 // :<prefix> <code> <content> :<suffix>
 // <code> <content> :<suffix>
 // <code> <content>
+
 std::string Message::toString() const
 {
 	std::string result;

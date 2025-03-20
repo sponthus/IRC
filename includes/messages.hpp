@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   messages.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:10:45 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/30 18:22:19 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/17 15:28:00 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,11 @@
 # define ERR_PORT_NUM "Port value should be numeric"
 # define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
 # define ERR_PW "Password should not contain spaces, \' or \""
+
+// # define RPL_NOTOPIC ""
+// # define RPL_TOPIC " : no topic is set"
+// # define ERR_NEEDMOREPARAMS " :Not enough parameters"
+// # define ERR_NOTONCHANNEL " :You're not on that channel"
+// # define ERR_CHANOPRIVSNEEDED " :You're not channel operator"
 
 #endif

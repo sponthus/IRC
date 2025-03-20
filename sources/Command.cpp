@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/11 13:58:29 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 14:57:07 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void		FindMindCmd(size_t &min, size_t pos ,std::string msg)
 	}
 	return ;
 }
-bool single_digit (const size_t& value) { return (value == std::string::npos); }
+// bool single_digit (const size_t& value) { return (value == std::string::npos); }
 
 int		FindWichNext(std::string msg, size_t &pos)
 {
@@ -193,10 +193,19 @@ Command	&Command::operator=(Command &rhs)
 void PrintArg(std::list<std::string> arg)
 {
 	for (std::list<std::string>::iterator it = arg.begin(); it != arg.end(); it++)
-	{
 		std::cout << "arg function = " << *it << std::endl;
-	}
 	return ;
+}
+std::string		find_Channel(std::list<std::string> arg)
+{
+	for (std::list<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
+	{
+		std::string	channel = *i;
+		// if (channel.find("#", 0) != std::string::npos)
+		if (channel.find("#", 0) == 0)
+			return (channel);
+	}
+	return (NULL);
 }
 /*			members functions				*/
 void	Command::Kick(std::list<std::string> *arg)
@@ -213,6 +222,32 @@ void	Command::Topic(std::list<std::string> *arg)
 {
 	std::cout << "Topic function called " << std::endl;
 	PrintArg(*arg);
+	std::string	ChannelName = find_Channel(*arg);
+	Channel *_Channel = _client->getChannel(ChannelName);
+	if (arg->size() == 1)
+		std::cout << Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") << std::endl;
+	if (!_Channel)
+		std::cout << Builder::ErrNotOnChannel(_client->getNick(), ChannelName) << std::endl;
+	else if (arg->size() == 2)
+	{
+		std::string Topic = _Channel->getTopic();
+		if (Topic.empty())
+			std::cout << Builder::RplNoTopic(ChannelName) << std::endl;
+		else
+			std::cout << Builder::RplTopic(ChannelName, Topic) << std::endl;
+	}
+	else if (arg->size() == 3)
+	{
+		for (std::list<std::string>::iterator i = arg->begin(); i != arg->end(); i++)
+		{
+			std::string	Topic = *i;
+			// if (Topic.find(":", 0) != std::string::npos)
+			if (Topic.find(":", 0) == 0)
+				_Channel->setTopic(_client, Topic); // enlever les 2 point au bout
+		}
+	}
+	return ;
+	// ERR_CHANOPRIVSNEEDED
 }
 void	Command::Mode(std::list<std::string> *arg)
 {
@@ -228,6 +263,20 @@ void	Command::nick(std::list<std::string> *arg)
 {
 	std::cout << "nick function called " << std::endl;
 	PrintArg(*arg);
+	if (arg->size() != 1)
+	{
+		//check if arg already exist
+		std::list<std::string>::iterator i = arg->begin();
+		i++;
+		_client->setNick(*i);
+		this->_server->SetClientByNick(*i, this->_client);
+		// mettre dans _server->_ClientsByNick
+	}
+	else
+		std::cout << Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") << std::endl;
+		// this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC")); //  don't send the entire msg on client
+	// // ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
+	// // ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
 }
 void	Command::pass(std::list<std::string> *arg)
 {
@@ -238,6 +287,22 @@ void	Command::user(std::list<std::string> *arg)
 {
 	std::cout << "user function called " << std::endl;
 	PrintArg(*arg);
+	// if (arg->size() != 5)
+	// {
+	// 	std::cout << Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") << std::endl;
+	// 	return ;
+	// }	
+	// // check arg and find if already exist
+	// std::list<std::string>::iterator i = arg->begin();
+	// i++;
+	// _client->setUser(*i);
+	// i++;
+	// _client->setHostname(*i);
+	// i++;
+	// _client->setServerName(*i);
+	// i++;
+	// _client->setFullName(*i); // enlever les : au debut
+	// //ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 }
 void	Command::privmsg(std::list<std::string> *arg)
 {
