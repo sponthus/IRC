@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 19:02:12 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 20:26:22 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,18 +63,18 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	{
 		if (!PW || (PW && *PW != getPW()))
 		{
-			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()));
+			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()) + "\n");
 			return; // Wrong PW
 		}
 	}
 	if (hasUserLimit() && getUserLimit() == getUserNb())
 	{
-		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()));
+		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()) + "\n");
 		return; // Too many users connected
 	}
 	if (isInviteOnly() && !isInvited(client))
 	{
-		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()));
+		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()) + "\n");
 		return; // Channel is invite only you should be invited
 	}
 	this->_Clients.push_back(client);
@@ -158,7 +158,10 @@ void	Channel::setInviteOnly(Client *client)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
-	this->_InviteOnly = true;
+	if (this->_InviteOnly == false)
+		this->_InviteOnly = true;
+	else
+		this->_InviteOnly = false;
 }
 
 void	Channel::deleteInviteOnly(Client *client)
@@ -184,7 +187,11 @@ void	Channel::setPW(Client *client, std::string &PW)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
-	this->_PW = PW;
+	if (!this->hasPW())
+	{
+		this->_PW = PW;
+		this->_HasPW = true;
+	}
 }
 
 void	Channel::deletePW(Client *client)

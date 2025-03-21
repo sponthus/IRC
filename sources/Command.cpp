@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/21 19:25:57 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 20:36:15 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,6 @@ std::string		find_Channel(std::list<std::string> arg)
 	for (std::list<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
 	{
 		std::string	channel = *i;
-		// if (channel.find("#", 0) != std::string::npos)
 		if (channel.find("#", 0) == 0 || channel.find("&", 0) == 0 )
 			return (channel);
 	}
@@ -265,13 +264,81 @@ void	Command::Topic(std::list<std::string> *arg)
 
 void	Command::Mode(std::list<std::string> *arg)
 {
+	std::cout << "Mode function called " << std::endl;
 	if (this->_client->isRegistered() && !this->_client->getNick().empty())
 	{
+		if (arg->size() != 1)
+		{
+			std::list<std::string>::iterator it = arg->begin();
+			it++;
+			if (it->find("#", 0) == 0 || it->find("&", 0) == 0 || this->_server->getChannel(*it))
+			{
+				if (this->_client->getChannel(*it))
+				{
+					Channel *channel = this->_client->getChannel(*it);
+					if (channel->isOP(this->_client))
+					{
+						it++;
+						if (*it == "-i")
+						{
+							channel->setInviteOnly(this->_client);
+							this->_server->SendToClient(this->_client, "add invite only\n");
+						}	
+						else if(*it == "-t")
+						{
+						}
+						else if(*it == "-k")
+						{
+							if (!channel->hasPW())
+							{
+								it++;
+								if (it != arg->end())
+									channel->setPW(this->_client, *it);
+								this->_server->SendToClient(this->_client, "add PW\n");
+							}
+							else
+							{
+								channel->deletePW(this->_client);
+								this->_server->SendToClient(this->_client, "delete PW\n");
+							}
+						}
+						else if(*it == "-o")
+						{
+						}
+						else if(*it == "-l")
+						{
+						}
+						else
+							this->_server->SendToClient(this->_client, Builder::ErrUModeUnknownFlag(this->_client->getNick()) + "\n");
+					}
+					else
+						this->_server->SendToClient(this->_client, Builder::ErrNoPrivileges(this->_client->getNick()) + "\n"); // is not the op
+				}
+				else
+					this->_server->SendToClient(this->_client, Builder::ErrNotOnChannel(this->_client->getNick(), *it) +  "\n");
+			}
+			else
+				this->_server->SendToClient(this->_client, Builder::ErrNoSuchChannel(this->_client->getNick(), *it)  + "\n");
+		}
+		else
+			this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
 	}
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
-	std::cout << "Mode function called " << std::endl;
 	PrintArg(*arg);
+	// — i : Définir/supprimer le canal sur invitation uniquement
+	// — t : Définir/supprimer les restrictions de la commande TOPIC pour les opé-
+	// rateurs de canaux
+	// — k : Définir/supprimer la clé du canal (mot de passe)
+	// — o : Donner/retirer le privilège de l’opérateur de canal
+	// — l : Définir/supprimer la limite d’utilisateurs pour le canal
+	// RPL_CHANNELMODEIS
+    // ERR_CHANOPRIVSNEEDED
+    // ERR_KEYSET
+    // RPL_BANLIST                     RPL_ENDOFBANLIST
+    // ERR_UNKNOWNMODE
+    // ERR_USERSDONTMATCH              RPL_UMODEIS
+    // ERR_UMODEUNKNOWNFLAG
 }
 std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
 {
