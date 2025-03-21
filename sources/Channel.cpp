@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 11:06:16 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/21 19:02:12 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,33 +55,35 @@ void	Channel::removeClient(Client *client)
 	}
 }
 
-void	Channel::joinChannel(Client *client, std::string *PW = NULL)
+void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 {
 	if (isClient(client))
-		return ; // Client is already registered in channel, send a response
+		return; // Client is already registered in channel, send a response
 	if (hasPW())
 	{
 		if (!PW || (PW && *PW != getPW()))
 		{
-			std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
-			return ; // Wrong PW
+			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()));
+			return; // Wrong PW
 		}
 	}
 	if (hasUserLimit() && getUserLimit() == getUserNb())
 	{
-		std::cerr << "ERR_CHANNELISFULL" << std::endl; // To client
-		return ; // Too many users connected
+		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()));
+		return; // Too many users connected
 	}
 	if (isInviteOnly() && !isInvited(client))
 	{
-		std::cerr << "ERR_INVITEONLYCHAN" << std::endl; // To client
-		return ; // Channel is invite only you should be invited
+		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()));
+		return; // Channel is invite only you should be invited
 	}
 	this->_Clients.push_back(client);
+	client->addChannel(server->getChannel(this->getName()));
 	std::cout << "JOIN" << std::endl; // To channel
 	if (this->_topic.size() > 0)
-		std::cout << "RPL_TOPIC" << std::endl; // To client
-	std::cout << "RPL_NAMREPLY" << std::endl; // To client
+		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic) + "\n");
+	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients) + "\n");
+	return;
 }
 
 void	Channel::leaveChannel(Client *client)

@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 17:25:00 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 18:14:58 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,10 @@ void		Client::setServerName(std::string servername)
 void		Client::registerUser()
 {
 	this->_registered = true;
+}
+void		Client::addChannel(Channel *_Channel)
+{
+	this->_Channels.push_back(_Channel);
 }
 void	Client::leaveChannels()
 {

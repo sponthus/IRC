@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 16:28:22 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 14:50:41 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Server {
 
 		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();
-		void	initChannel(Client *client, std::string name);
+		void	initChannel(std::string name);
 		void	run();
 		
 		void	SetClientByNick(std::string nick, Client *client);
@@ -67,7 +67,7 @@ class Server {
 		//e TODO function to send to all channels, excluding double rsponse for users in 2 channels
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
-		
+
 		bool		isChannel(std::string name);
 		Channel*	getChannel(std::string name);
 

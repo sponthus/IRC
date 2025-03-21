@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 17:24:17 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 18:14:42 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Client {
 		void		setHostname(std::string hostname);
 		void		setServerName(std::string servername);
 		void		registerUser();
+		void		addChannel(Channel *_Channel);
 
 		void		leaveChannels();
 
@@ -56,6 +57,6 @@ class Client {
 		std::string				_fullname;
 		bool					_registered;
 		std::vector<Channel *>	_Channels;
-};	
+};
 
 #endif
