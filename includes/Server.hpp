@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/11 11:20:02 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/20 16:28:22 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,18 @@ class Server {
 		Server(int port, std::string pw);
 		~Server();
 
-		int			getPort() const;
+		int					getPort() const;
 		const std::string	getPW() const;
 
 		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();
-		void	SetCmdMap();
 		void	initChannel(Client *client, std::string name);
 		void	run();
+		
+		void	SetClientByNick(std::string nick, Client *client);
+		void	EraseClientByNick(std::string nick);
+		bool	FindClientByNick(std::string nick);
+		void	SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
 		void		connectClient();
@@ -60,7 +64,7 @@ class Server {
 
 		void	sendData(int fd, std::string response) const;
 		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
-		// TODO function to send to all channels, excluding double response for users in 2 channels
+		//e TODO function to send to all channels, excluding double rsponse for users in 2 channels
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
 		

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/12 10:29:35 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/21 13:53:52 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,24 @@ class Client {
 		Client();
 		~Client();
 
-		int			getFD() const;
+		int					getFD() const;
 		const std::string	getAddress() const;
 		const std::string	getNick() const;
 		const std::string	getUser() const;
-		bool		isRegistered() const;
-		Channel		*getChannel(std::string name);
+		// const std::string	getFullName() const;
+		// const std::string	getHostname() const;
+		// const std::string	getServerName() const;
+		bool				isRegistered() const;
+		Channel				*getChannel(std::string name);
 
 		void		setFD(int fd);
 		void		setAddress(std::string address);
 		void		setNick(std::string nickname);
 		void		setUser(std::string username);
+		void		setFullName(std::string fullname);
+		void		setHostname(std::string hostname);
+		void		setServerName(std::string servername);
+		void		registerUser();
 
 		void		leaveChannels();
 
@@ -44,8 +51,11 @@ class Client {
 		std::string				_address;
 		std::string				_nick;
 		std::string				_user;
+		std::string				_servername;
+		std::string				_hostname;
+		std::string				_fullname;
 		bool					_registered;
 		std::vector<Channel *>	_Channels;
-};
+};	
 
 #endif

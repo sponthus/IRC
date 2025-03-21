@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/06 14:57:26 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:25:00 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,25 @@ void	Client::setUser(std::string username)
 	this->_user = username;
 }
 
+void		Client::setFullName(std::string fullname)
+{
+	this->_fullname = fullname;
+}
+
+void		Client::setHostname(std::string hostname)
+{
+	this->_hostname = hostname;
+}
+
+void		Client::setServerName(std::string servername)
+{
+	this->_servername = servername;
+}
+
+void		Client::registerUser()
+{
+	this->_registered = true;
+}
 void	Client::leaveChannels()
 {
 	std::vector<Channel *>::iterator	it;

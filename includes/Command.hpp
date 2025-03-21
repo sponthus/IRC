@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/02/11 11:08:57 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/17 15:51:14 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 
 #include "Client.hpp"
 #include "Server.hpp"
+#include "Channel.hpp"
+#include "Builder.hpp"
 
 class Client;
 class Server;
@@ -35,6 +37,7 @@ class Command
 
 		Server *_server;
 		Client *_client; // Client who sent cmd, necessary to exec
+		// Channel	*_channel;
 
 	public:
 		/*			members functions called by the server			*/

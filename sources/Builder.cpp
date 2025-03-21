@@ -123,11 +123,29 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 
 // 331 RPL_NOTOPIC
 // ":<server> 331 <nick> #<channel> :No topic is set"
-
+std::string Builder::RplNoTopic(const std::string& Channel)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("331")
+		.setContent(Channel)
+		.setSuffix("No Topic is set")
+		.build()
+		.toString();
+}
 // 332 RPL_TOPIC
 // Answer to setting a topic : ":<nick> TOPIC #<channel> :<topic>"
 // Answer to viewing a topic . ":<server> 332 <nick> #<channel> :<topic>"
-
+std::string Builder::RplTopic(const std::string &Channel, const std::string &Topic)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("332")
+		.setContent(Channel)
+		.setSuffix(Topic)
+		.build()
+		.toString();
+}
 // 341 RPL_INVITING
 // "#<channel> <nick>"
 
@@ -324,6 +342,18 @@ std::string Builder::ErrNotRegistered(const std::string& requestingNick)
 		.setCode("451")
 		.setContent(requestingNick)
 		.setSuffix("You have not registered")
+		.build()
+		.toString();
+}
+// 462 ERR_ALREADYREGISTRED
+// :<server> 451 <requestingUSER> :":You may not reregister
+std::string Builder::ErrAlreadyRegisted(const std::string& Username)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("462")
+		.setContent(Username)
+		.setSuffix("You may not reregister")
 		.build()
 		.toString();
 }
