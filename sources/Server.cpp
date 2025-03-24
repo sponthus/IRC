@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/20 17:13:48 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 15:13:28 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,18 +153,6 @@ std::string	Server::recieveData(int fd, std::string msg) // fd from the client t
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
 	}
-	Command	cmd(this, this->_ClientsByFD[fd], str);
-	// std::cout << "Created cmd with str = " << str << std::endl;
-	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
-	{
-		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
-		{
-			if (!i->empty() && it->first == (*i->begin()))
-			{
-				(cmd.*(it->second))(&(*i));
-			}
-		}
-	}
 	return (str);
 }
 
@@ -249,6 +237,22 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 	}
 }
 
+void	Server::handleData(std::string message, Client *cl)
+{
+	Command	cmd(this, cl, message);
+	// std::cout << "Created cmd with str = " << str << std::endl;
+	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
+	{
+		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
+		{
+			if (!i->empty() && it->first == (*i->begin()))
+			{
+				(cmd.*(it->second))(&(*i));
+			}
+		}
+	}
+}
+
 void	Server::run()
 {
 	if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1) // & sig == false ?, waits for messages
@@ -277,6 +281,7 @@ void	Server::run()
 				else if (cl)
 					std::cout << ":" << cl->getNick();
 				std::cout << " sent: //" << message << "//" << std::endl;
+				handleData(message, cl);
 				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
 
 			}
@@ -331,6 +336,21 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
 	{
 		SendToClient(sender, Builder::ErrNoSuchNick(sender->getNick(), nick));
 	}
+}
+
+void	Server::SendToAllChannels(const Client *sender, const std::string message)
+{
+	std::vector<Client *>				list;
+	
+	for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
+	{
+		for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
+		{
+			if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
+				list.push_back(*cl);
+		}
+	}
+	SendToGroup(list, message);
 }
 
 void	Server::SendToClient(const Client *client, const std::string message) const

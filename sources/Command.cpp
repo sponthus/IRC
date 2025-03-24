@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/21 13:54:09 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/21 13:54:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -326,10 +326,5 @@ void	Command::quit(std::list<std::string> *arg)
 void	Command::part(std::list<std::string> *arg)
 {
 	std::cout << "part function called " << std::endl;
-<<<<<<< HEAD
 		PrintArg(*arg);
 }
-=======
-	PrintArg(*arg);
-}
->>>>>>> emma

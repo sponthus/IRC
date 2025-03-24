@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 11:06:16 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/21 15:53:21 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ const std::string&	Channel::getName() const
 	return (this->_name);
 }
 
-
 bool	Channel::isClient(Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
@@ -53,6 +52,11 @@ void	Channel::removeClient(Client *client)
 			_Clients.erase(it);
 		}
 	}
+}
+
+const std::vector<Client *> Channel::getClients() const
+{
+	return (this->_Clients);
 }
 
 void	Channel::joinChannel(Client *client, std::string *PW = NULL)
