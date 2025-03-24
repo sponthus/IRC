@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 13:40:06 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:53:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,15 @@ class Channel {
 		const std::string	&getName() const;
 		const std::string	&getPW() const;
 		const int			&getUserLimit() const;
-		int					getUserNb() const;
-		bool				hasPW() const;
-		bool				isOP(Client *client) const;
-		bool				isClient(Client *client) const;
-		bool				isInviteOnly() const;
-		bool				isInvited(Client *client) const;
-		bool				hasUserLimit() const;
-		bool				isTopicRestrict() const;
+		const std::vector<Client *> getClients() const;
+		int		getUserNb() const;
+		bool	hasPW() const;
+		bool	isOP(Client *client) const;
+		bool	isClient(Client *client) const;
+		bool	isInviteOnly() const;
+		bool	isInvited(Client *client) const;
+		bool	hasUserLimit() const;
+		bool	isTopicRestrict() const;
 
 		// Channel actions
 		void				joinChannel(Server *server, Client *client, std::string *PW);

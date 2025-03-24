@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 13:41:36 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:53:32 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ const std::string&	Channel::getName() const
 	return (this->_name);
 }
 
-
 bool	Channel::isClient(Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
@@ -51,8 +50,14 @@ void	Channel::removeClient(Client *client)
 		if ((*it)->getNick() == client->getNick())
 		{
 			_Clients.erase(it);
+			return ;
 		}
 	}
+}
+
+const std::vector<Client *> Channel::getClients() const
+{
+	return (this->_Clients);
 }
 
 void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
@@ -117,11 +122,12 @@ void	Channel::removeOP(Client *client)
 	if (!isOP(client))
 		return ; // Is not an OP
 	std::vector<Client *>::iterator it;
-	for (it = _Clients.begin(); it != _Clients.end(); it++)
+	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
 		if ((*it)->getNick() == client->getNick())
 		{
-			_Clients.erase(it);
+			_ops.erase(it);
+			return ;
 		}
 	}
 }

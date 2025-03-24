@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 14:50:41 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 11:29:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <cstring> // strerror
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <cstdlib> // atoi()
 #include <sys/socket.h> // socket(), address
 #include <netinet/in.h> // IP specialties 
@@ -31,7 +32,6 @@
 #include "Client.hpp"
 #include "Command.hpp"
 #include "Channel.hpp"
-
 #include "Builder.hpp"
 
 # define BUFF_SIZE 512
@@ -59,12 +59,13 @@ class Server {
 		void	SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
+		void		handleData(std::string message, Client *cl);
 		void		connectClient();
 		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
 		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
-		//e TODO function to send to all channels, excluding double rsponse for users in 2 channels
+		void	SendToAllChannels(const Client *sender, const std::string message);
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
 

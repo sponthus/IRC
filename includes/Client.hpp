@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 18:14:42 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 11:28:41 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Client {
 		// const std::string	getServerName() const;
 		bool				isRegistered() const;
 		Channel				*getChannel(std::string name);
+		const std::vector<Channel *>		getChannels() const;
 
 		void		setFD(int fd);
 		void		setAddress(std::string address);

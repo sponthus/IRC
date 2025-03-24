@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 18:14:58 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 11:30:39 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,11 @@ Channel*		Client::getChannel(std::string name)
 			return (*it);
 	}
 	return (NULL);
+}
+
+const std::vector<Channel *>		Client::getChannels() const
+{
+	return (this->_Channels);
 }
 
 void	Client::setNick(std::string nickname)

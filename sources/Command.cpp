@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/24 13:42:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:54:24 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -465,6 +465,7 @@ void	Command::nick(std::list<std::string> *arg)
 		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
 	//ERR_ERRONEUSNICKNAME
 }
+
 void	Command::pass(std::list<std::string> *arg)
 {
 	if (this->_client->isRegistered() && !this->_client->getNick().empty())
@@ -512,6 +513,7 @@ void	Command::privmsg(std::list<std::string> *arg)
 	std::cout << "privmsg function called " << std::endl;
 	PrintArg(*arg);
 }
+
 void	Command::quit(std::list<std::string> *arg)
 {
 	if (this->_client->isRegistered() && !this->_client->getNick().empty())
@@ -531,5 +533,5 @@ void	Command::part(std::list<std::string> *arg)
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
 	std::cout << "part function called " << std::endl;
-	PrintArg(*arg);
+		PrintArg(*arg);
 }
