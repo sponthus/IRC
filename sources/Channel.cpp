@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 11:30:13 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:28:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void	Channel::removeClient(Client *client)
 		if ((*it)->getNick() == client->getNick())
 		{
 			_Clients.erase(it);
+			return ;
 		}
 	}
 }
@@ -121,11 +122,12 @@ void	Channel::removeOP(Client *client)
 	if (!isOP(client))
 		return ; // Is not an OP
 	std::vector<Client *>::iterator it;
-	for (it = _Clients.begin(); it != _Clients.end(); it++)
+	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
 		if ((*it)->getNick() == client->getNick())
 		{
-			_Clients.erase(it);
+			_ops.erase(it);
+			return ;
 		}
 	}
 }
