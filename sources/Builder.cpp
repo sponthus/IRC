@@ -75,7 +75,7 @@ std::string Builder::Welcome(const std::string& nick, const std::string&user)
 		.setPrefix(SERVER)
 		.setCode("001")
 		.setContent(nick)
-		.setSuffix("Welcome to the IRC Network, " + nick + "!" + user + "@" + HOST)
+		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
 		.build()
 		.toString();
 }
@@ -143,6 +143,24 @@ std::string Builder::RplTopic(const std::string &Channel, const std::string &Top
 		.setCode("332")
 		.setContent(Channel)
 		.setSuffix(Topic)
+		.build()
+		.toString();
+}
+// 353 RPL_NAMREPLY
+//     "<canal> :[[@|+]<pseudo> [[@|+]<pseudo> [...]]]" 
+std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clients)
+{
+	std::string names;
+	for (std::vector<Client *>::iterator i = _Clients.begin(); i != _Clients.end(); i++)
+	{
+		names += (*i)->getUser();
+		names += " ";
+	}
+	return create()
+		.setPrefix(SERVER)
+		.setCode("353")
+		.setContent(canal)
+		.setSuffix(names)
 		.build()
 		.toString();
 }
@@ -335,12 +353,12 @@ std::string Builder::ErrUserOnChannel(const std::string& requestingNick, const s
 
 // 451 ERR_NOTREGISTERED
 // :<server> 451 <requestingNick> :You have not registered
-std::string Builder::ErrNotRegistered(const std::string& requestingNick)
+std::string Builder::ErrNotRegistered()
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("451")
-		.setContent(requestingNick)
+		.setContent(":")
 		.setSuffix("You have not registered")
 		.build()
 		.toString();
@@ -448,7 +466,18 @@ std::string Builder::BadChannelKey(const std::string& requestingNick, const std:
 			.build()
 			.toString();
 }
-
+// ERR_BADCHANMASK 476
+//  "<channel> :Bad Channel Mask"
+std::string Builder::BadChannelMask(const std::string& channel)
+{
+	return create()
+			.setPrefix(SERVER)
+			.setCode("476")
+			.setContent(channel)
+			.setSuffix("Bad Channel Mask")
+			.build()
+			.toString();
+}
 // 481 ERR_NOPRIVILEGES
 // ":<server> 481 <requestingNick> :Permission Denied- You're not an IRC operator"
 std::string Builder::ErrNoPrivileges(const std::string& requestingNick)

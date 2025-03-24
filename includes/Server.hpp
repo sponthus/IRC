@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 15:19:24 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:29:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Server {
 
 		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();
-		void	initChannel(Client *client, std::string name);
+		void	initChannel(std::string name);
 		void	run();
 		
 		void	SetClientByNick(std::string nick, Client *client);
@@ -68,7 +68,7 @@ class Server {
 		void	SendToAllChannels(const Client *sender, const std::string message);
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;
-		
+
 		bool		isChannel(std::string name);
 		Channel*	getChannel(std::string name);
 

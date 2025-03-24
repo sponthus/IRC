@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 14:40:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:28:41 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Client {
 		void		setHostname(std::string hostname);
 		void		setServerName(std::string servername);
 		void		registerUser();
+		void		addChannel(Channel *_Channel);
 
 		void		leaveChannels();
 
@@ -57,6 +58,6 @@ class Client {
 		std::string				_fullname;
 		bool					_registered;
 		std::vector<Channel *>	_Channels;
-};	
+};
 
 #endif

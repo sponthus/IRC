@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 14:40:52 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:30:39 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,10 @@ void		Client::setServerName(std::string servername)
 void		Client::registerUser()
 {
 	this->_registered = true;
+}
+void		Client::addChannel(Channel *_Channel)
+{
+	this->_Channels.push_back(_Channel);
 }
 void	Client::leaveChannels()
 {

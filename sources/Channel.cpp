@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 15:53:21 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:30:13 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,33 +59,35 @@ const std::vector<Client *> Channel::getClients() const
 	return (this->_Clients);
 }
 
-void	Channel::joinChannel(Client *client, std::string *PW = NULL)
+void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 {
 	if (isClient(client))
-		return ; // Client is already registered in channel, send a response
+		return; // Client is already registered in channel, send a response
 	if (hasPW())
 	{
 		if (!PW || (PW && *PW != getPW()))
 		{
-			std::cerr << "ERR_BADCHANNELKEY" << std::endl; // To client
-			return ; // Wrong PW
+			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()) + "\n");
+			return; // Wrong PW
 		}
 	}
 	if (hasUserLimit() && getUserLimit() == getUserNb())
 	{
-		std::cerr << "ERR_CHANNELISFULL" << std::endl; // To client
-		return ; // Too many users connected
+		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()) + "\n");
+		return; // Too many users connected
 	}
 	if (isInviteOnly() && !isInvited(client))
 	{
-		std::cerr << "ERR_INVITEONLYCHAN" << std::endl; // To client
-		return ; // Channel is invite only you should be invited
+		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()) + "\n");
+		return; // Channel is invite only you should be invited
 	}
 	this->_Clients.push_back(client);
+	client->addChannel(server->getChannel(this->getName()));
 	std::cout << "JOIN" << std::endl; // To channel
 	if (this->_topic.size() > 0)
-		std::cout << "RPL_TOPIC" << std::endl; // To client
-	std::cout << "RPL_NAMREPLY" << std::endl; // To client
+		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic) + "\n");
+	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients) + "\n");
+	return;
 }
 
 void	Channel::leaveChannel(Client *client)
@@ -160,7 +162,10 @@ void	Channel::setInviteOnly(Client *client)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
-	this->_InviteOnly = true;
+	if (this->_InviteOnly == false)
+		this->_InviteOnly = true;
+	else
+		this->_InviteOnly = false;
 }
 
 void	Channel::deleteInviteOnly(Client *client)
@@ -186,7 +191,11 @@ void	Channel::setPW(Client *client, std::string &PW)
 {
 	if (!isOP(client))
 		return ; // Is not an OP
-	this->_PW = PW;
+	if (!this->hasPW())
+	{
+		this->_PW = PW;
+		this->_HasPW = true;
+	}
 }
 
 void	Channel::deletePW(Client *client)

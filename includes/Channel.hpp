@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 14:42:08 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:28:14 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,21 +44,21 @@ class Channel {
 		bool	isTopicRestrict() const;
 
 		// Channel actions
-		void	joinChannel(Client *client, std::string *PW);
-		void	leaveChannel(Client *client);
-		void	addOP(Client *client);
-		void	removeOP(Client *client);
-		void	invite(Client *client, Client *invited);
-		void	SendToAll(std::string message) const;
+		void				joinChannel(Server *server, Client *client, std::string *PW);
+		void				leaveChannel(Client *client);
+		void				addOP(Client *client);
+		void				removeOP(Client *client);
+		void				invite(Client *client, Client *invited);
+		void				SendToAll(std::string message) const;
 
 		// Modify channel settings
-		void	setTopic(Client *client, std::string &topic);
-		void	setPW(Client *client, std::string &PW);
-		void	setUserLimit(Client *client, int limit);
-		void	deleteUserLimit(Client *client);
-		void	deletePW(Client *client);
-		void	setInviteOnly(Client *client);
-		void	deleteInviteOnly(Client *client);
+		void				setTopic(Client *client, std::string &topic);
+		void				setPW(Client *client, std::string &PW);
+		void				setUserLimit(Client *client, int limit);
+		void				deleteUserLimit(Client *client);
+		void				deletePW(Client *client);
+		void				setInviteOnly(Client *client);
+		void				deleteInviteOnly(Client *client);
 
 	private:
 		Channel();
@@ -73,10 +73,10 @@ class Channel {
 		int						_UserLimit;
 
 		// Channel options : set or not.
-		bool				_InviteOnly;
-		bool				_HasPW;
-		bool				_HasUserLimit;
-		bool				_TopicRestrict;
+		bool					_InviteOnly;
+		bool					_HasPW;
+		bool					_HasUserLimit;
+		bool					_TopicRestrict;
 
 		// Functions used by class only, no interest from outside
 		void	removeClient(Client *client);

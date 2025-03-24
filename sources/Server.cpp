@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 15:13:28 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:31:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -295,11 +295,11 @@ void	Server::run()
 	}
 }
 
-void	Server::initChannel(Client *client, std::string name)
+void	Server::initChannel(std::string name)
 {
 	Channel *channel = new Channel(this, name);
-	channel->joinChannel(client, NULL);
-	channel->addOP(client);
+	// channel->joinChannel(client, NULL);
+	// channel->addOP(client);
 	this->_ChannelsByName[name] = channel;
 }
 

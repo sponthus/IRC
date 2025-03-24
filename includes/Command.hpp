@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/17 15:51:14 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/21 17:47:44 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Command
 
 		Server *_server;
 		Client *_client; // Client who sent cmd, necessary to exec
-		// Channel	*_channel;
+		bool	SetCmdJoin(std::list<std::string> &Channels, std::list<std::string> &keys, std::list<std::string> *arg);
 
 	public:
 		/*			members functions called by the server			*/
