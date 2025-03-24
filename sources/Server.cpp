@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 13:57:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 17:36:20 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,14 @@ int	Server::getPort() const
 const std::string	Server::getPW() const
 {
 	return this->_pw;
+}
+
+const Client *		Server::getClientByNick(std::string nick) const
+{
+	const std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.find(nick);
+	if (it !=  this->_ClientsByNick.end())
+		return (it->second);
+	return (NULL);
 }
 
 void	Server::SetCmdMap()
@@ -240,7 +248,6 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 void	Server::handleData(std::string message, Client *cl)
 {
 	Command	cmd(this, cl, message);
-	// std::cout << "Created cmd with str = " << str << std::endl;
 	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
 		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)

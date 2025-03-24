@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 11:29:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:54:26 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class Server {
 
 		int					getPort() const;
 		const std::string	getPW() const;
+		const Client *		getClientByNick(std::string nick) const;
 
 		void	initClient(int fd, struct sockaddr_in ClientAddress);
 		void	init();

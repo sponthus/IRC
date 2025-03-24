@@ -6,12 +6,14 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/24 13:54:24 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 17:42:21 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
 #include <algorithm>
+#include <sstream>
+
 /*						functions 							*/
 
 Command::Command()
@@ -246,7 +248,7 @@ void	Command::Topic(std::list<std::string> *arg)
 				{
 					if (it->find(":", 0) == 0)
 						it->replace(0, 1, "");
-					_client->getChannel(ChannelName)->setTopic(_client, *it);
+					_client->getChannel(ChannelName)->setTopic(*it);
 				}
 				if (!_client->getChannel(ChannelName)->getTopic().empty())
 					this->_server->SendToClient(this->_client, Builder::RplTopic(ChannelName,  _client->getChannel(ChannelName)->getTopic()) + "\n");		
@@ -279,43 +281,71 @@ void	Command::Mode(std::list<std::string> *arg)
 					if (channel->isOP(this->_client))
 					{
 						it++;
-						if (*it == "-i")
+						if (*it == "-i" || *it == "+i")
 						{
-							channel->setInviteOnly(this->_client);
-							this->_server->SendToClient(this->_client, "add invite only\n");
+							char Flag = (*it)[0];
+							channel->setInviteOnly(this->_client, Flag);
 						}	
-						else if(*it == "-t")
+						else if(*it == "-t" || *it == "+t")
 						{
-							if (channel->isTopicRestrict())
-								this->_server->SendToClient(this->_client, "add Topic restriction\n");
-							else
-								this->_server->SendToClient(this->_client, "remove Topic restriction\n");
-							channel->setTopicRestriction();
+							char Flag = (*it)[0];
+							channel->setTopicRestriction(this->_client, Flag);
 						}
-						else if(*it == "-k")
+						else if(*it == "-k" || *it == "+k")
 						{
-							if (!channel->hasPW())
+							if ((*it)[0] == '+')
+							{
+								it++;
+								if (it != arg->end())
+									channel->setPW(this->_client, *it);
+								else
+									this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
+							}
+							else if ((*it)[0] == '-')
+								channel->deletePW(this->_client);
+						}
+						else if(*it == "-o" || *it == "+o")
+						{
+							char Flag = (*it)[0];
+							it++;
+							if (it != arg->end())
+							{
+								const Client *current = this->_server->getClientByNick(*it);
+								if (current)
+								{
+									if (!channel->isClient((Client *)current))
+									{
+										if (Flag == '+')
+											channel->addOP((Client *)current);
+										else if (Flag == '-')
+											channel->removeOP((Client *)current);
+									}
+									else
+										this->_server->SendToClient(this->_client,"client not on channel");
+								}
+								else
+									this->_server->SendToClient(this->_client,"client not in server");
+							}
+							else
+								this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
+						}
+						else if(*it == "-l" || *it == "+l")
+						{
+							char Flag = (*it)[0];
+							int limit = 0;
+							if (Flag == '+')
 							{
 								it++;
 								if (it != arg->end())
 								{
-									channel->setPW(this->_client, *it);
-									this->_server->SendToClient(this->_client, "add PW\n");
+									std::stringstream ss;
+									ss << *it;
+									ss >> limit;
 								}
 								else
 									this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
 							}
-							else
-							{
-								channel->deletePW(this->_client);
-								this->_server->SendToClient(this->_client, "delete PW\n");
-							}
-						}
-						else if(*it == "-o")
-						{
-						}
-						else if(*it == "-l")
-						{
+							channel->setUserLimit(this->_client, limit, Flag);
 						}
 						else
 							this->_server->SendToClient(this->_client, Builder::ErrUModeUnknownFlag(this->_client->getNick()) + "\n");
@@ -334,19 +364,12 @@ void	Command::Mode(std::list<std::string> *arg)
 	}
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
-	PrintArg(*arg);
-	// — i : Définir/supprimer le canal sur invitation uniquement
-	// — t : Définir/supprimer les restrictions de la commande TOPIC pour les opé-
-	// rateurs de canaux
-	// — k : Définir/supprimer la clé du canal (mot de passe)
-	// — o : Donner/retirer le privilège de l’opérateur de canal
-	// — l : Définir/supprimer la limite d’utilisateurs pour le canal
 	// RPL_CHANNELMODEIS
     // ERR_CHANOPRIVSNEEDED
     // ERR_KEYSET
     // RPL_BANLIST                     RPL_ENDOFBANLIST
     // ERR_UNKNOWNMODE
-    // ERR_USERSDONTMATCH              RPL_UMODEIS
+    // RPL_UMODEIS
     // ERR_UMODEUNKNOWNFLAG
 }
 std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)

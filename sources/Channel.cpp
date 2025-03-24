@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 13:53:32 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 15:46:51 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,25 +160,6 @@ void	Channel::invite(Client *client, Client *invited)
 	std::cout << "INVITE" << std::endl; // To invited
 }
 
-void	Channel::setInviteOnly(Client *client)
-{
-	if (!isOP(client))
-		return ; // Is not an OP
-	if (this->_InviteOnly == false)
-		this->_InviteOnly = true;
-	else
-		this->_InviteOnly = false;
-}
-
-void	Channel::deleteInviteOnly(Client *client)
-{
-	if (!isOP(client))
-		return ; // Is not an OP
-	this->_InviteOnly = false;
-	_InvitedClients.clear();
-}
-
-
 const std::string&	Channel::getPW() const
 {
 	return (this->_PW);
@@ -191,23 +172,31 @@ bool	Channel::hasPW() const
 
 void	Channel::setPW(Client *client, std::string &PW)
 {
-	if (!isOP(client))
-		return ; // Is not an OP
-	if (!this->hasPW())
-	{
-		this->_PW = PW;
-		this->_HasPW = true;
-	}
+
+	this->_server->SendToClient(client, "add PW\n");
+	this->_PW = PW;
+	this->_HasPW = true;
 }
 
 void	Channel::deletePW(Client *client)
 {
-	if (!isOP(client))
-		return ; // You have no right to do this you are not OP
-	if (!hasPW())
-		return ; // Has no PW
-	this->_PW = "";
+	this->_server->SendToClient(client, "delete PW\n");
+	this->_PW.clear(); // = "";
 	this->_HasPW = false;
+}
+
+void	Channel::setInviteOnly(Client *client, char Flag)
+{
+	if (Flag == '+')
+	{
+		this->_server->SendToClient(client, "remove invite only\n");
+		this->_InviteOnly = true;
+	}
+	else if (Flag == '-')
+	{
+		this->_server->SendToClient(client, "add invite only\n");
+		this->_InviteOnly = false;
+	}
 }
 
 bool	Channel::isTopicRestrict() const
@@ -220,9 +209,9 @@ const std::string&	Channel::getTopic() const
 	return (this->_topic);
 }
 
-void	Channel::setTopic(Client *client, std::string &topic)
+void	Channel::setTopic(std::string &topic)
 {
-	if (isTopicRestrict() && !isOP(client))
+	if (isTopicRestrict())
 	{
 		std::cerr << "ERR_CHANOPRIVSNEEDED" << std::endl;
 		return ;
@@ -246,31 +235,36 @@ int	Channel::getUserNb() const
 	return (this->_Clients.size());
 }
 
-void	Channel::setUserLimit(Client *client, int limit)
+void	Channel::setUserLimit(Client *client, int limit, char Flag)
 {
-	if (!isOP(client))
-		return ; // Is not an OP
 	if (limit <= 0)
 		return ; // Invalid value
-	if (!hasUserLimit())
+	if (Flag == '+')
+	{
+		this->_server->SendToClient(client, "add user limit\n");
 		this->_HasUserLimit = true;
-	this->_UserLimit = limit;
+		this->_UserLimit = limit;
+	}
+	else
+	{
+		this->_server->SendToClient(client, "remove user limit\n");
+		this->_HasUserLimit = false;
+		this->_UserLimit = 0;
+	}
 }
 
-void	Channel::deleteUserLimit(Client *client)
+void	Channel::setTopicRestriction(Client *client, char Flag)
 {
-	if (!isOP(client))
-		return ; // Is not an OP
-	this->_UserLimit = 0;
-	if (hasUserLimit())
-		this->_HasUserLimit = false;
-}
-void	Channel::setTopicRestriction()
-{
-	if (this->_TopicRestrict)
+	if (Flag == '-')
+	{
+		this->_server->SendToClient(client, "remove Topic restriction\n");
 		this->_TopicRestrict = false;
-	else
+	}
+	else if (Flag == '+')
+	{
+		this->_server->SendToClient(client, "add Topic restriction\n");
 		this->_TopicRestrict = true;
+	}
 }
 void	Channel::SendToAll(std::string message) const
 {

@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 13:53:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 15:49:29 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,14 +52,12 @@ class Channel {
 		void				SendToAll(std::string message) const;
 
 		// Modify channel settings
-		void				setTopic(Client *client, std::string &topic);
+		void				setTopic(std::string &topic);
 		void				setPW(Client *client, std::string &PW);
-		void				setUserLimit(Client *client, int limit);
-		void				deleteUserLimit(Client *client);
 		void				deletePW(Client *client);
-		void				setInviteOnly(Client *client);
-		void				deleteInviteOnly(Client *client);
-		void				setTopicRestriction();
+		void				setUserLimit(Client *client, int limit, char Flag);
+		void				setInviteOnly(Client *client, char Flag);
+		void				setTopicRestriction(Client *client, char Flag);
 
 	private:
 		Channel();
