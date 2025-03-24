@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 20:26:22 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:41:36 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,7 +259,13 @@ void	Channel::deleteUserLimit(Client *client)
 	if (hasUserLimit())
 		this->_HasUserLimit = false;
 }
-
+void	Channel::setTopicRestriction()
+{
+	if (this->_TopicRestrict)
+		this->_TopicRestrict = false;
+	else
+		this->_TopicRestrict = true;
+}
 void	Channel::SendToAll(std::string message) const
 {
 	_server->SendToGroup(this->_Clients, message);

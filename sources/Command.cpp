@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/21 20:36:15 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:42:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,6 +286,11 @@ void	Command::Mode(std::list<std::string> *arg)
 						}	
 						else if(*it == "-t")
 						{
+							if (channel->isTopicRestrict())
+								this->_server->SendToClient(this->_client, "add Topic restriction\n");
+							else
+								this->_server->SendToClient(this->_client, "remove Topic restriction\n");
+							channel->setTopicRestriction();
 						}
 						else if(*it == "-k")
 						{
@@ -293,8 +298,12 @@ void	Command::Mode(std::list<std::string> *arg)
 							{
 								it++;
 								if (it != arg->end())
+								{
 									channel->setPW(this->_client, *it);
-								this->_server->SendToClient(this->_client, "add PW\n");
+									this->_server->SendToClient(this->_client, "add PW\n");
+								}
+								else
+									this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
 							}
 							else
 							{

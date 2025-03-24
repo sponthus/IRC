@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/21 16:30:38 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/24 13:40:06 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Channel {
 		void				deletePW(Client *client);
 		void				setInviteOnly(Client *client);
 		void				deleteInviteOnly(Client *client);
+		void				setTopicRestriction();
 
 	private:
 		Channel();
