@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/24 17:42:21 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/25 15:11:23 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,16 +198,7 @@ void PrintArg(std::list<std::string> arg)
 		std::cout << "arg function = " << *it << std::endl;
 	return ;
 }
-std::string		find_Channel(std::list<std::string> arg)
-{
-	for (std::list<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
-	{
-		std::string	channel = *i;
-		if (channel.find("#", 0) == 0 || channel.find("&", 0) == 0 )
-			return (channel);
-	}
-	return (NULL);
-}
+
 /*			members functions				*/
 void	Command::Kick(std::list<std::string> *arg)
 {
@@ -229,149 +220,103 @@ void	Command::Invite(std::list<std::string> *arg)
 	std::cout << "Invite function called " << std::endl;
 	PrintArg(*arg);
 }
+std::string		find_Channel(std::list<std::string> arg)
+{
+	for (std::list<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
+	{
+		std::string	channel = *i;
+		if (channel.find("#", 0) == 0 || channel.find("&", 0) == 0 )
+			return (channel);
+	}
+	return (NULL);
+}
+
 void	Command::Topic(std::list<std::string> *arg)
 {
 	std::cout << "Topic function called " << std::endl;
-	if (this->_client->isRegistered() && !this->_client->getNick().empty())
+	if (!parsingCmd(this->_client, this->_server, *arg))
+		return ;
+	std::list<std::string>::iterator it = arg->begin();
+	it++;
+	std::string	ChannelName = *it;
+	it++;
+	if (it == arg->end() && _client->getChannel(ChannelName)->getTopic().empty())
+		this->_server->SendToClient(this->_client, Builder::RplNoTopic(ChannelName) + "\n"); 
+	if (it != arg->end())
 	{
-		if (arg->size() != 1)
-		{
-			std::string	ChannelName = find_Channel(*arg);
-			if ( _client->getChannel(ChannelName))
-			{
-				if (arg->size() == 2 &&  _client->getChannel(ChannelName)->getTopic().empty())
-					this->_server->SendToClient(this->_client, Builder::RplNoTopic(ChannelName) + "\n"); 
-				std::list<std::string>::iterator it = arg->begin();
-				for (size_t i = 0; i < 2; i++)
-					it++;
-				if (it != arg->end())
-				{
-					if (it->find(":", 0) == 0)
-						it->replace(0, 1, "");
-					_client->getChannel(ChannelName)->setTopic(*it);
-				}
-				if (!_client->getChannel(ChannelName)->getTopic().empty())
-					this->_server->SendToClient(this->_client, Builder::RplTopic(ChannelName,  _client->getChannel(ChannelName)->getTopic()) + "\n");		
-			}
-			else
-				this->_server->SendToClient(this->_client, Builder::ErrNotOnChannel(_client->getNick(), ChannelName) + "\n");
-		}
-		else
-			this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(_client->getNick(), "TOPIC") + "\n"); 
+		if (it->find(":", 0) == 0)
+			it->replace(0, 1, "");
+		_client->getChannel(ChannelName)->setTopic(*it);
 	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
-	// ERR_CHANOPRIVSNEEDED
+	if (!_client->getChannel(ChannelName)->getTopic().empty())
+		this->_server->SendToClient(this->_client, Builder::RplTopic(ChannelName,  _client->getChannel(ChannelName)->getTopic()) + "\n");		
 }
 
 void	Command::Mode(std::list<std::string> *arg)
 {
 	std::cout << "Mode function called " << std::endl;
-	if (this->_client->isRegistered() && !this->_client->getNick().empty())
+	if (!parsingCmd(this->_client, this->_server, *arg))
+		return ;
+	std::list<std::string>::iterator it = arg->begin();
+	it++;
+	Channel *channel = this->_client->getChannel(*it);
+	it++;
+	if (!ThereIsArg(this->_client, this->_server, it, *arg))
+		return ;
+	if (*it == "-i" || *it == "+i")
 	{
-		if (arg->size() != 1)
+		char Flag = (*it)[0];
+		channel->setInviteOnly(this->_client, Flag);
+	}	
+	else if(*it == "-t" || *it == "+t")
+	{
+		char Flag = (*it)[0];
+		channel->setTopicRestriction(this->_client, Flag);
+	}
+	else if (*it == "-k" || *it == "+k")
+	{
+		if ((*it)[0] == '+')
 		{
-			std::list<std::string>::iterator it = arg->begin();
 			it++;
-			if (it->find("#", 0) == 0 || it->find("&", 0) == 0 || this->_server->getChannel(*it))
-			{
-				if (this->_client->getChannel(*it))
-				{
-					Channel *channel = this->_client->getChannel(*it);
-					if (channel->isOP(this->_client))
-					{
-						it++;
-						if (*it == "-i" || *it == "+i")
-						{
-							char Flag = (*it)[0];
-							channel->setInviteOnly(this->_client, Flag);
-						}	
-						else if(*it == "-t" || *it == "+t")
-						{
-							char Flag = (*it)[0];
-							channel->setTopicRestriction(this->_client, Flag);
-						}
-						else if(*it == "-k" || *it == "+k")
-						{
-							if ((*it)[0] == '+')
-							{
-								it++;
-								if (it != arg->end())
-									channel->setPW(this->_client, *it);
-								else
-									this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
-							}
-							else if ((*it)[0] == '-')
-								channel->deletePW(this->_client);
-						}
-						else if(*it == "-o" || *it == "+o")
-						{
-							char Flag = (*it)[0];
-							it++;
-							if (it != arg->end())
-							{
-								const Client *current = this->_server->getClientByNick(*it);
-								if (current)
-								{
-									if (!channel->isClient((Client *)current))
-									{
-										if (Flag == '+')
-											channel->addOP((Client *)current);
-										else if (Flag == '-')
-											channel->removeOP((Client *)current);
-									}
-									else
-										this->_server->SendToClient(this->_client,"client not on channel");
-								}
-								else
-									this->_server->SendToClient(this->_client,"client not in server");
-							}
-							else
-								this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
-						}
-						else if(*it == "-l" || *it == "+l")
-						{
-							char Flag = (*it)[0];
-							int limit = 0;
-							if (Flag == '+')
-							{
-								it++;
-								if (it != arg->end())
-								{
-									std::stringstream ss;
-									ss << *it;
-									ss >> limit;
-								}
-								else
-									this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
-							}
-							channel->setUserLimit(this->_client, limit, Flag);
-						}
-						else
-							this->_server->SendToClient(this->_client, Builder::ErrUModeUnknownFlag(this->_client->getNick()) + "\n");
-					}
-					else
-						this->_server->SendToClient(this->_client, Builder::ErrNoPrivileges(this->_client->getNick()) + "\n"); // is not the op
-				}
-				else
-					this->_server->SendToClient(this->_client, Builder::ErrNotOnChannel(this->_client->getNick(), *it) +  "\n");
-			}
-			else
-				this->_server->SendToClient(this->_client, Builder::ErrNoSuchChannel(this->_client->getNick(), *it)  + "\n");
+			if (!ThereIsArg(this->_client, this->_server, it, *arg))
+				return ;
+			channel->setPW(this->_client, *it);
 		}
-		else
-			this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "MODE"));
+		else if ((*it)[0] == '-')
+			channel->deletePW(this->_client);
+	}
+	else if(*it == "-o" || *it == "+o")
+	{
+		char Flag = (*it)[0];
+		it++;
+		if (!ThereIsArg(this->_client, this->_server, it, *arg) || !IsClientInChannel(this->_client, this->_server, channel, *it))
+			return ;
+		const Client *TargetUser = this->_server->getClientByNick(*it);
+		if (Flag == '+')
+			channel->addOP((Client *)TargetUser);
+		else if (Flag == '-')
+			channel->removeOP((Client *)TargetUser);
+	}
+	else if(*it == "-l" || *it == "+l")
+	{
+		char Flag = (*it)[0];
+		int limit = 0;
+		if (Flag == '+')
+		{
+			it++;
+			if (!ThereIsArg(this->_client, this->_server, it, *arg))
+				return ;
+			std::stringstream ss;
+			ss << *it;
+			ss >> limit;
+		}
+		channel->setUserLimit(this->_client, limit, Flag);
 	}
 	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
+		this->_server->SendToClient(this->_client, Builder::ErrUModeUnknownFlag(this->_client->getNick()) + "\n");
 	// RPL_CHANNELMODEIS
-    // ERR_CHANOPRIVSNEEDED
-    // ERR_KEYSET
-    // RPL_BANLIST                     RPL_ENDOFBANLIST
-    // ERR_UNKNOWNMODE
-    // RPL_UMODEIS
-    // ERR_UMODEUNKNOWNFLAG
 }
+
 std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
 {
 	std::list<std::string>::iterator lastChan = arg->end();
@@ -380,10 +325,6 @@ std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
 		if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
 			lastChan = it;
 	}
-	if (lastChan != arg->end())
-		std::cout << "last chan = " << *lastChan << std::endl;
-	if (lastChan == arg->end())
-		return (arg->end());
 	return (lastChan);
 }
 
@@ -391,101 +332,83 @@ std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
 bool	Command::SetCmdJoin(std::list<std::string> &Channels, std::list<std::string> &keys, std::list<std::string> *arg)
 {
 	std::list<std::string>::iterator lastChan = FindLastChannel(arg);
-		if (lastChan == arg->end())
-		{
-			for (std::list<std::string>::iterator it = arg->begin(); it != arg->end(); ++it)
-			{
-				if (*it != "JOIN")
-					this->_server->SendToClient(this->_client, Builder::BadChannelMask(*it) + "\n");
-			}
-			return (false);
-		}
-		bool	isLastChan = false;
-		for (std::list<std::string>::iterator it = arg->begin(); it != arg->end(); ++it)
-		{
-			if (*it == "JOIN")
-				it++;
-			if (!isLastChan)
-				Channels.push_back(*it);
-			else
-				keys.push_back(*it);
-			if (it == lastChan)
-				isLastChan = true;
-		}
-		return (true);
+	std::list<std::string>::iterator it = arg->begin();
+	/*				block					*/
+	if (lastChan == arg->end())
+	{
+		while (++it != arg->end())
+				this->_server->SendToClient(this->_client, Builder::BadChannelMask(*it) + "\n");
+		return (false);
+	}
+	/*				block					*/
+	bool	isLastChan = false;
+	it = arg->begin();
+	while (++it != arg->end())
+	{
+		if (!isLastChan)
+			Channels.push_back(*it);
+		else
+			keys.push_back(*it);
+		if (it == lastChan)
+			isLastChan = true;
+	}
+	return (true);
 }
 
 void	Command::join(std::list<std::string> *arg)
 {
-	if (this->_client->isRegistered() && !this->_client->getNick().empty())
+	if (!CheckArgAndRegister(this->_client, this->_server, *arg))
+		return ;
+	std::list<std::string> Channels;
+	std::list<std::string> keys;
+	if (!this->SetCmdJoin(Channels, keys, arg))
+		return ;
+	std::list<std::string>::iterator key = keys.begin();
+	for (std::list<std::string>::iterator it = Channels.begin(); it != Channels.end(); it++)
 	{
-		if (arg->size() != 1)
+		if (CheckMaskChan(this->_client, this->_server, *it))
 		{
-			std::list<std::string> Channels;
-			std::list<std::string> keys;
-			if (this->SetCmdJoin(Channels, keys, arg) == true)
+			if (this->_server->getChannel(*it) == NULL)
 			{
-				std::list<std::string>::iterator key = keys.begin();
-				for (std::list<std::string>::iterator it = Channels.begin(); it != Channels.end(); it++)
-				{
-					if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
-					{
-						if (this->_server->getChannel(*it) == NULL)
-						{
-							this->_server->initChannel(*it);
-							this->_server->getChannel(*it)->addOP(this->_client);
-						}
-						if (key != keys.end() && !key->empty())
-						{
-							this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, &(*key));
-							key++;
-						}
-						else
-							this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, NULL);
-					}
-					else
-						this->_server->SendToClient(this->_client, Builder::BadChannelMask(*it) + "\n");
-				}
+				this->_server->initChannel(*it);
+				this->_server->getChannel(*it)->addOP(this->_client);
 			}
-		}
-		else
-			this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "JOIN") +"\n");
+			if (key != keys.end() && !key->empty())
+			{
+				this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, &(*key));
+				key++;
+			}
+			else
+				this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, NULL);
+		}	
 	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
-	// ERR_BANNEDFROMCHAN
 	// ERR_TOOMANYCHANNELS
 }
 
 void	Command::nick(std::list<std::string> *arg)
 {
 	std::cout << "nick function called " << std::endl;
-	if (this->_client->isRegistered())
+	if (arg->size() != 1)
 	{
-		if (arg->size() != 1)
+		std::list<std::string>::iterator i = arg->begin();
+		i++;
+		if (!this->_server->FindClientByNick(*i))
 		{
-			std::list<std::string>::iterator i = arg->begin();
-			i++;
-			if (!this->_server->FindClientByNick(*i))
-			{
-				if (this->_client->getNick().empty())
-					this->_server->SendToClient(this->_client, Builder::Welcome(*i, this->_client->getUser()) + "\n");
-				else
-				{
-					this->_server->SendToClient(this->_client, Builder::Nick(this->_client->getNick(), this->_client->getUser(), *i) + "\n");
-					this->_server->EraseClientByNick(this->_client->getNick());
-				}
-				this->_client->setNick(*i);
-				this->_server->SetClientByNick(*i, this->_client);
-			}
+			if (this->_client->getNick().empty())
+				this->_server->SendToClient(this->_client, Builder::Welcome(*i, this->_client->getUser()) + "\n");
 			else
-				this->_server->SendToClient(this->_client,  Builder::ErrNickInUse(this->_client->getAddress(), *i) + "\n");
+			{
+				this->_server->SendToClient(this->_client, Builder::Nick(this->_client->getNick(), this->_client->getUser(), *i) + "\n");
+				this->_server->EraseClientByNick(this->_client->getNick());
+			}
+			this->_client->setNick(*i);
+			this->_server->SetClientByNick(*i, this->_client);
 		}
 		else
-			this->_server->SendToClient(this->_client, Builder::ErrNoNickGiven(this->_client->getNick()) + "\n");
+			this->_server->SendToClient(this->_client,  Builder::ErrNickInUse(this->_client->getAddress(), *i) + "\n");
 	}
 	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
+		this->_server->SendToClient(this->_client, Builder::ErrNoNickGiven(this->_client->getNick()) + "\n");
 	//ERR_ERRONEUSNICKNAME
 }
 

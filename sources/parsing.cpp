@@ -6,13 +6,14 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/01/29 14:15:26 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/25 15:00:37 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "messages.hpp"
-#include <cstdlib>
+#include "Server.hpp"
 
+#include <cstdlib>
 // No space, no ' or "
 bool	isValidPW(std::string arg)
 {
@@ -49,4 +50,84 @@ bool	isValidPort(std::string arg)
 		return false;
 	}
 	return true;
+}
+
+bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg)
+{
+	if (it == arg.end())
+	{
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE") + "\n");
+		return (false);
+	}
+	return (true);
+}
+
+bool	IsClientInChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient)
+{
+	const Client *TargetUser = server->getClientByNick(TargetClient);
+	if (!TargetUser)
+	{
+		server->SendToClient(client, Builder::ErrNoSuchNick(client->getNick(), TargetClient) + "\n");
+		return (false);
+	}
+	else if (!Channel->isClient((Client *)TargetUser))
+	{
+		server->SendToClient(client, Builder::ErrNotOnChannel(TargetUser->getNick(), TargetClient) +  "\n");
+		return (false);
+	}
+	return (true);
+}
+bool	CheckMaskChan(Client *client, Server *server,std::string ChannelName)
+{
+	if (ChannelName.find("#", 0) == 0 || ChannelName.find("&", 0) ==0)
+		return (true);
+	server->SendToClient(client, Builder::BadChannelMask(ChannelName) + "\n");
+	return (false);
+}
+bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
+{
+	if (!CheckMaskChan(client, server, ChannelName))
+		return (false);
+	if (!server->getChannel(ChannelName))
+	{
+		server->SendToClient(client, Builder::ErrNoSuchChannel(client->getNick(), ChannelName)  + "\n");
+		return (false);
+	}
+	Channel *channel = client->getChannel(ChannelName);
+	if (!IsClientInChannel(client, server, channel, client->getNick()))
+		return (false);
+	if (!channel->isOP(client))
+	{
+		server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(), channel->getName()) + "\n"); // is not the op
+		return (false);
+	}
+	return (true);
+}
+
+bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg)
+{
+	if (!client->isRegistered() && client->getNick().empty())
+	{
+		server->SendToClient(client, Builder::ErrNotRegistered() +"\n");
+		return (false);
+	}
+	if	(arg.size() == 1)
+	{
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE") + "\n");
+		return (false);
+	}
+	return (true);
+}
+
+bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg)
+{
+	if (!CheckArgAndRegister(client, server, arg))
+		return (false);
+	std::list<std::string>::iterator it = arg.begin();
+	it++;
+	if (!ThereIsArg(client, server, it, arg))
+		return (false);
+	if (!CheckChannelArg(client, server, *it))
+		return (false);
+	return (true);
 }

@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 15:46:51 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/25 14:30:28 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,11 @@ bool	Channel::hasPW() const
 
 void	Channel::setPW(Client *client, std::string &PW)
 {
-
+	if (this->hasPW())
+	{	
+		this->_server->SendToClient(client, Builder::ErrKeySet(client->getNick(), this->getName()) + "\n");
+		return ;
+	}
 	this->_server->SendToClient(client, "add PW\n");
 	this->_PW = PW;
 	this->_HasPW = true;
@@ -189,12 +193,12 @@ void	Channel::setInviteOnly(Client *client, char Flag)
 {
 	if (Flag == '+')
 	{
-		this->_server->SendToClient(client, "remove invite only\n");
+		this->_server->SendToClient(client, "add invite only\n");
 		this->_InviteOnly = true;
 	}
 	else if (Flag == '-')
 	{
-		this->_server->SendToClient(client, "add invite only\n");
+		this->_server->SendToClient(client, "remove invite only\n");
 		this->_InviteOnly = false;
 	}
 }

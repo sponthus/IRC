@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/21 17:47:44 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/25 14:57:51 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 
 class Client;
 class Server;
+class Channel;
 
 class Command
 {
@@ -59,5 +60,13 @@ class Command
 		std::vector<std::list<std::string> >		input;
 
 };
+
+/*					Parsing Command							*/
+bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg);
+bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg);
+bool	IsClientInChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient);
+bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName);
+bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg);
+bool	CheckMaskChan(Client *client, Server *server,std::string ChannelName);
 
 #endif
