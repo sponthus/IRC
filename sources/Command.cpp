@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/26 14:52:46 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 15:24:56 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,6 @@ void PrintArg(std::list<std::string> arg)
 }
 
 /*			members functions				*/
-
 void	Command::Kick(std::list<std::string> *arg)
 {
 	if (!parsingCmd(this->_client, this->_server, *arg, "KICK"))
@@ -212,6 +211,7 @@ void	Command::Invite(std::list<std::string> *arg)
 	std::cout << "Invite function called " << std::endl;
 	PrintArg(*arg);
 }
+
 std::string		find_Channel(std::list<std::string> arg)
 {
 	for (std::list<std::string>::iterator i = arg.begin(); i != arg.end(); i++)
@@ -270,70 +270,23 @@ void	Command::Mode(std::list<std::string> *arg)
 	}
 }
 
-std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
-{
-	std::list<std::string>::iterator lastChan = arg->end();
-	for (std::list<std::string>::iterator it = arg->begin(); it != arg->end(); it++)
-	{
-		if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
-			lastChan = it;
-	}
-	return (lastChan);
-}
-
-/*				parse argument and split into 2 list channels and keys			*/
-bool	Command::SetCmdJoin(std::list<std::string> &Channels, std::list<std::string> &keys, std::list<std::string> *arg)
-{
-	std::list<std::string>::iterator lastChan = FindLastChannel(arg);
-	std::list<std::string>::iterator it = arg->begin();
-	/*				block					*/
-	if (lastChan == arg->end())
-	{
-		while (++it != arg->end())
-				this->_server->SendToClient(this->_client, Builder::BadChannelMask(*it) + "\n");
-		return (false);
-	}
-	/*				block					*/
-	bool	isLastChan = false;
-	it = arg->begin();
-	while (++it != arg->end())
-	{
-		if (!isLastChan)
-			Channels.push_back(*it);
-		else
-			keys.push_back(*it);
-		if (it == lastChan)
-			isLastChan = true;
-	}
-	return (true);
-}
-
 void	Command::join(std::list<std::string> *arg)
 {
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
-	std::list<std::string> Channels;
-	std::list<std::string> keys;
-	if (!this->SetCmdJoin(Channels, keys, arg))
-		return ;
-	std::list<std::string>::iterator key = keys.begin();
-	for (std::list<std::string>::iterator it = Channels.begin(); it != Channels.end(); it++)
+	std::map<std::string, std::string> JoinnedChan;
+	setMapJoin(&JoinnedChan, arg);
+	for (std::map<std::string, std::string>::iterator it = JoinnedChan.begin(); it != JoinnedChan.end(); it++)
 	{
-		if (CheckMaskChan(this->_client, this->_server, *it))
+		if (CheckMaskChan(this->_client, this->_server, it->first))
 		{
-			if (this->_server->getChannel(*it) == NULL)
+			if (this->_server->getChannel(it->first) == NULL)
 			{
-				this->_server->initChannel(*it);
-				this->_server->getChannel(*it)->addOP(this->_client);
+				this->_server->initChannel(it->first);
+				this->_server->getChannel(it->first)->addOP(this->_client);
 			}
-			if (key != keys.end() && !key->empty())
-			{
-				this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, &(*key));
-				key++;
-			}
-			else
-				this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, NULL);
-		}	
+			this->_server->getChannel(it->first)->joinChannel(this->_server, this->_client, &(it->second));
+		}
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/26 14:37:56 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 15:24:34 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ class Command
 
 		Server *_server;
 		Client *_client; // Client who sent cmd, necessary to exec
-		bool	SetCmdJoin(std::list<std::string> &Channels, std::list<std::string> &keys, std::list<std::string> *arg);
 
 	public:
 		/*			members functions called by the server			*/
@@ -78,4 +77,5 @@ void							addmod(Client *client, Server *server, Channel *Channel, std::map<cha
 void							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 std::map<char, std::string *>	SetMapMods(std::string mod, std::list<std::string> *arg, char Flag);
 
+void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::string> *arg);
 #endif

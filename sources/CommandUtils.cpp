@@ -6,13 +6,13 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/26 14:55:38 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 15:24:15 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Command.hpp"
 
-/*							MODE UTILS																*/
+/*								MODE UTILS								*/
 std::map<char, std::string *>	SetMapMods(std::string mod, std::list<std::string> *arg, char Flag)
 {
 	std::map<char, std::string *> Mods;
@@ -105,3 +105,34 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first) + "\n");
 }
 
+/*								JOIN UTILS								*/
+
+std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
+{
+	std::list<std::string>::iterator lastChan = arg->end();
+	for (std::list<std::string>::iterator it = arg->begin(); it != arg->end(); it++)
+	{
+		if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
+			lastChan = it;
+	}
+	return (lastChan);
+}
+
+void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::string> *arg)
+{
+	std::list<std::string>::iterator lastChan = FindLastChannel(arg);
+	std::list<std::string>::iterator it = arg->begin();
+	if (lastChan != arg->end())
+		it = arg->begin();
+	lastChan++;
+	while (++it != arg->end())
+	{
+		if (lastChan == it)
+			return ;
+		if (lastChan != arg->end())
+			(*JoinnedChan)[*it] = *lastChan;
+		else
+			(*JoinnedChan)[*it] = "";
+	}
+	return ;
+}
