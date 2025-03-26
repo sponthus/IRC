@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/25 14:30:28 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 14:18:08 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void	Channel::addOP(Client *client)
 void	Channel::removeOP(Client *client)
 {
 	if (!isOP(client))
-		return ; // Is not an OP
+		return ;
 	std::vector<Client *>::iterator it;
 	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
@@ -249,7 +249,7 @@ void	Channel::setUserLimit(Client *client, int limit, char Flag)
 		this->_HasUserLimit = true;
 		this->_UserLimit = limit;
 	}
-	else
+	else if (Flag == '-')
 	{
 		this->_server->SendToClient(client, "remove user limit\n");
 		this->_HasUserLimit = false;

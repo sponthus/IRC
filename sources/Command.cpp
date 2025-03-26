@@ -6,13 +6,11 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/25 15:11:23 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 14:52:46 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
-#include <algorithm>
-#include <sstream>
 
 /*						functions 							*/
 
@@ -31,7 +29,6 @@ void		FindMindCmd(size_t &min, size_t pos ,std::string msg)
 		min = pos;
 	return ;
 }
-// bool single_digit (const size_t& value) { return (value == std::string::npos); }
 
 int		FindWichNext(std::string msg, size_t &pos)
 {
@@ -200,23 +197,18 @@ void PrintArg(std::list<std::string> arg)
 }
 
 /*			members functions				*/
+
 void	Command::Kick(std::list<std::string> *arg)
 {
-	if (this->_client->isRegistered() && !this->_client->getNick().empty())
-	{
-	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
+	if (!parsingCmd(this->_client, this->_server, *arg, "KICK"))
+		return ;
 	std::cout << "Kick function called " << std::endl;
 	PrintArg(*arg);
 }
 void	Command::Invite(std::list<std::string> *arg)
 {
-	if (this->_client->isRegistered() && !this->_client->getNick().empty())
-	{
-	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered() +"\n");
+	if (!parsingCmd(this->_client, this->_server, *arg, "INVITE"))
+		return ;
 	std::cout << "Invite function called " << std::endl;
 	PrintArg(*arg);
 }
@@ -234,12 +226,14 @@ std::string		find_Channel(std::list<std::string> arg)
 void	Command::Topic(std::list<std::string> *arg)
 {
 	std::cout << "Topic function called " << std::endl;
-	if (!parsingCmd(this->_client, this->_server, *arg))
+	if (!parsingCmd(this->_client, this->_server, *arg, "TOPIC"))
 		return ;
 	std::list<std::string>::iterator it = arg->begin();
 	it++;
 	std::string	ChannelName = *it;
 	it++;
+	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC"))
+		return ;
 	if (it == arg->end() && _client->getChannel(ChannelName)->getTopic().empty())
 		this->_server->SendToClient(this->_client, Builder::RplNoTopic(ChannelName) + "\n"); 
 	if (it != arg->end())
@@ -255,66 +249,25 @@ void	Command::Topic(std::list<std::string> *arg)
 void	Command::Mode(std::list<std::string> *arg)
 {
 	std::cout << "Mode function called " << std::endl;
-	if (!parsingCmd(this->_client, this->_server, *arg))
+	if (!parsingCmd(this->_client, this->_server, *arg, "MODE"))
 		return ;
 	std::list<std::string>::iterator it = arg->begin();
 	it++;
-	Channel *channel = this->_client->getChannel(*it);
+	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg))
+	if (!ThereIsArg(this->_client, this->_server, it, *arg, "MODE"))
 		return ;
-	if (*it == "-i" || *it == "+i")
+	char Flag = (*it)[0];
+	if (!isValidFlag(this->_client, this->_server, Flag))
+		return ;
+	std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+	for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
 	{
-		char Flag = (*it)[0];
-		channel->setInviteOnly(this->_client, Flag);
-	}	
-	else if(*it == "-t" || *it == "+t")
-	{
-		char Flag = (*it)[0];
-		channel->setTopicRestriction(this->_client, Flag);
-	}
-	else if (*it == "-k" || *it == "+k")
-	{
-		if ((*it)[0] == '+')
-		{
-			it++;
-			if (!ThereIsArg(this->_client, this->_server, it, *arg))
-				return ;
-			channel->setPW(this->_client, *it);
-		}
-		else if ((*it)[0] == '-')
-			channel->deletePW(this->_client);
-	}
-	else if(*it == "-o" || *it == "+o")
-	{
-		char Flag = (*it)[0];
-		it++;
-		if (!ThereIsArg(this->_client, this->_server, it, *arg) || !IsClientInChannel(this->_client, this->_server, channel, *it))
-			return ;
-		const Client *TargetUser = this->_server->getClientByNick(*it);
 		if (Flag == '+')
-			channel->addOP((Client *)TargetUser);
-		else if (Flag == '-')
-			channel->removeOP((Client *)TargetUser);
+			addmod(this->_client, this->_server, Channel, it);
+		else
+			removemod(this->_client, this->_server, Channel, it);
 	}
-	else if(*it == "-l" || *it == "+l")
-	{
-		char Flag = (*it)[0];
-		int limit = 0;
-		if (Flag == '+')
-		{
-			it++;
-			if (!ThereIsArg(this->_client, this->_server, it, *arg))
-				return ;
-			std::stringstream ss;
-			ss << *it;
-			ss >> limit;
-		}
-		channel->setUserLimit(this->_client, limit, Flag);
-	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrUModeUnknownFlag(this->_client->getNick()) + "\n");
-	// RPL_CHANNELMODEIS
 }
 
 std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
@@ -357,7 +310,7 @@ bool	Command::SetCmdJoin(std::list<std::string> &Channels, std::list<std::string
 
 void	Command::join(std::list<std::string> *arg)
 {
-	if (!CheckArgAndRegister(this->_client, this->_server, *arg))
+	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
 	std::list<std::string> Channels;
 	std::list<std::string> keys;
@@ -382,7 +335,6 @@ void	Command::join(std::list<std::string> *arg)
 				this->_server->getChannel(*it)->joinChannel(this->_server, this->_client, NULL);
 		}	
 	}
-	// ERR_TOOMANYCHANNELS
 }
 
 void	Command::nick(std::list<std::string> *arg)

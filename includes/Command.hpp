@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/25 14:57:51 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 14:37:56 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <list>
 #include <vector>
 #include <list>
+#include <sstream>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "Server.hpp"
@@ -62,11 +64,18 @@ class Command
 };
 
 /*					Parsing Command							*/
-bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg);
-bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg);
+bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg, std::string cmdName);
+bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg, std::string cmdName);
 bool	IsClientInChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient);
 bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName);
-bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg);
+bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg, std::string cmdName);
 bool	CheckMaskChan(Client *client, Server *server,std::string ChannelName);
+bool	isValidFlag(Client *client, Server *server, char Flag);
+
+
+/*					Commande Utils							*/
+void							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+void							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+std::map<char, std::string *>	SetMapMods(std::string mod, std::list<std::string> *arg, char Flag);
 
 #endif

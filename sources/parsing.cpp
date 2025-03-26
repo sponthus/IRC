@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/25 15:00:37 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 14:39:42 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,11 @@ bool	isValidPort(std::string arg)
 	return true;
 }
 
-bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg)
+bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg, std::string cmdName)
 {
 	if (it == arg.end())
 	{
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE") + "\n");
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), cmdName) + "\n");
 		return (false);
 	}
 	return (true);
@@ -104,7 +104,7 @@ bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
 	return (true);
 }
 
-bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg)
+bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg, std::string cmdName)
 {
 	if (!client->isRegistered() && client->getNick().empty())
 	{
@@ -113,21 +113,26 @@ bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> 
 	}
 	if	(arg.size() == 1)
 	{
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE") + "\n");
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), cmdName) + "\n");
 		return (false);
 	}
 	return (true);
 }
 
-bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg)
+bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg, std::string cmdName)
 {
-	if (!CheckArgAndRegister(client, server, arg))
+	if (!CheckArgAndRegister(client, server, arg, cmdName))
 		return (false);
 	std::list<std::string>::iterator it = arg.begin();
 	it++;
-	if (!ThereIsArg(client, server, it, arg))
+	if (!ThereIsArg(client, server, it, arg, cmdName))
 		return (false);
-	if (!CheckChannelArg(client, server, *it))
-		return (false);
-	return (true);
+	return (CheckChannelArg(client, server, *it));
+}
+bool	isValidFlag(Client *client, Server *server, char Flag)
+{
+	if (Flag == '+' || Flag == '-')
+		return (true);
+	server->SendToClient(client, Builder::ErrUModeUnknownFlag(client->getNick()) + "\n");
+	return (false);
 }

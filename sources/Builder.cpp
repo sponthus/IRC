@@ -175,7 +175,7 @@ std::string Builder::ErrNoSuchNick(const std::string& targetNick, const std::str
 		.setPrefix(SERVER)
 		.setCode("401")
 		.setContent(targetNick + " " + invalidNick)
-		.setSuffix("No such nick/channel")
+		.setSuffix("No such nick")
 		.build()
 		.toString();
 }
@@ -513,6 +513,20 @@ std::string Builder::ErrUModeUnknownFlag(const std::string& requestingNick)
 		.setCode("501")
 		.setContent(requestingNick)
 		.setSuffix("Unknown MODE flag")
+		.build()
+		.toString();
+}
+// 472 ERR_UNKNOWNMODE
+//     "<caratère> :is unknown mode char to me
+std::string  Builder::ErrUModeUnknownMod(const char &requestingMode)
+{
+	std::string mod;
+	mod += requestingMode;
+	return create()
+		.setPrefix(SERVER)
+		.setCode("472")
+		.setContent(mod)
+		.setSuffix("is unknown mode char to me")
 		.build()
 		.toString();
 }

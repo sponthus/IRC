@@ -76,7 +76,7 @@ class Builder
 		static std::string ErrNoPrivileges(const std::string& requestingNick);
 		static std::string ErrChanOPrivsNeeded(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUModeUnknownFlag(const std::string& requestingNick);
-
+		static std::string ErrUModeUnknownMod(const char &requestingmode);
 };
 
 #endif
