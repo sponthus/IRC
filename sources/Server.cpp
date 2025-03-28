@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:49:57 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 15:52:30 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,6 +239,7 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 	{
 		std::cerr << "send failed on response : " << response << std::endl;
 	}
+	std::cout << "Sent data: //" << response << "// to " << fd << std::endl;
 }
 
 void	Server::handleData(std::string message, Client *cl)
@@ -266,14 +267,11 @@ void	Server::run()
 		if (this->_fds[i].revents != 0)
 		{
 			std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
-			
 			if (this->_fds[i].fd == this->_socketFD)
-			{
 				connectClient();
-			}
 			else if (this->_fds[i].revents & POLLNVAL)
 			{
-				std::cout << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			else if (this->_fds[i].revents & POLLIN)
@@ -286,12 +284,10 @@ void	Server::run()
 					std::cout << ":" << cl->getNick();
 				std::cout << " sent: //" << message << "//" << std::endl;
 				handleData(message, cl);
-				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
-
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 			{
-				std::cout << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			this->_fds[i].revents = 0;
@@ -344,19 +340,17 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
 
 void	Server::SendToAllChannels(const Client *sender, const std::string message)
 {
-	// std::vector<Client *>				list;
+	std::vector<Client *>	list;
 	
-	// for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
-	// {
-	// 	for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
-	// 	{
-	// 		if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
-	// 			list.push_back(*cl);
-	// 	}
-	// }
-	// SendToGroup(list, message);
-	(void)sender;
-	(void)message;
+	for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
+	{
+		for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
+		{
+			if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
+				list.push_back(*cl);
+		}
+	}
+	SendToGroup(list, message);
 }
 
 void	Server::SendToClient(const Client *client, const std::string message) const

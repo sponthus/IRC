@@ -112,6 +112,16 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 		.toString();
 }
 
+std::string Builder::RplJoin(const std::string& nick, const std::string& user, const std::string& channel)
+{
+	return create()
+		.setPrefix(":" + nick + "!" + user + "@" + HOST)
+		.setCode("JOIN")
+		.setContent(channel)
+		.build()
+		.toString();
+}
+
 std::string Builder::RplLeave(std::string client, std::string ChanName)
 {
 	return create()
@@ -141,6 +151,7 @@ std::string Builder::RplKicked(std::string client, std::string ChanName, std::st
 		.build()
 		.toString();
 }
+
 std::string Builder::RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
 {
 	std::string reason = "";
@@ -153,6 +164,18 @@ std::string Builder::RplKick(std::string client, std::string clientKicked, std::
 		.build()
 		.toString();
 }
+
+// :<nickname>!<user>@<host> QUIT :<message>
+std::string Builder::RplQuit(std::string nick, std::string user, std::string msg)
+{
+	return create()
+		.setPrefix(nick + "!" + user + "@" + "HOST")
+		.setCode("QUIT")
+		.setSuffix(msg)
+		.build()
+		.toString();
+}
+
 ///////////////////////// ERROR MESSAGES /////////////////////////
 
 // 263 RPL_TRYAGAIN
@@ -415,14 +438,15 @@ std::string Builder::ErrNotRegistered()
 		.build()
 		.toString();
 }
+
 // 462 ERR_ALREADYREGISTRED
 // :<server> 451 <requestingUSER> :":You may not reregister
-std::string Builder::ErrAlreadyRegisted(const std::string& Username)
+std::string Builder::ErrAlreadyRegisted(const std::string& nick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("462")
-		.setContent(Username)
+		.setContent(nick)
 		.setSuffix("You may not reregister")
 		.build()
 		.toString();
@@ -432,10 +456,15 @@ std::string Builder::ErrAlreadyRegisted(const std::string& Username)
 // ":<server> 461 <requestingNick> <command> :Not enough parameters"
 std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const std::string& command)
 {
+	std::string nick;
+	if (requestingNick.empty())
+		nick = "*";
+	else
+		nick = requestingNick;
 	return create()
 		.setPrefix(SERVER)
 		.setCode("461")
-		.setContent(requestingNick + " " + command)
+		.setContent(nick + " " + command)
 		.setSuffix("Not enough parameters")
 		.build()
 		.toString();
@@ -443,23 +472,17 @@ std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const 
 
 // 464 ERR_PASSWDMISMATCH
 // ":<server> 464 <requestingNick> :Password incorrect"
-std::string Builder::PasswdMismatch(const std::string& requestingNick)
+std::string Builder::ErrPasswdMismatch(const std::string& requestingNick)
 {
+	std::string nick;
+	if (requestingNick.empty())
+		nick = "*";
+	else
+		nick = requestingNick;
 	return create()
 		.setPrefix(SERVER)
 		.setCode("464")
-		.setContent(requestingNick)
-		.setSuffix("Password incorrect")
-		.build()
-		.toString();
-}
-// 464 ERR_PASSWDMISMATCH
-//     ":Password incorrect" 
-std::string Builder::ErrPasswdMisMatch()
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("464")
+		.setContent(nick)
 		.setSuffix("Password incorrect")
 		.build()
 		.toString();
