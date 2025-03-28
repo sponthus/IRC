@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/26 15:24:15 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/26 17:00:19 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (IsClientInChannel(client, server, Channel, *it->second))
+			if (IsClientOnChannel(client, server, Channel, *it->second))
 			{
 				TargetUser = server->getClientByNick(*it->second);
 				Channel->removeOP((Client *)TargetUser);
@@ -81,7 +81,7 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (IsClientInChannel(client, server, Channel, *it->second))
+			if (IsClientOnChannel(client, server, Channel, *it->second))
 			{
 				TargetUser = server->getClientByNick(*it->second);
 				Channel->addOP((Client *)TargetUser);
@@ -123,12 +123,9 @@ void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::
 	std::list<std::string>::iterator lastChan = FindLastChannel(arg);
 	std::list<std::string>::iterator it = arg->begin();
 	if (lastChan != arg->end())
-		it = arg->begin();
-	lastChan++;
-	while (++it != arg->end())
+		lastChan++;
+	while (++it != arg->end() || lastChan != it)
 	{
-		if (lastChan == it)
-			return ;
 		if (lastChan != arg->end())
 			(*JoinnedChan)[*it] = *lastChan;
 		else
@@ -136,3 +133,6 @@ void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::
 	}
 	return ;
 }
+
+/*								KICK UTILS								*/
+

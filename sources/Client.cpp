@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 11:30:39 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/27 15:55:07 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <iostream> // Debug msg
 
-Client::Client() : _fd(-1), _address(""), _registered(false)
+Client::Client() : _fd(-1), _address(""), _registered(false), _Pass(false)
 {}
 
 Client::~Client()
@@ -54,6 +54,11 @@ const std::string	Client::getUser() const
 bool	Client::isRegistered() const
 {
 	return (this->_registered);
+}
+
+bool			Client::isPass() const
+{
+	return (this->_Pass);
 }
 
 Channel*		Client::getChannel(std::string name)
@@ -101,9 +106,24 @@ void		Client::registerUser()
 {
 	this->_registered = true;
 }
+void		Client::PassUSer()
+{
+	this->_Pass = true;
+}
 void		Client::addChannel(Channel *_Channel)
 {
 	this->_Channels.push_back(_Channel);
+}
+void		Client::removeChannel(Channel *_Channel)
+{
+	for (std::vector<Channel *>::iterator it = this->_Channels.begin(); it < this->_Channels.end(); it++)
+	{
+		if ((*it)->getName() == _Channel->getName())
+		{
+			this->_Channels.erase(it);
+			return ;
+		}
+	}	
 }
 void	Client::leaveChannels()
 {

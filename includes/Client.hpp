@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 11:28:41 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/27 15:54:40 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,8 @@ class Client {
 		const std::string	getAddress() const;
 		const std::string	getNick() const;
 		const std::string	getUser() const;
-		// const std::string	getFullName() const;
-		// const std::string	getHostname() const;
-		// const std::string	getServerName() const;
 		bool				isRegistered() const;
+		bool				isPass() const;
 		Channel				*getChannel(std::string name);
 		const std::vector<Channel *>		getChannels() const;
 
@@ -44,7 +42,9 @@ class Client {
 		void		setHostname(std::string hostname);
 		void		setServerName(std::string servername);
 		void		registerUser();
+		void		PassUSer();
 		void		addChannel(Channel *_Channel);
+		void		removeChannel(Channel *_Channel);
 
 		void		leaveChannels();
 
@@ -57,6 +57,7 @@ class Client {
 		std::string				_hostname;
 		std::string				_fullname;
 		bool					_registered;
+		bool					_Pass;
 		std::vector<Channel *>	_Channels;
 };
 

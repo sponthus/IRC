@@ -47,6 +47,12 @@ class Builder
 		static std::string RplNoTopic(const std::string& Channel);
 		static std::string RplTopic(const std::string &Channel, const std::string &Topic);
 		static std::string RplNamReply(std::string canal, std::vector<Client *> _Clients);
+		static std::string RplInviting();
+		static std::string RplPrivMsg(std::string client, std::string msg);
+		static std::string RplLeave(std::string client, std::string ChanName);
+		static std::string RplLeaveChan(std::string client, std::string ChanName);
+		static std::string RplKicked(std::string client, std::string ChanName, std::string *msg);
+		static std::string RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg);
 		// RPL_NAMREPLY
 		// Errors
 		static std::string ErrNoSuchNick(const std::string& targetNick, const std::string& invalidNick);
@@ -67,6 +73,7 @@ class Builder
 		static std::string ErrAlreadyRegisted(const std::string& Username);
 		static std::string ErrNeedMoreParams(const std::string& requestingNick, const std::string& command);
 		static std::string PasswdMismatch(const std::string& requestingNick);
+		static std::string ErrPasswdMisMatch();
 		static std::string ErrKeySet(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrChannelIsFull(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUnknownMode(const std::string& requestingNick, const std::string& mode, const std::string& channel);

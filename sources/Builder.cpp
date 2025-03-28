@@ -112,7 +112,47 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 		.toString();
 }
 
+std::string Builder::RplLeave(std::string client, std::string ChanName)
+{
+	return create()
+		.setPrefix(client)
+		.setContent("you leave channel " + ChanName)
+		.build()
+		.toString();
+}
 
+std::string Builder::RplLeaveChan(std::string client, std::string ChanName)
+{
+	return create()
+		.setPrefix(client)
+		.setContent("leave channel " + ChanName)
+		.build()
+		.toString();
+}
+std::string Builder::RplKicked(std::string client, std::string ChanName, std::string *msg)
+{
+	std::string reason = "";
+	if (msg)
+		reason = *msg;
+	return create()
+		.setPrefix(ChanName)
+		.setCode(client)
+		.setContent("kicked you for the followong reason : " + reason)
+		.build()
+		.toString();
+}
+std::string Builder::RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
+{
+	std::string reason = "";
+	if (msg)
+		reason = *msg;
+	return create()
+		.setPrefix(ChanName)
+		.setCode(client)
+		.setContent("kicked " + clientKicked + " for the followong reason : " + reason)
+		.build()
+		.toString();
+}
 ///////////////////////// ERROR MESSAGES /////////////////////////
 
 // 263 RPL_TRYAGAIN
@@ -166,6 +206,18 @@ std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clien
 }
 // 341 RPL_INVITING
 // "#<channel> <nick>"
+
+
+std::string Builder::RplPrivMsg(std::string client, std::string msg)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("342")
+		.setContent(client + " send")
+		.setSuffix(msg)
+		.build()
+		.toString();
+}
 
 // 401 ERR_NOSUCHNICK 
 // ":<server> 401 <targetNick> <invalidNick> :No such nick/channel" 
@@ -397,6 +449,17 @@ std::string Builder::PasswdMismatch(const std::string& requestingNick)
 		.setPrefix(SERVER)
 		.setCode("464")
 		.setContent(requestingNick)
+		.setSuffix("Password incorrect")
+		.build()
+		.toString();
+}
+// 464 ERR_PASSWDMISMATCH
+//     ":Password incorrect" 
+std::string Builder::ErrPasswdMisMatch()
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("464")
 		.setSuffix("Password incorrect")
 		.build()
 		.toString();

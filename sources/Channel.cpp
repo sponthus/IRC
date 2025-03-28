@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/26 14:18:08 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/27 15:34:32 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void	Channel::leaveChannel(Client *client)
 {
 	if (isOP(client))
 		removeOP(client);
-	std::cout << "PART" << std::endl; // To channel
+	std::cout << "PART" << std::endl;
 	removeClient(client);
 }
 
@@ -152,12 +152,18 @@ void	Channel::invite(Client *client, Client *invited)
 {
 	if (isInviteOnly() && !isOP(client))
 	{
-		std::cerr << "ERR_CHANOPRIVSNEEDED" << std::endl; // To client
+		this->_server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(),  this->getName() + "\n"));
+		return ;
 	}
+	if (this->isClient(invited))
+	{
+		this->_server->SendToClient(client, Builder::ErrUserOnChannel(client->getNick(), invited->getNick(), this->getName() + "\n"));
+		return ;
+	} 
 	if (!isInvited(client))
 		_InvitedClients.push_back(invited);
-	std::cout << "RPL_INVITING" << std::endl; // To client
-	std::cout << "INVITE" << std::endl; // To invited
+	this->_server->SendToClient(client, "RPL_INVITING\n");
+	this->_server->SendToClient(invited, "INVITE\n");
 }
 
 const std::string&	Channel::getPW() const
