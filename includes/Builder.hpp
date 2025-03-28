@@ -43,7 +43,7 @@ class Builder
 		static std::string Ping();
 		static std::string PrivMsg(const std::string& sender, const std::string& target, const std::string& message);
 		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
-		static std::string join(const std::string& oldNick, const std::string& user, const std::string& newNick);
+		static std::string RplJoin(const std::string& nick, const std::string& user, const std::string& channel);
 		static std::string RplNoTopic(const std::string& Channel);
 		static std::string RplTopic(const std::string &Channel, const std::string &Topic);
 		static std::string RplNamReply(std::string canal, std::vector<Client *> _Clients);
@@ -71,10 +71,9 @@ class Builder
 		static std::string ErrNotOnChannel(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUserOnChannel(const std::string& requestingNick, const std::string& targetNick, const std::string& channel);
 		static std::string ErrNotRegistered();
-		static std::string ErrAlreadyRegisted(const std::string& Username);
+		static std::string ErrAlreadyRegisted(const std::string& nick);
 		static std::string ErrNeedMoreParams(const std::string& requestingNick, const std::string& command);
-		static std::string PasswdMismatch(const std::string& requestingNick);
-		static std::string ErrPasswdMisMatch();
+		static std::string ErrPasswdMismatch(const std::string& requestingNick);
 		static std::string ErrKeySet(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrChannelIsFull(const std::string& requestingNick, const std::string& channel);
 		static std::string ErrUnknownMode(const std::string& requestingNick, const std::string& mode, const std::string& channel);

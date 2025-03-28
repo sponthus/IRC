@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 14:02:21 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 15:26:56 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,26 +68,26 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	{
 		if (!PW || (PW && *PW != getPW()))
 		{
-			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()) + "\n");
+			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()));
 			return; // Wrong PW
 		}
 	}
 	if (hasUserLimit() && getUserLimit() == getUserNb())
 	{
-		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()) + "\n");
+		server->SendToClient(client, Builder::ErrChannelIsFull(client->getNick(), this->getName()));
 		return; // Too many users connected
 	}
 	if (isInviteOnly() && !isInvited(client))
 	{
-		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()) + "\n");
+		server->SendToClient(client, Builder::ErrInviteOnlyChan(client->getNick(), this->getName()));
 		return; // Channel is invite only you should be invited
 	}
 	this->_Clients.push_back(client);
 	client->addChannel(server->getChannel(this->getName()));
-	server->SendToClient(client, "you joined channel " + this->getName() + " succesfully\n");
+	server->SendToClient(client, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
 	if (this->_topic.size() > 0)
-		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic) + "\n");
-	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients) + "\n");
+		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic));
+	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients));
 	return;
 }
 
@@ -152,12 +152,12 @@ void	Channel::invite(Client *client, Client *invited)
 {
 	if (isInviteOnly() && !isOP(client))
 	{
-		this->_server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(),  this->getName() + "\n"));
+		this->_server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(), this->getName()));
 		return ;
 	}
 	if (this->isClient(invited))
 	{
-		this->_server->SendToClient(client, Builder::ErrUserOnChannel(client->getNick(), invited->getNick(), this->getName() + "\n"));
+		this->_server->SendToClient(client, Builder::ErrUserOnChannel(client->getNick(), invited->getNick(), this->getName()));
 		return ;
 	} 
 	if (!isInvited(client))
@@ -180,7 +180,7 @@ void	Channel::setPW(Client *client, std::string &PW)
 {
 	if (this->hasPW())
 	{	
-		this->_server->SendToClient(client, Builder::ErrKeySet(client->getNick(), this->getName()) + "\n");
+		this->_server->SendToClient(client, Builder::ErrKeySet(client->getNick(), this->getName()));
 		return ;
 	}
 	this->_server->SendToClient(client, "add PW\n");

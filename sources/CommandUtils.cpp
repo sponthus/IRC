@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 13:33:48 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 15:03:23 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,12 @@ void	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 			}	
 		}
 		else
-			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first) + "\n");
+			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first));
 	}
 	else if (it->first == 'l')
 		Channel->setUserLimit(client, 0, '-');
 	else
-		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first) + "\n");
+		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 }
 
 void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
@@ -100,9 +100,9 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		}	
 	}
 	else
-		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first) + "\n");
+		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 	if ((it->first == 'o' && !it->second) || (it->first == 'k' && !it->second) || (it->first == 'k' && !it->second))
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first) + "\n");
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first));
 }
 
 /*								JOIN UTILS								*/

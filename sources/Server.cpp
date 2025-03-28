@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 14:13:31 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:28:14 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,14 +271,11 @@ void	Server::run()
 		if (this->_fds[i].revents != 0)
 		{
 			std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
-			
 			if (this->_fds[i].fd == this->_socketFD)
-			{
 				connectClient();
-			}
 			else if (this->_fds[i].revents & POLLNVAL)
 			{
-				std::cout << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			else if (this->_fds[i].revents & POLLIN)
@@ -291,12 +288,10 @@ void	Server::run()
 					std::cout << ":" << cl->getNick();
 				std::cout << " sent: //" << message << "//" << std::endl;
 				handleData(message, cl);
-				// Apply with this->_ClientsByFD[this->_fds[i].fd] + message
-
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 			{
-				std::cout << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			this->_fds[i].revents = 0;
@@ -349,7 +344,7 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
 
 void	Server::SendToAllChannels(const Client *sender, const std::string message)
 {
-	std::vector<Client *>				list;
+	std::vector<Client *>	list;
 	
 	for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
 	{
