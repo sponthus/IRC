@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/27 15:34:32 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 14:02:21 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	}
 	this->_Clients.push_back(client);
 	client->addChannel(server->getChannel(this->getName()));
-	std::cout << "JOIN" << std::endl; // To channel
+	server->SendToClient(client, "you joined channel " + this->getName() + " succesfully\n");
 	if (this->_topic.size() > 0)
 		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic) + "\n");
 	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients) + "\n");

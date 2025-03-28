@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 11:55:09 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:13:31 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,9 +249,10 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 void	Server::handleData(std::string message, Client *cl)
 {
 	Command	cmd(this, cl, message);
-	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
+	for (std::vector<std::vector<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
-		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
+		// std::cout << "i = " << (*i->begin()) << std::endl;
+		for (std::map<std::string, void(Command::*)(std::vector<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
 		{
 			if (!i->empty() && it->first == (*i->begin()))
 			{
@@ -348,19 +349,17 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
 
 void	Server::SendToAllChannels(const Client *sender, const std::string message)
 {
-	// std::vector<Client *>				list;
+	std::vector<Client *>				list;
 	
-	// for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
-	// {
-	// 	for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
-	// 	{
-	// 		if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
-	// 			list.push_back(*cl);
-	// 	}
-	// }
-	// SendToGroup(list, message);
-	(void)sender;
-	(void)message;
+	for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
+	{
+		for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
+		{
+			if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
+				list.push_back(*cl);
+		}
+	}
+	SendToGroup(list, message);
 }
 
 void	Server::SendToClient(const Client *client, const std::string message) const

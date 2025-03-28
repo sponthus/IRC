@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/27 17:00:41 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 13:33:23 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 # define COMMAND_HPP
 
 #include <iostream>
-#include <list>
 #include <vector>
-#include <list>
+#include <vector>
+#include <vector>
 #include <sstream>
 #include <algorithm>
 
@@ -43,34 +43,33 @@ class Command
 
 	public:
 		/*			members functions called by the server			*/
-		void	Kick(std::list<std::string> *arg);
-		void	Invite(std::list<std::string> *arg);
-		void	Topic(std::list<std::string> *arg);
-		void	Mode(std::list<std::string> *arg);
-		void	join(std::list<std::string> *arg);
-		void	nick(std::list<std::string> *arg);
-		void	pass(std::list<std::string> *arg);
-		void	user(std::list<std::string> *arg);
-		void	privmsg(std::list<std::string> *arg);
-		void	quit(std::list<std::string> *arg);
-		void	part(std::list<std::string> *arg);
+		void	Kick(std::vector<std::string> *arg);
+		void	Invite(std::vector<std::string> *arg);
+		void	Topic(std::vector<std::string> *arg);
+		void	Mode(std::vector<std::string> *arg);
+		void	join(std::vector<std::string> *arg);
+		void	nick(std::vector<std::string> *arg);
+		void	pass(std::vector<std::string> *arg);
+		void	user(std::vector<std::string> *arg);
+		void	privmsg(std::vector<std::string> *arg);
+		void	quit(std::vector<std::string> *arg);
+		void	part(std::vector<std::string> *arg);
 	
 		Command(Server *server, Client *client, std::string msg);
 		~Command();
 		Command	&operator=(Command &rhs);
-		std::vector<std::list<std::string> >		input;
-
+		std::vector<std::vector<std::string> >		input;
 };
 
 /*					Parsing Command							*/
 bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick);
-bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg, std::string cmdName);
-bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg, std::string cmdName);
+bool	parsingCmd(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
+bool	ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName);
 bool	IsAlreadyRegistered(Client *client, Server *server);
 bool	IsPassGiven(Client *client, Server *server);
 bool	IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient);
 bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName);
-bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg, std::string cmdName);
+bool	CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
 bool	CheckMaskChan(Client *client, Server *server,std::string *ChannelName);
 bool	isValidFlag(Client *client, Server *server, char Flag);
 bool	IsOnServer(Client *client, Server *server, std::string TargetClient);
@@ -80,8 +79,8 @@ bool	CheckChanOnServer(Client *client, Server *server, std::string ChannelName);
 /*					Commande Utils							*/
 void							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 void							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
-std::map<char, std::string *>	SetMapMods(std::string mod, std::list<std::string> *arg, char Flag);
+std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag);
 
-void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::string> *arg);
+void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg);
 
 #endif
