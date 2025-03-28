@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 13:33:48 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 15:17:37 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,5 +134,44 @@ void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std
 	return ;
 }
 
-/*								KICK UTILS								*/
+/*								CONSTRUCTOR UTILS								*/
 
+bool	IsCmd(std::string input)
+{
+	if (input == "KICK" || input == "INVITE" || input == "TOPIC" || input == "MODE"
+		|| input == "JOIN" || input == "NICK" || input == "PASS" || input == "USER"
+		|| input == "PRIVMSG" || input == "QUIT" || input == "PART")
+		return (true);
+	return (false);
+}
+
+std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
+{
+	ToPushed.erase(0, 1);
+	std::string _ToPushed = ToPushed;
+	*ss >> ToPushed;
+	while (!ss->eof() && !IsCmd(ToPushed))
+	{
+		_ToPushed += " " + ToPushed;
+		*ss >> ToPushed;
+	}
+	ToPushed.clear();
+	ToPushed = _ToPushed;
+	return (ToPushed);
+}
+
+void	SetVectorMsg(std::vector<std::string> *VectorMsg, std::string msg)
+{
+	std::stringstream			ss;
+	ss << msg;
+	while (!ss.eof())
+	{
+		std::string ToPushed;
+		ss >> ToPushed;
+		if (ToPushed[0] == ':' || ToPushed[0] == ';')
+			ToPushed = JoinMsg(ToPushed, &ss);
+		if (!ToPushed.empty())
+			VectorMsg->push_back(ToPushed);
+		ToPushed.clear();
+	}
+}

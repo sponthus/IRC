@@ -6,81 +6,30 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 13:58:43 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 15:40:53 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
 
-/*								functions								*/
+/*							functions							*/
 
 Command::Command()
 {
 	return ;
 }
-bool	IsCmd(std::string input)
-{
-	if (input == "KICK" || input == "INVITE" || input == "TOPIC" || input == "MODE"
-		|| input == "JOIN" || input == "NICK" || input == "PASS" || input == "USER"
-		|| input == "PRIVMSG" || input == "QUIT" || input == "PART")
-		return (true);
-	return (false);
-}
+
 Command::Command(Server *server, Client *client, std::string msg) : _server(server), _client(client)
 {
-	std::stringstream			ss;
-	std::vector<std::string> vectormsg;
-	std::vector<std::string> VectorMsg;
-	ss << msg;
-	for (size_t i = 0; i < msg.size(); i++)
-	{
-		std::string ToPushed;
-		ss >> ToPushed;
-		if (ToPushed[0] == ':')
-		{
-			std::string _ToPushed = ToPushed;
-			while (i < msg.size() || ToPushed[ToPushed.size() - 1] == '\n')
-			{
-				ss >> ToPushed;
-				_ToPushed += " " + ToPushed;
-				i += ToPushed.size();
-			}
-			ToPushed.clear();
-			ToPushed = _ToPushed;
-		}
-		if (!ToPushed.empty())
-			VectorMsg.push_back(ToPushed);
-		if (ToPushed.find('\n', 0) != std::string::npos)
-			ToPushed.erase(ToPushed.find('\n', 0), ToPushed.find('\n', 0) + 1);
-		i += ToPushed.size();
-		ToPushed.clear();
-	}
-	for (std::vector<std::string>::iterator it = VectorMsg.begin(); it != VectorMsg.end(); it++)
-	{
-		if (it != VectorMsg.end() && IsCmd(*it))
-		{
-			this->_server->SendToClient(this->_client, "--------------------CMD--------------------\n");
-			std::vector<std::string> _M;
-			_M.push_back(*it);
-			this->_server->SendToClient(this->_client, "_M = " + *it + "\n");
-			it++;
-			while (it != VectorMsg.end() && !IsCmd(*it))
-			{
-				_M.push_back(*it);
-				this->_server->SendToClient(this->_client, "_M = " + *it + "\n");
-				it++;
-			}
-			this->input.push_back(_M);
-			this->_server->SendToClient(this->_client, "--------------------CMD--------------------\n");
-			it--;
-		}
-	}
+	
+	std::vector<std::string> 	VectorMsg;
+	SetVectorMsg(&VectorMsg, msg);
+	SetInputCmd(VectorMsg);
 	return ;
 }
 
 Command::Command(Command &rhs)
 {
-	// if (*this != rhs)
 	*this = rhs;
 	return ;
 }
@@ -89,20 +38,42 @@ Command::~Command()
 {
 	return ;
 }
+
 Command	&Command::operator=(Command &rhs)
 {
-	(void)rhs; // added because op calls himself if *this = rhs
-	return (*this);
+	return (rhs);
 }
 
+/*						debug									*/
 void PrintArg(std::vector<std::string> arg)
 {
 	for (std::vector<std::string>::iterator it = arg.begin(); it != arg.end(); it++)
 		std::cout << "arg function = " << *it << std::endl;
 	return ;
 }
+/*							setter							*/
 
-/*								members functions								*/
+void	Command::SetInputCmd(std::vector<std::string> VectorMsg)
+{
+	for (std::vector<std::string>::iterator it = VectorMsg.begin(); it != VectorMsg.end(); it++)
+	{
+		if (it != VectorMsg.end() && IsCmd(*it))
+		{
+			std::vector<std::string> _M;
+			_M.push_back(*it);
+			it++;
+			while (it != VectorMsg.end() && !IsCmd(*it))
+			{
+				_M.push_back(*it);
+				it++;
+			}
+			this->input.push_back(_M);
+			it--;
+		}
+	}
+}
+
+/*							members functions							*/
 
 void	Command::Kick(std::vector<std::string> *arg)
 {
@@ -112,13 +83,14 @@ void	Command::Kick(std::vector<std::string> *arg)
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
+	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
 	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") || !IsClientOnChannel(this->_client, this->_server, Channel, *it))
 		return ;
 	const Client *TargetUser = this->_server->getClientByNick(*it);
 	Channel->leaveChannel((Client *)TargetUser);
-	this->_client->removeChannel(Channel);
+	((Client *)TargetUser)->removeChannel(Channel);
 	it++;
 	if (it != arg->end())
 	{
@@ -166,10 +138,11 @@ void	Command::Topic(std::vector<std::string> *arg)
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
+	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC"))
-		return ;
+	// if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC"))
+		// return ;
 	if (it == arg->end() && Channel->getTopic().empty())
 		this->_server->SendToClient(this->_client, Builder::RplNoTopic(Channel->getName()) + "\n"); 
 	if (it != arg->end())
@@ -190,6 +163,7 @@ void	Command::Mode(std::vector<std::string> *arg)
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
+	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
 	if (!ThereIsArg(this->_client, this->_server, it, *arg, "MODE"))
