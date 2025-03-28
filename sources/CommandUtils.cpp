@@ -6,17 +6,17 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/26 17:00:19 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 13:33:48 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Command.hpp"
 
 /*								MODE UTILS								*/
-std::map<char, std::string *>	SetMapMods(std::string mod, std::list<std::string> *arg, char Flag)
+std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag)
 {
 	std::map<char, std::string *> Mods;
-	std::list<std::string>::iterator it = arg->begin();
+	std::vector<std::string>::iterator it = arg->begin();
 	for (size_t i = 0; i < 3; i++)
 		it++;
 	for (size_t i = 1; i < mod.size(); i++)
@@ -107,10 +107,10 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 
 /*								JOIN UTILS								*/
 
-std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
+std::vector<std::string>::iterator	FindLastChannel(std::vector<std::string>* arg)
 {
-	std::list<std::string>::iterator lastChan = arg->end();
-	for (std::list<std::string>::iterator it = arg->begin(); it != arg->end(); it++)
+	std::vector<std::string>::iterator lastChan = arg->end();
+	for (std::vector<std::string>::iterator it = arg->begin(); it != arg->end(); it++)
 	{
 		if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
 			lastChan = it;
@@ -118,10 +118,10 @@ std::list<std::string>::iterator	FindLastChannel(std::list<std::string>* arg)
 	return (lastChan);
 }
 
-void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::list<std::string> *arg)
+void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg)
 {
-	std::list<std::string>::iterator lastChan = FindLastChannel(arg);
-	std::list<std::string>::iterator it = arg->begin();
+	std::vector<std::string>::iterator lastChan = FindLastChannel(arg);
+	std::vector<std::string>::iterator it = arg->begin();
 	if (lastChan != arg->end())
 		lastChan++;
 	while (++it != arg->end() || lastChan != it)

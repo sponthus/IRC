@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/27 17:33:30 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 13:33:03 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick)
 	 }
 	 return (true);
 }
-bool	ThereIsArg(Client *client, Server *server, std::list<std::string>::iterator it, std::list<std::string> &arg, std::string cmdName)
+bool	ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName)
 {
 	if (it == arg.end())
 	{
@@ -157,7 +157,7 @@ bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
 	return (CheckIsOp(client, server, channel));
 }
 
-bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> arg, std::string cmdName)
+bool	CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName)
 {
 	if (!client->isRegistered() || client->getNick().empty())
 	{
@@ -172,11 +172,11 @@ bool	CheckArgAndRegister(Client *client, Server *server, std::list<std::string> 
 	return (true);
 }
 
-bool	parsingCmd(Client *client, Server *server, std::list<std::string> arg, std::string cmdName)
+bool	parsingCmd(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName)
 {
 	if (!CheckArgAndRegister(client, server, arg, cmdName))
 		return (false);
-	std::list<std::string>::iterator it = arg.begin();
+	std::vector<std::string>::iterator it = arg.begin();
 	it++;
 	if (!ThereIsArg(client, server, it, arg, cmdName))
 		return (false);

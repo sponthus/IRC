@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 17:55:07 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 13:38:55 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,9 +248,10 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 void	Server::handleData(std::string message, Client *cl)
 {
 	Command	cmd(this, cl, message);
-	for (std::vector<std::list<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
+	for (std::vector<std::vector<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
-		for (std::map<std::string, void(Command::*)(std::list<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
+		// std::cout << "i = " << (*i->begin()) << std::endl;
+		for (std::map<std::string, void(Command::*)(std::vector<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
 		{
 			if (!i->empty() && it->first == (*i->begin()))
 			{
