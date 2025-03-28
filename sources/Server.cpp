@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 17:55:07 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 11:55:09 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,7 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 	{
 		std::cerr << "send failed on response : " << response << std::endl;
 	}
+	std::cout << "Sent data: //" << response << "// to " << fd << std::endl;
 }
 
 void	Server::handleData(std::string message, Client *cl)

@@ -141,6 +141,7 @@ std::string Builder::RplKicked(std::string client, std::string ChanName, std::st
 		.build()
 		.toString();
 }
+
 std::string Builder::RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
 {
 	std::string reason = "";
@@ -150,6 +151,17 @@ std::string Builder::RplKick(std::string client, std::string clientKicked, std::
 		.setPrefix(ChanName)
 		.setCode(client)
 		.setContent("kicked " + clientKicked + " for the followong reason : " + reason)
+		.build()
+		.toString();
+}
+
+// :<nickname>!<user>@<host> QUIT :<message>
+std::string Builder::RplQuit(std::string nick, std::string user, std::string msg)
+{
+	return create()
+		.setPrefix(nick + "!" + user + "@" + "HOST")
+		.setCode("QUIT")
+		.setSuffix(msg)
 		.build()
 		.toString();
 }

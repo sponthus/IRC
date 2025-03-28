@@ -53,6 +53,7 @@ class Builder
 		static std::string RplLeaveChan(std::string client, std::string ChanName);
 		static std::string RplKicked(std::string client, std::string ChanName, std::string *msg);
 		static std::string RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg);
+		static std::string RplQuit(std::string nick, std::string user, std::string msg);
 		// RPL_NAMREPLY
 		// Errors
 		static std::string ErrNoSuchNick(const std::string& targetNick, const std::string& invalidNick);

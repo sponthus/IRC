@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 11:51:53 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/28 14:08:53 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,17 +347,19 @@ void	Command::nick(std::list<std::string> *arg)
 
 void	Command::pass(std::list<std::string> *arg)
 {
+	// PrintArg(*arg);
+	std::cout << "pass function called " << std::endl;
 	if (!IsAlreadyRegistered(this->_client, this->_server))
 		return ;
 	std::list<std::string>::iterator it = arg->begin();
 	it++;
 	if	(!ThereIsArg(this->_client, this->_server, it, *arg, "PASS"))
 		return ;
+	std::cout << "Server mdp = /" << this->_server->getPW() << "/ client sent /" << *it << "/" << std::endl;
 	if	(this->_server->getPW() == *it)
 		this->_client->PassUSer();
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrPasswdMisMatch() + "\n");
-	std::cout << "pass function called " << std::endl;
 }
 
 void	Command::user(std::list<std::string> *arg)
@@ -409,16 +411,19 @@ void	Command::privmsg(std::list<std::string> *arg)
 
 void	Command::quit(std::list<std::string> *arg)
 {
-	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
-		return ;
 	std::cout << "quit function called " << std::endl;
 	PrintArg(*arg);
-	
+	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
+		return ;
+	std::list<std::string>::iterator it = arg->begin();
+	it++;
+	this->_server->SendToAllChannels(this->_client, Builder::RplQuit(this->_client->getNick(), this->_client->getUser(), *it));
+	this->_server->clearClient(this->_client->getFD());
 }
 void	Command::part(std::list<std::string> *arg)
 {
-	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
-		return ;
+	// if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
+	// 	return ;
 	std::cout << "part function called " << std::endl;
 	std::list<std::string>::iterator it = arg->begin();
 	it++;
