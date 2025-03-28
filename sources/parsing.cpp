@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:21:05 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:49:06 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ bool	IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::st
 	if (!IsOnServer(client, server, TargetClient))
 		return (false);
 	const Client *TargetUser = server->getClientByNick(TargetClient);
-	if (!Channel->isClient((Client *)TargetUser))
+	if (!Channel || !Channel->isClient((Client *)TargetUser))
 	{
 		server->SendToClient(client, Builder::ErrNotOnChannel(TargetUser->getNick(), TargetClient));
 		return (false);
