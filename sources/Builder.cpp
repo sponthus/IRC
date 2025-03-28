@@ -115,9 +115,9 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 std::string Builder::RplJoin(const std::string& nick, const std::string& user, const std::string& channel)
 {
 	return create()
-		.setPrefix(":" + nick + "!" + user + "@" + HOST)
+		.setPrefix(nick + "!" + user + "@" + HOST)
 		.setCode("JOIN")
-		.setContent(channel)
+		.setContent("#" + channel)
 		.build()
 		.toString();
 }
@@ -209,6 +209,19 @@ std::string Builder::RplTopic(const std::string &Channel, const std::string &Top
 		.build()
 		.toString();
 }
+
+// 341 RPL_INVITING
+// "#<channel> <nick>"
+std::string Builder::RplInviting(const std::string &channel, const std::string &inviterNick, const std::string &invitedNick)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("341")
+		.setContent(inviterNick + " " + invitedNick + " " + channel)
+		.build()
+		.toString();
+}
+
 // 353 RPL_NAMREPLY
 //     "<canal> :[[@|+]<pseudo> [[@|+]<pseudo> [...]]]" 
 std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clients)
@@ -227,9 +240,6 @@ std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clien
 		.build()
 		.toString();
 }
-// 341 RPL_INVITING
-// "#<channel> <nick>"
-
 
 std::string Builder::RplPrivMsg(std::string client, std::string msg)
 {

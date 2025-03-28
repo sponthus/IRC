@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:28:14 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:56:37 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,6 +322,8 @@ Channel*	Server::getChannel(std::string name)
 
 void	Server::SendToGroup(const std::vector<Client *> clients, const std::string message) const
 {
+	if (clients.size() == 0)
+		return ;
 	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++)
 	{
 		sendData((*it)->getFD(), message);
@@ -346,9 +348,16 @@ void	Server::SendToAllChannels(const Client *sender, const std::string message)
 {
 	std::vector<Client *>	list;
 	
-	for (std::vector<Channel *>::const_iterator it = sender->getChannels().begin(); it != sender->getChannels().end(); it++)
+	std::vector <Channel *> channels = sender->getChannels();
+	if (channels.size() == 0)
+		return ;
+
+	for (std::vector<Channel *>::const_iterator it = channels.begin(); it != channels.end(); it++)
 	{
-		for (std::vector<Client *>::const_iterator cl = (*it)->getClients().begin(); cl != (*it)->getClients().end(); cl++)
+		std::vector<Client *> cli = (*it)->getClients();
+		if (cli.size() == 0)
+			continue ;
+		for (std::vector<Client *>::const_iterator cl = cli.begin(); cl != cli.end(); cl++)
 		{
 			if (sender != *cl && std::find(list.begin(), list.end(), *cl) == list.end())
 				list.push_back(*cl);

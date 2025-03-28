@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:47:29 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:23:51 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	}
 	this->_Clients.push_back(client);
 	client->addChannel(server->getChannel(this->getName()));
-	server->SendToClient(client, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
+	server->SendToGroup(this->_Clients, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
 	if (this->_topic.size() > 0)
 		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic));
 	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients));
@@ -162,8 +162,7 @@ void	Channel::invite(Client *client, Client *invited)
 	} 
 	if (!isInvited(client))
 		_InvitedClients.push_back(invited);
-	this->_server->SendToClient(client, "RPL_INVITING\n");
-	this->_server->SendToClient(invited, "INVITE\n");
+	this->_server->SendToClient(invited, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
 }
 
 const std::string&	Channel::getPW() const
