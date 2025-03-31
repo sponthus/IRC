@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 16:56:43 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 10:54:44 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,8 +140,6 @@ void	Command::Topic(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	// if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC"))
-		// return ;
 	if (it == arg->end() && Channel->getTopic().empty())
 		this->_server->SendToClient(this->_client, Builder::RplNoTopic(Channel->getName())); 
 	if (it != arg->end())

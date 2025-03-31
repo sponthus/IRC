@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 15:48:29 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 10:58:46 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 			}	
 		}
 		else
-			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first));
+			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
 	}
 	else if (it->first == 'l')
 		Channel->setUserLimit(client, 0, '-');
@@ -102,7 +102,7 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	else
 		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 	if ((it->first == 'o' && !it->second) || (it->first == 'k' && !it->second) || (it->first == 'k' && !it->second))
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first));
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
 }
 
 /*								JOIN UTILS								*/
