@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 17:43:09 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/31 16:23:54 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void	Server::SetCmdMap()
 	this->CmdMap["PRIVMSG"] = &Command::privmsg;
 	this->CmdMap["QUIT"] = &Command::quit;
 	this->CmdMap["PART"] = &Command::part;
+	this->CmdMap["WHO"] = &Command::Who;
 	return ;
 }
 void	Server::SetClientByNick(std::string nick, Client *client)
@@ -316,13 +317,16 @@ Channel*	Server::getChannel(std::string name)
 		return (NULL);
 }
 
-void	Server::SendToGroup(const std::vector<Client *> clients, const std::string message) const
+void	Server::SendToGroup(Client *sender, const std::vector<Client *> clients, const std::string message) const
 {
 	if (clients.size() == 0)
 		return ;
 	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++)
 	{
-		sendData((*it)->getFD(), message);
+		if (sender && (*it) != sender)
+			sendData((*it)->getFD(), message);
+		else if (!sender)
+			sendData((*it)->getFD(), message);
 	}
 }
 
@@ -359,7 +363,7 @@ void	Server::SendToAllChannels(const Client *sender, const std::string message)
 				list.push_back(*cl);
 		}
 	}
-	SendToGroup(list, message);
+	SendToGroup((Client *)sender, list, message);
 }
 
 void	Server::SendToClient(const Client *client, const std::string message) const

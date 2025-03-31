@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 17:44:39 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/31 17:48:52 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,9 @@ void	Command::Kick(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") || !IsClientOnChannel(this->_client, this->_server, Channel, *it))
+	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") 
+		|| !IsClientOnChannel(this->_client, this->_server, Channel, *it)
+		|| !CheckIsOp(this->_client, this->_server, Channel))
 		return ;
 	const Client *TargetUser = this->_server->getClientByNick(*it);
 	Channel->leaveChannel((Client *)TargetUser);
@@ -93,13 +95,13 @@ void	Command::Kick(std::vector<std::string> *arg)
 	it++;
 	if (it != arg->end())
 	{
-		this->_server->SendToClient(TargetUser, Builder::RplKicked(this->_client->getNick(), Channel->getName(), &(*it)));
-		Channel->SendToAll(Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
+		this->_server->SendToClient(TargetUser, Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
+		Channel->SendToAll(NULL, Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
 	}
 	else
 	{
-		this->_server->SendToClient(TargetUser, Builder::RplKicked(this->_client->getNick(), Channel->getName(), NULL));
-		Channel->SendToAll(Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
+		this->_server->SendToClient(TargetUser, Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
+		Channel->SendToAll(NULL, Builder::RplKick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
 	}
 }
 
@@ -142,14 +144,14 @@ void	Command::Topic(std::vector<std::string> *arg)
 	it++;
 	if (it == arg->end() && Channel->getTopic().empty())
 		this->_server->SendToClient(this->_client, Builder::RplNoTopic(Channel->getName())); 
-	if (it != arg->end())
+	if (it != arg->end() && CheckIsOp(this->_client, this->_server, Channel))
 	{
 		if (it->find(":", 0) == 0)
 			it->replace(0, 1, "");
 		Channel->setTopic(*it);
 	}
 	if (!Channel->getTopic().empty())
-		this->_server->SendToClient(this->_client, Builder::RplTopic(Channel->getName(), Channel->getTopic()));		
+		this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));		
 }
 
 void	Command::Mode(std::vector<std::string> *arg)
@@ -163,19 +165,21 @@ void	Command::Mode(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg, "MODE"))
-		return ;
-	char Flag = (*it)[0];
-	if (!isValidFlag(this->_client, this->_server, Flag))
-		return ;
-	std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
-	for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
+	if (it != arg->end() && CheckIsOp(this->_client, this->_server, Channel))
 	{
-		if (Flag == '+')
-			addmod(this->_client, this->_server, Channel, it);
-		else
-			removemod(this->_client, this->_server, Channel, it);
+		char Flag = (*it)[0];
+		if (!isValidFlag(this->_client, this->_server, Flag))
+			return ;
+		std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+		for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
+		{
+			if (Flag == '+')
+				addmod(this->_client, this->_server, Channel, it);
+			else
+				removemod(this->_client, this->_server, Channel, it);
+		}
 	}
+	this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
 }
 
 void	Command::join(std::vector<std::string> *arg)
@@ -269,6 +273,8 @@ void	Command::user(std::vector<std::string> *arg)
 		i++;
 		this->_client->setServerName(*i);
 		i++;
+		if (i->find(":", 0) == 0)
+			i->erase(0, 1);
 		this->_client->setFullName(*i);
 		this->_client->registerUser();
 		if(!this->_client->getNick().empty())
@@ -294,10 +300,19 @@ void	Command::privmsg(std::vector<std::string> *arg)
 	it++;
 	while (it != msg)
 	{
-		if (IsOnServer(this->_client, this->_server, *it))
+		if ((*it)[0] == '#' || (*it)[0] == '&')
+		{
+			if (CheckChannelArg(this->_client, this->_server, *it))
+			{
+				it->erase(0,1);
+				Channel *Channel = this->_server->getChannel(*it);
+				Channel->SendToAll(this->_client, Builder::RplPrivMsg(this->_client->getNick(), *msg, &(Channel->getName())));
+			}
+		}
+		else if (IsOnServer(this->_client, this->_server, *it))
 		{
 			const Client *TargetUser = this->_server->getClientByNick(*it);
-			this->_server->SendToClient(TargetUser, Builder::RplPrivMsg(this->_client->getNick(), *msg));
+			this->_server->SendToClient(TargetUser, Builder::RplPrivMsg(this->_client->getNick(), *msg, NULL));
 		}
 		it++;
 	}
@@ -320,21 +335,47 @@ void	Command::part(std::vector<std::string> *arg)
 	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
-	std::cout << "part function called " << std::endl;
+	std::vector<std::string>::iterator msg = arg->begin();
+	for (size_t i = 0; i < arg->size() - 1; i++)
+		msg++;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
-	while (it != arg->end())
+	while (it != msg)
 	{
 		if (CheckMaskChan(this->_client, this->_server, &(*it)) && CheckChanOnServer(this->_client, this->_server, *it))
 		{
 			Channel *ChanToQuit = this->_server->getChannel(*it);
 			if (IsClientOnChannel(this->_client, this->_server, ChanToQuit, this->_client->getNick()))
 			{
-				this->_server->SendToClient(this->_client, Builder::RplLeave(this->_client->getNick(), ChanToQuit->getName()));
+				this->_server->SendToClient(this->_client, Builder::RplLeave(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
 				ChanToQuit->leaveChannel(this->_client);
 				this->_client->removeChannel(ChanToQuit);
-				ChanToQuit->SendToAll(Builder::RplLeaveChan(this->_client->getNick(), ChanToQuit->getName()));
+				ChanToQuit->SendToAll(NULL, Builder::RplLeave(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
 			}
+		}
+		it++;
+	}
+}
+
+void	Command::Who(std::vector<std::string> *arg)
+{
+	std::cout << "WHO function called " << std::endl;
+	PrintArg(*arg);
+	if (!parsingCmd(this->_client, this->_server, *arg, "WHO"))
+		return ;
+	std::vector<std::string>::iterator it = arg->begin();
+	it++;
+	while (it != arg->end())
+	{
+		if (CheckMaskChan(this->_client, this->_server, &(*it)))
+		{
+			Channel *ChanToWho = this->_server->getChannel(*it);
+			if (IsClientOnChannel(this->_client, this->_server, ChanToWho, this->_client->getNick()))
+			{
+				this->_server->SendToClient(this->_client, Builder::RplWhoReply(ChanToWho, this->_client, ChanToWho->getClients()));
+			}
+			// 315 ENDOFWHO (is answered if client not on channel)
+			this->_server->SendToClient(this->_client, Builder::RplEndOfWho(this->_client->getNick(), ChanToWho->getName()));
 		}
 		it++;
 	}

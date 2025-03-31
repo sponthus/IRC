@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 16:23:51 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 17:26:28 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,13 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	}
 	this->_Clients.push_back(client);
 	client->addChannel(server->getChannel(this->getName()));
-	server->SendToGroup(this->_Clients, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
-	if (this->_topic.size() > 0)
-		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic));
-	server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients));
+	this->SendToAll(NULL, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
+	// server->SendToClient(client, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
+	if (!this->_topic.empty())
+		server->SendToClient(client, Builder::RplTopic(client->getNick(), getName(), this->_topic));
+	else
+		server->SendToClient(client, Builder::RplNoTopic(getName()));
+	server->SendToClient(client, Builder::RplNamReply(client->getNick(), getName(), this->_Clients));
 	return;
 }
 
@@ -177,35 +180,33 @@ bool	Channel::hasPW() const
 
 void	Channel::setPW(Client *client, std::string &PW)
 {
+	if (!isClient(client))
+		return;
 	if (this->hasPW())
 	{	
 		this->_server->SendToClient(client, Builder::ErrKeySet(client->getNick(), this->getName()));
 		return ;
 	}
-	this->_server->SendToClient(client, "add PW\n");
 	this->_PW = PW;
 	this->_HasPW = true;
 }
 
 void	Channel::deletePW(Client *client)
 {
-	this->_server->SendToClient(client, "delete PW\n");
+	if (!isClient(client))
+		return;
 	this->_PW.clear(); // = "";
 	this->_HasPW = false;
 }
 
 void	Channel::setInviteOnly(Client *client, char Flag)
 {
+	if (!isClient(client))
+		return;
 	if (Flag == '+')
-	{
-		this->_server->SendToClient(client, "add invite only\n");
 		this->_InviteOnly = true;
-	}
 	else if (Flag == '-')
-	{
-		this->_server->SendToClient(client, "remove invite only\n");
 		this->_InviteOnly = false;
-	}
 }
 
 bool	Channel::isTopicRestrict() const
@@ -264,18 +265,14 @@ void	Channel::setUserLimit(Client *client, int limit, char Flag)
 
 void	Channel::setTopicRestriction(Client *client, char Flag)
 {
+	if (!isClient(client))
+		return;
 	if (Flag == '-')
-	{
-		this->_server->SendToClient(client, "remove Topic restriction\n");
 		this->_TopicRestrict = false;
-	}
 	else if (Flag == '+')
-	{
-		this->_server->SendToClient(client, "add Topic restriction\n");
 		this->_TopicRestrict = true;
-	}
 }
-void	Channel::SendToAll(std::string message) const
+void	Channel::SendToAll(Client *sender, std::string message) const
 {
-	_server->SendToGroup(this->_Clients, message);
+	_server->SendToGroup(sender, this->_Clients, message);
 }

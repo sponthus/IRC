@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 13:32:19 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/31 16:18:20 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ class Server {
 		void		clearClient(int fd);
 
 		void	sendData(int fd, std::string response) const;
-		void	SendToGroup(const std::vector<Client *> clients, const std::string message) const;
+		void	SendToGroup(Client *sender,const std::vector<Client *> clients, const std::string message) const;
 		void	SendToAllChannels(const Client *sender, const std::string message);
 		void	SendToNick(const Client *sender, const std::string nick, const std::string message) const;
 		void	SendToClient(const Client *client, const std::string message) const;

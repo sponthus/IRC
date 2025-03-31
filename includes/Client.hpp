@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/27 15:54:40 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/31 15:46:15 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Client {
 		const std::string	getAddress() const;
 		const std::string	getNick() const;
 		const std::string	getUser() const;
+		const std::string	getRealName() const;
 		bool				isRegistered() const;
 		bool				isPass() const;
 		Channel				*getChannel(std::string name);

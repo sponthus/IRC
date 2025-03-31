@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:49:06 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:49:32 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,8 @@ bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
 	Channel *channel = client->getChannel(ChannelName);
 	if (!IsClientOnChannel(client, server, channel, client->getNick()))
 		return (false);
-	return (CheckIsOp(client, server, channel));
+	return (true);
+	// return (CheckIsOp(client, server, channel));
 }
 
 bool	CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName)
