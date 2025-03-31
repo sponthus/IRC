@@ -276,7 +276,7 @@ std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, std
 	{
 		std::string isOPstr = (*i)->getNick();
 		if (Channel->isOP(*i))
-			isOPstr += " * ";
+			isOPstr += " *";
 		result += create() \
 		.setPrefix(SERVER) \
 		.setCode("352") \
