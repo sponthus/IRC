@@ -46,6 +46,7 @@ class Builder
 		static std::string RplJoin(const std::string& nick, const std::string& user, const std::string& channel);
 		static std::string RplNoTopic(const std::string& Channel);
 		static std::string RplTopic(const std::string &Channel, const std::string &Topic);
+		static std::string RplInviting(const std::string &channel, const std::string &inviterNick, const std::string &invitedNick);
 		static std::string RplNamReply(std::string canal, std::vector<Client *> _Clients);
 		static std::string RplInviting();
 		static std::string RplPrivMsg(std::string client, std::string msg);
