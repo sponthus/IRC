@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 10:54:53 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:48:52 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void	Server::SetCmdMap()
 	this->CmdMap["PRIVMSG"] = &Command::privmsg;
 	this->CmdMap["QUIT"] = &Command::quit;
 	this->CmdMap["PART"] = &Command::part;
+	this->CmdMap["WHO"] = &Command::Who;
 	return ;
 }
 void	Server::SetClientByNick(std::string nick, Client *client)

@@ -126,7 +126,7 @@ std::string Builder::RplLeave(std::string client, std::string ChanName)
 {
 	return create()
 		.setPrefix(client)
-		.setContent("you leave channel " + ChanName)
+		.setContent("you leave channel #" + ChanName)
 		.build()
 		.toString();
 }
@@ -135,7 +135,7 @@ std::string Builder::RplLeaveChan(std::string client, std::string ChanName)
 {
 	return create()
 		.setPrefix(client)
-		.setContent("leave channel " + ChanName)
+		.setContent("leave channel #" + ChanName)
 		.build()
 		.toString();
 }
@@ -145,7 +145,7 @@ std::string Builder::RplKicked(std::string client, std::string ChanName, std::st
 	if (msg)
 		reason = *msg;
 	return create()
-		.setPrefix(ChanName)
+		.setPrefix("#" + ChanName)
 		.setCode(client)
 		.setContent("kicked you for the followong reason : " + reason)
 		.build()
@@ -158,7 +158,7 @@ std::string Builder::RplKick(std::string client, std::string clientKicked, std::
 	if (msg)
 		reason = *msg;
 	return create()
-		.setPrefix(ChanName)
+		.setPrefix("#" + ChanName)
 		.setCode(client)
 		.setContent("kicked " + clientKicked + " for the followong reason : " + reason)
 		.build()
@@ -181,6 +181,20 @@ std::string Builder::RplQuit(std::string nick, std::string user, std::string msg
 // 263 RPL_TRYAGAIN
 // "<command> :Please wait a while and try again."
 
+// 315 RPL_ENDOFWHO
+// ":server 315 <client> <channel> :End of WHO list"
+std::string Builder::RplEndOfWho(const std::string& RequestingNick, const std::string& Channel)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("315")
+		.setContent(RequestingNick + " #" + Channel)
+		.setSuffix("End of WHO list")
+		.build()
+		.toString();
+}
+
+
 // 324 RPL_CHANNELMODEIS
 // "<channel> <mode> <mode params>"
 
@@ -191,7 +205,7 @@ std::string Builder::RplNoTopic(const std::string& Channel)
 	return create()
 		.setPrefix(SERVER)
 		.setCode("331")
-		.setContent(Channel)
+		.setContent("#" + Channel)
 		.setSuffix("No Topic is set")
 		.build()
 		.toString();
@@ -204,7 +218,7 @@ std::string Builder::RplTopic(const std::string &Channel, const std::string &Top
 	return create()
 		.setPrefix(SERVER)
 		.setCode("332")
-		.setContent(Channel)
+		.setContent("#" + Channel)
 		.setSuffix(Topic)
 		.build()
 		.toString();
@@ -217,7 +231,7 @@ std::string Builder::RplInviting(const std::string &channel, const std::string &
 	return create()
 		.setPrefix(SERVER)
 		.setCode("341")
-		.setContent(inviterNick + " " + invitedNick + " " + channel)
+		.setContent(inviterNick + " " + invitedNick + " " + "#" + channel)
 		.build()
 		.toString();
 }
@@ -235,7 +249,7 @@ std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clien
 	return create()
 		.setPrefix(SERVER)
 		.setCode("353")
-		.setContent(canal)
+		.setContent("#" + canal)
 		.setSuffix(names)
 		.build()
 		.toString();
@@ -250,6 +264,38 @@ std::string Builder::RplPrivMsg(std::string client, std::string msg)
 		.setSuffix(msg)
 		.build()
 		.toString();
+}
+
+// 352 RPL_WHOREPLY
+//  ":<server> 352 <client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
+// 1 answer per present person, this creates every response
+// hopcount = nb of intermediate servers between client and nick (0)
+// flags = * if OP
+// client = nick from person who sent WHO
+// channel = asked channel
+// server = Server sending the answer, then server the client is connected to
+// Realname = not parsed in our server
+// Followed by 315 end of WHO list
+std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, std::vector<Client *> _Clients)
+{
+	std::string result;
+	std::string RequestingNick = RequestingClient->getNick();
+	std::string prefix = RequestingNick + " #" + Channel->getName() + " ";
+
+	for (std::vector<Client *>::iterator i = _Clients.begin(); i != _Clients.end(); i++)
+	{
+		std::string isOPstr = (*i)->getNick();
+		if (Channel->isOP(*i))
+			isOPstr += " *";
+		result += create() \
+		.setPrefix(SERVER) \
+		.setCode("352") \
+		.setContent(prefix + (*i)->getUser() + " " + (*i)->getAddress() + " " + SERVER + " " + isOPstr) \
+		.setSuffix("0") \
+		.build() \
+		.toString();
+	}
+	return result;
 }
 
 // 401 ERR_NOSUCHNICK 
@@ -594,7 +640,7 @@ std::string Builder::ErrChanOPrivsNeeded(const std::string& requestingNick, cons
 	return create()
 		.setPrefix(SERVER)
 		.setCode("482")
-		.setContent(requestingNick + " " + channel)
+		.setContent(requestingNick + " #" + channel)
 		.setSuffix("You're not channel operator")
 		.build()
 		.toString();

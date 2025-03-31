@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/28 15:22:31 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/03/31 11:44:33 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class Command
 		void	privmsg(std::vector<std::string> *arg);
 		void	quit(std::vector<std::string> *arg);
 		void	part(std::vector<std::string> *arg);
+		void	Who(std::vector<std::string> *arg);
 	
 		Command(Server *server, Client *client, std::string msg);
 		~Command();

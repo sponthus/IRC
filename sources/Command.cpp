@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/31 10:54:44 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:45:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,7 +320,6 @@ void	Command::part(std::vector<std::string> *arg)
 	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
-	std::cout << "part function called " << std::endl;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
 	while (it != arg->end())
@@ -335,6 +334,30 @@ void	Command::part(std::vector<std::string> *arg)
 				this->_client->removeChannel(ChanToQuit);
 				ChanToQuit->SendToAll(Builder::RplLeaveChan(this->_client->getNick(), ChanToQuit->getName()));
 			}
+		}
+		it++;
+	}
+}
+
+void	Command::Who(std::vector<std::string> *arg)
+{
+	std::cout << "WHO function called " << std::endl;
+	PrintArg(*arg);
+	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "WHO"))
+		return ;
+	std::vector<std::string>::iterator it = arg->begin();
+		it++;
+	while (it != arg->end())
+	{
+		if (CheckMaskChan(this->_client, this->_server, &(*it)) && CheckChanOnServer(this->_client, this->_server, *it))
+		{
+			Channel *ChanToWho = this->_server->getChannel(*it);
+			if (IsClientOnChannel(this->_client, this->_server, ChanToWho, this->_client->getNick()))
+			{
+				this->_server->SendToClient(this->_client, Builder::RplWhoReply(ChanToWho, this->_client, ChanToWho->getClients()));
+			}
+			// 315 ENDOFWHO (is answered if client not on channel)
+			this->_server->SendToClient(this->_client, Builder::RplEndOfWho(this->_client->getNick(), ChanToWho->getName()));
 		}
 		it++;
 	}
