@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:07:59 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:51:02 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ const std::string	Client::getUser() const
 	return (this->_user);
 }
 
+const std::string	Client::getRealName() const
+{
+	return (this->_fullname);
+}
 bool	Client::isRegistered() const
 {
 	return (this->_registered);

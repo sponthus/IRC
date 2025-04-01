@@ -64,21 +64,7 @@ Message Builder::build()
 	return result;
 }
 
-//////////////////////// RESPONSES MESSAGES /////////////////////////
-
-// 001 Welcome
-// Response to a USER when logging in the server
-// ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
-std::string Builder::Welcome(const std::string& nick, const std::string&user)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("001")
-		.setContent(nick)
-		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
-		.build()
-		.toString();
-}
+//////////////////////// COMMAND RESPONSES /////////////////////////
 
 std::string Builder::Ping()
 {
@@ -89,6 +75,7 @@ std::string Builder::Ping()
 		.toString();
 }
 
+// TODO = Double
 std::string Builder::PrivMsg(const std::string& sender, const std::string& target, const std::string& message)
 {
 	return create()
@@ -96,6 +83,24 @@ std::string Builder::PrivMsg(const std::string& sender, const std::string& targe
 		.setCode("PRIVMSG")
 		.setContent(target)
 		.setSuffix(message)
+		.build()
+		.toString();
+}
+
+std::string Builder::PrivMsg(std::string client, std::string msg, const std::string *ChannelName)
+{
+	std::string _ChannelName;
+	if (ChannelName)
+	{
+		_ChannelName += "#";
+		_ChannelName = *ChannelName;
+	}
+	else
+		_ChannelName = "";
+	return create()
+		.setPrefix(client)
+		.setContent(" PRIVMSG " + *ChannelName)
+		.setSuffix(msg)
 		.build()
 		.toString();
 }
@@ -112,7 +117,7 @@ std::string Builder::Nick(const std::string& oldNick, const std::string& user, c
 		.toString();
 }
 
-std::string Builder::RplJoin(const std::string& nick, const std::string& user, const std::string& channel)
+std::string Builder::Join(const std::string& nick, const std::string& user, const std::string& channel)
 {
 	return create()
 		.setPrefix(nick + "!" + user + "@" + HOST)
@@ -122,51 +127,34 @@ std::string Builder::RplJoin(const std::string& nick, const std::string& user, c
 		.toString();
 }
 
-std::string Builder::RplLeave(std::string client, std::string ChanName)
-{
-	return create()
-		.setPrefix(client)
-		.setContent("you leave channel #" + ChanName)
-		.build()
-		.toString();
-}
-
-std::string Builder::RplLeaveChan(std::string client, std::string ChanName)
-{
-	return create()
-		.setPrefix(client)
-		.setContent("leave channel #" + ChanName)
-		.build()
-		.toString();
-}
-std::string Builder::RplKicked(std::string client, std::string ChanName, std::string *msg)
+std::string Builder::Part(std::string nick,std::string user, std::string ChanName, std::string *msg)
 {
 	std::string reason = "";
 	if (msg)
 		reason = *msg;
 	return create()
-		.setPrefix("#" + ChanName)
-		.setCode(client)
-		.setContent("kicked you for the followong reason : " + reason)
+		.setPrefix(nick + "!" + user + "@" + HOST)
+		.setContent("PART #" + ChanName)
+		.setSuffix(reason)
 		.build()
 		.toString();
 }
 
-std::string Builder::RplKick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
+std::string Builder::Kick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
 {
 	std::string reason = "";
 	if (msg)
 		reason = *msg;
 	return create()
-		.setPrefix("#" + ChanName)
-		.setCode(client)
-		.setContent("kicked " + clientKicked + " for the followong reason : " + reason)
+		.setPrefix(client)
+		.setContent("KICK #" + ChanName + " " + clientKicked)
+		.setSuffix(reason)
 		.build()
 		.toString();
 }
 
 // :<nickname>!<user>@<host> QUIT :<message>
-std::string Builder::RplQuit(std::string nick, std::string user, std::string msg)
+std::string Builder::Quit(std::string nick, std::string user, std::string msg)
 {
 	return create()
 		.setPrefix(nick + "!" + user + "@" + "HOST")
@@ -176,6 +164,24 @@ std::string Builder::RplQuit(std::string nick, std::string user, std::string msg
 		.toString();
 }
 
+//////////////////////// RESPONSES MESSAGES /////////////////////////
+
+// 001 RPL_WELCOME
+// Response to a USER when logging in the server
+// ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
+std::string Builder::RplWelcome(const std::string& nick, const std::string&user)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("001")
+		.setContent(nick)
+		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
+		.build()
+		.toString();
+}
+
+// 002 RPL_YOURHOST
+
 ///////////////////////// ERROR MESSAGES /////////////////////////
 
 // 263 RPL_TRYAGAIN
@@ -183,6 +189,13 @@ std::string Builder::RplQuit(std::string nick, std::string user, std::string msg
 
 // 315 RPL_ENDOFWHO
 // ":server 315 <client> <channel> :End of WHO list"
+/* The RPL_WHOREPLY and RPL_ENDOFWHO pair are used
+to answer a WHO message.  The RPL_WHOREPLY is only
+sent if there is an appropriate match to the WHO
+query.  If there is a list of parameters supplied
+with a WHO message, a RPL_ENDOFWHO MUST be sent
+after processing each list item with <name> being
+the item.*/
 std::string Builder::RplEndOfWho(const std::string& RequestingNick, const std::string& Channel)
 {
 	return create()
@@ -192,33 +205,59 @@ std::string Builder::RplEndOfWho(const std::string& RequestingNick, const std::s
 		.setSuffix("End of WHO list")
 		.build()
 		.toString();
-}
-
-
+	}
+	
 // 324 RPL_CHANNELMODEIS
-// "<channel> <mode> <mode params>"
+//     "<canal> <mode> <paramètres de mode >" 
+std::string Builder::RplChannelModeIs(Channel *Channel, std::string ClientName)
+{
+	std::string mode = "";
+	std::string modeArg = "";
+	if (Channel->isInviteOnly())
+		mode += "i";
+	if (Channel->isTopicRestrict())
+		mode += "t";
+	if (!mode.empty())
+		mode.insert(0, "+");
+	if (Channel->hasPW())
+	{
+		modeArg += "+k ";
+		modeArg += Channel->getPW();
+	}
+	if (Channel->hasUserLimit())
+	{
+		modeArg += " +l";
+		modeArg += Channel->getUserLimit();
+	}
+	return create()
+		.setPrefix(SERVER)
+		.setCode("324 " + ClientName)
+		.setContent("#" + Channel->getName() + " " + mode + " " + modeArg)
+		.build()
+		.toString();
+}
 
 // 331 RPL_NOTOPIC
 // ":<server> 331 <nick> #<channel> :No topic is set"
-std::string Builder::RplNoTopic(const std::string& Channel)
+std::string Builder::RplNoTopic(const std::string& requestingNick, const std::string& Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("331")
-		.setContent("#" + Channel)
+		.setContent(requestingNick + " #" + Channel)
 		.setSuffix("No Topic is set")
 		.build()
 		.toString();
 }
+
 // 332 RPL_TOPIC
-// Answer to setting a topic : ":<nick> TOPIC #<channel> :<topic>"
 // Answer to viewing a topic . ":<server> 332 <nick> #<channel> :<topic>"
-std::string Builder::RplTopic(const std::string &Channel, const std::string &Topic)
+std::string Builder::RplTopic(const std::string &client, const std::string &Channel, const std::string &Topic)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("332")
-		.setContent("#" + Channel)
+		.setContent(client + " #" + Channel)
 		.setSuffix(Topic)
 		.build()
 		.toString();
@@ -234,6 +273,40 @@ std::string Builder::RplInviting(const std::string &channel, const std::string &
 		.setContent(inviterNick + " " + invitedNick + " " + "#" + channel)
 		.build()
 		.toString();
+}
+
+// 352 RPL_WHOREPLY
+//  ":<server> 352 <client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
+// 1 answer per present person, this creates every response
+// hopcount = nb of intermediate servers between client and nick (0)
+// flags = * if OP
+// client = nick from person who sent WHO
+// channel = asked channel
+// server = Server sending the answer, then server the client is connected to
+// Realname = not parsed in our server
+/* The RPL_WHOREPLY and RPL_ENDOFWHO pair are used
+to answer a WHO message.  The RPL_WHOREPLY is only
+sent if there is an appropriate match to the WHO
+query.  If there is a list of parameters supplied
+with a WHO message, a RPL_ENDOFWHO MUST be sent
+after processing each list item with <name> being
+the item.*/
+std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, Client *Client)
+{
+	std::string result;
+	std::string prefix = RequestingClient->getNick() + " #" + Channel->getName() + " " + RequestingClient->getUser() + " " + HOST + " " + SERVER;
+
+	std::string NickFlags = Client->getNick() + " H";
+	if (Channel->isOP(Client))
+		NickFlags += "@";
+	result += create() \
+	.setPrefix(SERVER) \
+	.setCode("352") \
+	.setContent(prefix + " " + NickFlags) \
+	.setSuffix("1") \
+	.build() \
+	.toString();
+	return result;
 }
 
 // 353 RPL_NAMREPLY
@@ -255,45 +328,6 @@ std::string Builder::RplNamReply(Channel *Channel, std::string requestingNick)
 		.setSuffix(names)
 		.build()
 		.toString();
-}
-
-std::string Builder::RplPrivMsg(std::string client, std::string msg)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("342")
-		.setContent(client + " send")
-		.setSuffix(msg)
-		.build()
-		.toString();
-}
-
-// 352 RPL_WHOREPLY
-//  ":<server> 352 <client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
-// 1 answer per present person, this creates every response
-// hopcount = nb of intermediate servers between client and nick (0)
-// flags = * if OP
-// client = nick from person who sent WHO
-// channel = asked channel
-// server = Server sending the answer, then server the client is connected to
-// Realname = not parsed in our server
-// Followed by 315 end of WHO list
-std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, Client *Client)
-{
-	std::string result;
-	std::string prefix = RequestingClient->getNick() + " #" + Channel->getName() + " " + RequestingClient->getUser() + " " + HOST + " " + SERVER;
-
-	std::string NickFlags = Client->getNick() + " H";
-	if (Channel->isOP(Client))
-		NickFlags += "@";
-	result += create() \
-	.setPrefix(SERVER) \
-	.setCode("352") \
-	.setContent(prefix + " " + NickFlags) \
-	.setSuffix("1") \
-	.build() \
-	.toString();
-	return result;
 }
 
 // 401 ERR_NOSUCHNICK 
@@ -493,19 +527,6 @@ std::string Builder::ErrNotRegistered()
 		.toString();
 }
 
-// 462 ERR_ALREADYREGISTRED
-// :<server> 451 <requestingUSER> :":You may not reregister
-std::string Builder::ErrAlreadyRegisted(const std::string& nick)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("462")
-		.setContent(nick)
-		.setSuffix("You may not reregister")
-		.build()
-		.toString();
-}
-
 // 461 ERR_NEEDMOREPARAMS
 // ":<server> 461 <requestingNick> <command> :Not enough parameters"
 std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const std::string& command)
@@ -520,6 +541,19 @@ std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const 
 		.setCode("461")
 		.setContent(nick + " " + command)
 		.setSuffix("Not enough parameters")
+		.build()
+		.toString();
+}
+
+// 462 ERR_ALREADYREGISTRED
+// :<server> 451 <requestingUSER> :":You may not reregister
+std::string Builder::ErrAlreadyRegisted(const std::string& nick)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("462")
+		.setContent(nick)
+		.setSuffix("You may not reregister")
 		.build()
 		.toString();
 }
@@ -568,6 +602,7 @@ std::string Builder::ErrChannelIsFull(const std::string& requestingNick, const s
 			.toString();
 }
 
+// TODO = Double !
 // 472 ERR_UNKNOWNMODE
 // ":<server> 472 <requestingNick> <mode> :is unknown mode char to me for #<channel>"
 std::string Builder::ErrUnknownMode(const std::string& requestingNick, const std::string& mode, const std::string& channel)
@@ -579,6 +614,21 @@ std::string Builder::ErrUnknownMode(const std::string& requestingNick, const std
 			.setSuffix("is unknown mode char to me for " + channel)
 			.build()
 			.toString();
+}
+
+// 472 ERR_UNKNOWNMODE
+//     "<caratère> :is unknown mode char to me
+std::string  Builder::ErrUModeUnknownMod(const char &requestingMode)
+{
+	std::string mod;
+	mod += requestingMode;
+	return create()
+		.setPrefix(SERVER)
+		.setCode("472")
+		.setContent(mod)
+		.setSuffix("is unknown mode char to me")
+		.build()
+		.toString();
 }
 
 // 473 ERR_INVITEONLYCHAN
@@ -606,7 +656,8 @@ std::string Builder::BadChannelKey(const std::string& requestingNick, const std:
 			.build()
 			.toString();
 }
-// ERR_BADCHANMASK 476
+
+// 476 ERR_BADCHANMASK
 //  "<channel> :Bad Channel Mask"
 std::string Builder::BadChannelMask(const std::string& channel)
 {
@@ -618,6 +669,7 @@ std::string Builder::BadChannelMask(const std::string& channel)
 			.build()
 			.toString();
 }
+
 // 481 ERR_NOPRIVILEGES
 // ":<server> 481 <requestingNick> :Permission Denied- You're not an IRC operator"
 std::string Builder::ErrNoPrivileges(const std::string& requestingNick)
@@ -653,20 +705,6 @@ std::string Builder::ErrUModeUnknownFlag(const std::string& requestingNick)
 		.setCode("501")
 		.setContent(requestingNick)
 		.setSuffix("Unknown MODE flag")
-		.build()
-		.toString();
-}
-// 472 ERR_UNKNOWNMODE
-//     "<caratère> :is unknown mode char to me
-std::string  Builder::ErrUModeUnknownMod(const char &requestingMode)
-{
-	std::string mod;
-	mod += requestingMode;
-	return create()
-		.setPrefix(SERVER)
-		.setCode("472")
-		.setContent(mod)
-		.setSuffix("is unknown mode char to me")
 		.build()
 		.toString();
 }
