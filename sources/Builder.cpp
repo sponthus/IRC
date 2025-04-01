@@ -237,19 +237,21 @@ std::string Builder::RplInviting(const std::string &channel, const std::string &
 }
 
 // 353 RPL_NAMREPLY
-//     "<canal> :[[@|+]<pseudo> [[@|+]<pseudo> [...]]]" 
-std::string Builder::RplNamReply(std::string canal, std::vector<Client *> _Clients)
+//     ":server 353 <nickname> = <channel> : [[@|+]<pseudo> [[@|+]<pseudo> [...]]]" 
+std::string Builder::RplNamReply(Channel *Channel, std::string requestingNick)
 {
 	std::string names;
-	for (std::vector<Client *>::iterator i = _Clients.begin(); i != _Clients.end(); i++)
+	for (std::vector<Client *>::const_iterator i = Channel->getClients().begin(); i != Channel->getClients().end(); i++)
 	{
-		names += (*i)->getUser();
+		if (Channel->isOP(*i))
+			names += "@";
+		names += (*i)->getNick();
 		names += " ";
 	}
 	return create()
 		.setPrefix(SERVER)
 		.setCode("353")
-		.setContent("#" + canal)
+		.setContent(requestingNick + " = #" + Channel->getName())
 		.setSuffix(names)
 		.build()
 		.toString();
@@ -276,25 +278,21 @@ std::string Builder::RplPrivMsg(std::string client, std::string msg)
 // server = Server sending the answer, then server the client is connected to
 // Realname = not parsed in our server
 // Followed by 315 end of WHO list
-std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, std::vector<Client *> _Clients)
+std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, Client *Client)
 {
 	std::string result;
-	std::string RequestingNick = RequestingClient->getNick();
-	std::string prefix = RequestingNick + " #" + Channel->getName() + " ";
+	std::string prefix = RequestingClient->getNick() + " #" + Channel->getName() + " " + RequestingClient->getUser() + " " + HOST + " " + SERVER;
 
-	for (std::vector<Client *>::iterator i = _Clients.begin(); i != _Clients.end(); i++)
-	{
-		std::string isOPstr = (*i)->getNick();
-		if (Channel->isOP(*i))
-			isOPstr += " *";
-		result += create() \
-		.setPrefix(SERVER) \
-		.setCode("352") \
-		.setContent(prefix + (*i)->getUser() + " " + (*i)->getAddress() + " " + SERVER + " " + isOPstr) \
-		.setSuffix("0") \
-		.build() \
-		.toString();
-	}
+	std::string NickFlags = Client->getNick() + " H";
+	if (Channel->isOP(Client))
+		NickFlags += "@";
+	result += create() \
+	.setPrefix(SERVER) \
+	.setCode("352") \
+	.setContent(prefix + " " + NickFlags) \
+	.setSuffix("1") \
+	.build() \
+	.toString();
 	return result;
 }
 

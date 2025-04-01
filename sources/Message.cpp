@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 16:42:57 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/28 15:00:47 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/01 09:23:57 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ std::string Message::toString() const
 	{
 		result += " :" + _suffix;
 	}
-	result += "\n";
+	result += "\r\n";
 	return result;
 }
 

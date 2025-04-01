@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/24 15:49:29 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/01 09:41:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Channel {
 		const std::string	&getName() const;
 		const std::string	&getPW() const;
 		const int			&getUserLimit() const;
-		const std::vector<Client *> getClients() const;
+		const std::vector<Client *> &getClients() const;
 		int		getUserNb() const;
 		bool	hasPW() const;
 		bool	isOP(Client *client) const;

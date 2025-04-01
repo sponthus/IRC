@@ -18,7 +18,7 @@
 #include "Message.hpp"
 
 # define SERVER "irc.server.42"
-# define HOST "HOSTTODEFINE" // TODO : what about host in IRC ?
+# define HOST "localhost" // TODO : what about host in IRC ?
 
 class Message;
 class Client;
@@ -49,10 +49,10 @@ class Builder
 		static std::string RplNoTopic(const std::string& Channel);
 		static std::string RplTopic(const std::string &Channel, const std::string &Topic);
 		static std::string RplInviting(const std::string &channel, const std::string &inviterNick, const std::string &invitedNick);
-		static std::string RplNamReply(std::string canal, std::vector<Client *> _Clients);
 		static std::string RplInviting();
 		static std::string RplPrivMsg(std::string client, std::string msg);
-		static std::string RplWhoReply(Channel *Channel, Client *RequestingClient, std::vector<Client *> _Clients);
+		static std::string RplNamReply(Channel *Channel, std::string requestingNick);
+		static std::string RplWhoReply(Channel *Channel, Client *RequestingClient, Client *Client);
 		static std::string RplLeave(std::string client, std::string ChanName);
 		static std::string RplLeaveChan(std::string client, std::string ChanName);
 		static std::string RplKicked(std::string client, std::string ChanName, std::string *msg);

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/31 11:45:17 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/01 09:40:35 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,7 +354,8 @@ void	Command::Who(std::vector<std::string> *arg)
 			Channel *ChanToWho = this->_server->getChannel(*it);
 			if (IsClientOnChannel(this->_client, this->_server, ChanToWho, this->_client->getNick()))
 			{
-				this->_server->SendToClient(this->_client, Builder::RplWhoReply(ChanToWho, this->_client, ChanToWho->getClients()));
+				for (std::vector<Client *>::const_iterator i = ChanToWho->getClients().begin(); i != ChanToWho->getClients().end(); i++)
+					this->_server->SendToClient(this->_client, Builder::RplWhoReply(ChanToWho, this->_client, (*i)));
 			}
 			// 315 ENDOFWHO (is answered if client not on channel)
 			this->_server->SendToClient(this->_client, Builder::RplEndOfWho(this->_client->getNick(), ChanToWho->getName()));

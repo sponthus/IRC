@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 11:53:37 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/01 09:58:34 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	Channel::removeClient(Client *client)
 	}
 }
 
-const std::vector<Client *> Channel::getClients() const
+const std::vector<Client *> &Channel::getClients() const
 {
 	return (this->_Clients);
 }
@@ -87,7 +87,7 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	server->SendToGroup(this->_Clients, Builder::RplJoin(client->getNick(), client->getUser(), this->getName()));
 	if (this->_topic.size() > 0)
 		server->SendToClient(client, Builder::RplTopic(getName(), this->_topic));
-	// server->SendToClient(client, Builder::RplNamReply(getName(), this->_Clients));
+	server->SendToClient(client, Builder::RplNamReply(this, client->getNick()));
 	return;
 }
 
