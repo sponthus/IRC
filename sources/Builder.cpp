@@ -169,18 +169,29 @@ std::string Builder::Quit(std::string nick, std::string user, std::string msg)
 // 001 RPL_WELCOME
 // Response to a USER when logging in the server
 // ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
-std::string Builder::RplWelcome(const std::string& nick, const std::string&user)
+std::string Builder::RplWelcome(const Client *Client)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("001")
-		.setContent(nick)
-		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
+		.setContent(Client->getNick())
+		.setSuffix("Welcome to the IRC Network, " + Client->getNick() + "! " + Client->getUser() + "@" + HOST)
 		.build()
 		.toString();
 }
 
 // 002 RPL_YOURHOST
+// ":server 002 <nick> :Your host is <server_hostname>, running version <version>"
+std::string Builder::RplYourHost(const std::string& nick)
+{
+	return create()
+		.setPrefix(SERVER)
+		.setCode("002")
+		.setContent(nick)
+		.setSuffix("Your host is " + std::string(HOST) + ", running version " + VERSION)
+		.build()
+		.toString();
+}
 
 ///////////////////////// ERROR MESSAGES /////////////////////////
 

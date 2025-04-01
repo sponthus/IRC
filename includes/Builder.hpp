@@ -19,6 +19,7 @@
 
 # define SERVER "irc.server.42"
 # define HOST "localhost" // TODO : what about host in IRC ?
+# define VERSION "42.0"
 
 class Message;
 class Client;
@@ -51,7 +52,8 @@ class Builder
 		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
 
 		// Responses
-		/* 001*/ static std::string RplWelcome(const std::string& nick, const std::string&user);
+		/* 001*/ static std::string RplWelcome(const Client *Client);
+		/* 002*/ static std::string RplYourHost(const std::string& nick);
 		/* 315*/ static std::string RplEndOfWho(const std::string& RequestingNick, const std::string& Channel);
 		/* 324*/ static std::string RplChannelModeIs(Channel *Channel, std::string ClientName);
 		/* 331*/ static std::string RplNoTopic(const std::string& requestingNick, const std::string& Channel);

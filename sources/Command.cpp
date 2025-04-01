@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/01 10:42:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/01 11:14:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ void	Command::nick(std::vector<std::string> *arg)
 		if (this->_client->getNick().empty() && this->_client->isRegistered())
 		{
 			// this->_server->SendToClient(this->_client, "----------------you've been successfully registered----------------\n");
-			this->_server->SendToClient(this->_client, Builder::RplWelcome(*it, this->_client->getUser()));
+			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client));
 		}
 		else
 		{
@@ -280,7 +280,7 @@ void	Command::user(std::vector<std::string> *arg)
 		if(!this->_client->getNick().empty())
 		{
 			// this->_server->SendToClient(this->_client, "-----------you've been successfully registered-----------\n");
-			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client->getNick(), this->_client->getUser()));
+			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client));
 		}
 	}
 	else
