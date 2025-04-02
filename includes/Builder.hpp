@@ -52,7 +52,7 @@ class Builder
 		static std::string Invite(Client *inviter, std::string invitedNick, std::string channel);
 		
 		// Responses
-		/* 001*/ static std::string RplWelcome(const Client *Client);
+		/* 001*/ static std::string RplWelcome(const std::string& nick, const std::string&user);
 		/* 002*/ static std::string RplYourHost(const std::string& nick);
 		/* 315*/ static std::string RplEndOfWho(const std::string& RequestingNick, const std::string& Channel);
 		/* 324*/ static std::string RplChannelModeIs(Channel *Channel, std::string ClientName);

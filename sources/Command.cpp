@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 15:16:04 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 16:32:32 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ void	Command::nick(std::vector<std::string> *arg)
 		if (this->_client->getNick().empty() && this->_client->isRegistered())
 		{
 			// this->_server->SendToClient(this->_client, "----------------you've been successfully registered----------------\n");
-			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client));
+			this->_server->SendToClient(this->_client, Builder::RplWelcome(*it, this->_client->getUser()));
 		}
 		else
 		{
@@ -280,7 +280,7 @@ void	Command::user(std::vector<std::string> *arg)
 		if(!this->_client->getNick().empty())
 		{
 			// this->_server->SendToClient(this->_client, "-----------you've been successfully registered-----------\n");
-			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client));
+			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client->getNick(), this->_client->getUser()));
 		}
 	}
 	else

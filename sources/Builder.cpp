@@ -170,13 +170,13 @@ std::string Builder::Invite(Client *inviter, std::string invitedNick, std::strin
 // 001 RPL_WELCOME
 // Response to a USER when logging in the server
 // ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
-std::string Builder::RplWelcome(const Client *Client)
+std::string Builder::RplWelcome(const std::string& nick, const std::string&user)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("001")
-		.setContent(Client->getNick())
-		.setSuffix("Welcome to the IRC Network, " + Client->getNick() + "! " + Client->getUser() + "@" + HOST)
+		.setContent(nick)
+		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
 		.build()
 		.toString();
 }

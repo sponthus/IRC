@@ -1,0 +1,87 @@
+<< JOIN #42
+>> :zonbodiggs!zonbodiggs@localhost JOIN #42
+<< MODE #42
+<< WHO #42
+>> :irc.server.42 331 zonbodiggs #42 :No Topic is set
+>> :irc.server.42 353 zonbodiggs = #42 :zonbodiggs 
+>> :irc.server.42 324 zonbodiggs #42  
+>> :irc.server.42 352 zonbodiggs #42 zonbodiggs localhost irc.server.42 zonbodiggs H :1
+>> :irc.server.42 315 zonbodiggs #42 :End of WHO list
+
+<< JOIN #42
+>> :zonbodiggs!zonbodiggs@localhost JOIN #42
+<< MODE #42
+<< WHO #42
+>> :irc.server.42 331 zonbodiggs #42 :No Topic is set
+>> :irc.server.42 353 zonbodiggs = #42 :zonbodiggs 
+>> :irc.server.42 324 zonbodiggs #42  
+>> :irc.server.42 352 zonbodiggs #42 zonbodiggs localhost irc.server.42 zonbodiggs H :1
+>> :irc.server.42 315 zonbodiggs #42 :End of WHO list
+
+<< JOIN #42
+>> :bozondiggs!zonbodiggs@localhost JOIN #42
+>> :irc.server.42 331 bozondiggs #42 :No Topic is set
+>> :irc.server.42 353 bozondiggs = #42 :@zonbodiggs bozondiggs 
+
+---------- Server opened ---------- 
+>> Waiting for connections <<    
+Event detected on fd 3: revent = 1
+Accepting client
+New connection accepted on fd 4
+Client 4 connected successfully with IP 127.0.0.1
+Event detected on fd 4: revent = 1
+4 sent: //CAP LS 302
+PASS abcdef
+NICK zonbodiggs
+USER zonbodiggs 0 * :realname
+//
+pass function called 
+arg function = PASS
+arg function = abcdef
+Server mdp = /abcdef/ client sent /abcdef/
+nick function called 
+arg function = NICK
+arg function = zonbodiggs
+Sent data: //:!@localhost NICK zonbodiggs
+// to 4
+user function called 
+arg function = USER
+arg function = zonbodiggs
+arg function = 0
+arg function = *
+arg function = realname
+Sent data: //:irc.server.42 001 zonbodiggs :Welcome to the IRC Network, zonbodiggs! zonbodiggs@localhost
+// to 4
+Event detected on fd 3: revent = 1
+Accepting client
+New connection accepted on fd 5
+Client 5 connected successfully with IP 127.0.0.1
+Event detected on fd 5: revent = 1
+5 sent: //CAP LS 302
+PASS abcdef
+NICK zonbodiggs
+USER zonbodiggs 0 * :realname
+//
+pass function called 
+arg function = PASS
+arg function = abcdef
+Server mdp = /abcdef/ client sent /abcdef/
+nick function called 
+arg function = NICK
+arg function = zonbodiggs
+Sent data: //:irc.server.42 433 127.0.0.1 zonbodiggs :Nickname is already in use
+// to 5
+user function called 
+arg function = USER
+arg function = zonbodiggs
+arg function = 0
+arg function = *
+arg function = realname
+Event detected on fd 5: revent = 1
+5 sent: //NICK bozondiggs
+//
+nick function called 
+arg function = NICK
+arg function = bozondiggs
+Sent data: //:irc.server.42 001 :Welcome to the IRC Network, ! zonbodiggs@localhost
+// to 5
