@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 14:16:24 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:25:43 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std
 	std::vector<std::string>::iterator it = arg->begin();
 	if (lastChan != arg->end())
 		lastChan++;
-	while (++it != arg->end() || lastChan != it)
+	while (++it != arg->end() && lastChan != it)
 	{
 		if (lastChan != arg->end())
 			(*JoinnedChan)[*it] = *lastChan;
