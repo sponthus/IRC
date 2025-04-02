@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 17:23:03 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:59:49 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,21 +166,55 @@ void	Command::Mode(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (it != arg->end() && CheckIsOp(this->_client, this->_server, Channel))
+	if (it == arg->end()) // No args -> Wants to know the mode
+		this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
+	else if (CheckIsOp(this->_client, this->_server, Channel)) // Args = Wants to change the modes
 	{
 		char Flag = (*it)[0];
 		if (!isValidFlag(this->_client, this->_server, Flag))
 			return ;
 		std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+		std::string recapModes = "";
+		if (Flag == '+')
+			recapModes += "+";
+		else
+			recapModes += "-";
+		std::string recapOptions = "";
+		std::string modesWithOptions = "okl";
 		for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
 		{
 			if (Flag == '+')
-				addmod(this->_client, this->_server, Channel, it);
+			{
+				if (addmod(this->_client, this->_server, Channel, it))
+				{
+					recapModes += it->first;
+					if (modesWithOptions.find(it->first) != std::string::npos)
+					{
+						if (!recapOptions.empty())
+							recapOptions += " ";
+						if (it->first == 'k')
+							recapOptions += "****";
+						else
+							recapOptions += *it->second;
+					}
+				}
+			}
 			else
-				removemod(this->_client, this->_server, Channel, it);
+			{
+				if (removemod(this->_client, this->_server, Channel, it))
+				{
+					recapModes += it->first;
+					if (it->first == 'o') // Only case of options with -
+					{
+						if (!recapOptions.empty())
+							recapOptions += " ";
+						recapOptions += *it->second;
+					}
+				}
+			}
 		}
+		Channel->SendToAll(Builder::Mode(this->_client->getNick(), Channel->getName(), recapModes, recapOptions));
 	}
-	this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
 }
 
 void	Command::join(std::vector<std::string> *arg)

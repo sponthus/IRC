@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:24:27 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:39:49 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Channel {
 		const std::vector<Client *> &getClients() const;
 		int		getUserNb() const;
 		bool	hasPW() const;
-		bool	isOP(Client *client) const;
+		bool	isOP(const Client *client) const;
 		bool	isClient(Client *client) const;
 		bool	isInviteOnly() const;
 		bool	isInvited(Client *client) const;

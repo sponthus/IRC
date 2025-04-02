@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/03/31 11:44:33 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:49:31 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,8 @@ bool							CheckChanOnServer(Client *client, Server *server, std::string Channel
 
 /*							Command Utils							*/
 
-void							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
-void							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag);
 
 void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg);

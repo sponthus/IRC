@@ -50,7 +50,8 @@ class Builder
 		static std::string Ping();
 		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
 		static std::string Invite(Client *inviter, std::string invitedNick, std::string channel);
-		
+		static std::string Mode(std::string nickname, std::string Channel, std::string recapModes, std::string recapOptions);
+
 		// Responses
 		/* 001*/ static std::string RplWelcome(const std::string& nick, const std::string&user);
 		/* 002*/ static std::string RplYourHost(const std::string& nick);

@@ -6,13 +6,15 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 15:25:43 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:49:10 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Command.hpp"
 
 /*								MODE UTILS								*/
+
+// Creates a map : std::map<char, std::string *>
 std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag)
 {
 	std::map<char, std::string *> Mods;
@@ -37,7 +39,7 @@ std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::strin
 	return (Mods);
 }
 
-void	removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
+bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
 {
 	if (it->first == 'i')
 		Channel->setInviteOnly(client, '-');
@@ -53,19 +55,38 @@ void	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 			if (IsClientOnChannel(client, server, Channel, *it->second))
 			{
 				TargetUser = server->getClientByNick(*it->second);
+				if (!Channel->isOP(TargetUser))
+					return (false);
 				Channel->removeOP((Client *)TargetUser);
-			}	
+			}
+			else
+				return (false);
 		}
 		else
+		{
 			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
+			return (false);
+		}
 	}
 	else if (it->first == 'l')
 		Channel->setUserLimit(client, 0, '-');
 	else
+	{
 		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
+		return (false);
+	}
+	return (true);
 }
 
-void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
+bool	isMod(char c)
+{
+	std::string mods = "itkol";
+	if (mods.find(c) != std::string::npos)
+		return (true);
+	return (false);
+}
+
+bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
 {
 	if (it->first == 'i')
 		Channel->setInviteOnly(client, '+');
@@ -84,8 +105,12 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 			if (IsClientOnChannel(client, server, Channel, *it->second))
 			{
 				TargetUser = server->getClientByNick(*it->second);
+				if (Channel->isOP(TargetUser))
+					return (false);
 				Channel->addOP((Client *)TargetUser);
 			}
+			else
+				return (false);
 		}
 	}
 	else if (it->first == 'l')
@@ -100,9 +125,16 @@ void	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		}	
 	}
 	else
+	{
 		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
-	if ((it->first == 'o' && !it->second) || (it->first == 'k' && !it->second) || (it->first == 'k' && !it->second))
+		return (false);
+	}
+	if ((it->first == 'o' && !it->second) || (it->first == 'k' && !it->second) || (it->first == 'l' && !it->second))
+	{
 		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
+		return (false);
+	}
+	return (true);
 }
 
 /*								JOIN UTILS								*/

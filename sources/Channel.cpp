@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:26:40 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:40:00 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,11 +97,11 @@ void	Channel::leaveChannel(Client *client)
 {
 	if (isOP(client))
 		removeOP(client);
-	std::cout << "PART" << std::endl;
+	std::cout << "PART" << std::endl; // TODO suppress or order
 	removeClient(client);
 }
 
-bool	Channel::isOP(Client *client) const
+bool	Channel::isOP(const Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
 	for (it = _ops.begin(); it != _ops.end(); it++)

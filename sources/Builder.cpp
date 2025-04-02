@@ -165,6 +165,23 @@ std::string Builder::Invite(Client *inviter, std::string invitedNick, std::strin
 		.toString();
 }
 
+std::string Builder::Mode(std::string nickname, std::string Channel, std::string recapModes, std::string recapOptions)
+{
+	std::string changes;
+	changes += recapModes;
+	if (!recapOptions.empty())
+	{
+		changes += " ";
+		changes += recapOptions;
+	}
+	return create()
+		.setPrefix(nickname)
+		.setCode("MODE")
+		.setContent("#" + Channel + " " + changes)
+		.build()
+		.toString();
+}
+
 //////////////////////// RESPONSES MESSAGES /////////////////////////
 
 // 001 RPL_WELCOME
