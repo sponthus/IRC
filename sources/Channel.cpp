@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 15:01:56 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 17:17:10 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	}
 	this->_Clients.push_back(client);
 	client->addChannel(server->getChannel(this->getName()));
-	this->SendToAll(NULL, Builder::Join(client->getNick(), client->getUser(), this->getName()));
+	this->SendToAll(Builder::Join(client->getNick(), client->getUser(), this->getName()));
 	if (!this->_topic.empty())
 		server->SendToClient(client, Builder::RplTopic(client->getNick(), getName(), this->_topic));
 	else
@@ -219,15 +219,16 @@ const std::string&	Channel::getTopic() const
 	return (this->_topic);
 }
 
-void	Channel::setTopic(std::string &topic)
+void	Channel::setTopic(Client *client, std::string &topic)
 {
-	if (isTopicRestrict())
+	if (isTopicRestrict() && !isOP(client))
 	{
-		std::cerr << "ERR_CHANOPRIVSNEEDED" << std::endl;
+		this->_server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(), this->_name));
 		return ;
 	}
 	this->_topic = topic;
-	std::cout << "TOPIC" << std::endl;
+	this->_server->SendToGroup(this->_Clients, Builder::RplTopic(client->getNick(), this->_name, this->_topic));
+	
 }
 
 bool	Channel::hasUserLimit() const
@@ -272,7 +273,8 @@ void	Channel::setTopicRestriction(Client *client, char Flag)
 	else if (Flag == '+')
 		this->_TopicRestrict = true;
 }
-void	Channel::SendToAll(Client *sender, std::string message) const
+
+void	Channel::SendToAll(std::string message) const
 {
-	_server->SendToGroup(sender, this->_Clients, message);
+	_server->SendToGroup(this->_Clients, message);
 }

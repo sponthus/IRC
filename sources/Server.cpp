@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 15:12:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 17:16:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,16 +324,13 @@ Channel*	Server::getChannel(std::string name)
 		return (NULL);
 }
 
-void	Server::SendToGroup(Client *sender, const std::vector<Client *> clients, const std::string message) const
+void	Server::SendToGroup(const std::vector<Client *> clients, const std::string message) const
 {
 	if (clients.size() == 0)
 		return ;
 	for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++)
 	{
-		if (sender && (*it) != sender)
-			sendData((*it)->getFD(), message);
-		else if (!sender)
-			sendData((*it)->getFD(), message);
+		sendData((*it)->getFD(), message);
 	}
 }
 
@@ -370,7 +367,7 @@ void	Server::SendToAllChannels(const Client *sender, const std::string message)
 				list.push_back(*cl);
 		}
 	}
-	SendToGroup((Client *)sender, list, message);
+	SendToGroup(list, message);
 }
 
 void	Server::SendToClient(const Client *client, const std::string message) const

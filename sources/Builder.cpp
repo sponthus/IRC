@@ -362,7 +362,7 @@ std::string Builder::ErrNoSuchChannel(const std::string& requestingNick, const s
 	return create()
 		.setPrefix(SERVER)
 		.setCode("403")
-		.setContent(requestingNick + " " + channel)
+		.setContent(requestingNick + " #" + channel)
 		.setSuffix("No such channel")
 		.build()
 		.toString();

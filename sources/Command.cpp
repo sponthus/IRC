@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 16:32:32 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/02 17:19:10 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,12 @@ void	Command::Kick(std::vector<std::string> *arg)
 	if (it != arg->end())
 	{
 		this->_server->SendToClient(TargetUser, Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
-		Channel->SendToAll(NULL, Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
+		Channel->SendToAll(Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), &(*it)));
 	}
 	else
 	{
 		this->_server->SendToClient(TargetUser, Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
-		Channel->SendToAll(NULL, Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
+		Channel->SendToAll(Builder::Kick(this->_client->getNick(), TargetUser->getNick(), Channel->getName(), NULL));
 	}
 }
 
@@ -142,16 +142,17 @@ void	Command::Topic(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (it == arg->end() && Channel->getTopic().empty())
-		this->_server->SendToClient(this->_client, Builder::RplNoTopic(this->_client->getNick(), Channel->getName())); 
-	if (it != arg->end() && CheckIsOp(this->_client, this->_server, Channel))
+	if (it == arg->end())
+		if (Channel->getTopic().empty())
+			this->_server->SendToClient(this->_client, Builder::RplNoTopic(this->_client->getNick(), Channel->getName()));
+		else
+			this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));
+	else
 	{
 		if (it->find(":", 0) == 0)
 			it->replace(0, 1, "");
-		Channel->setTopic(*it);
+		Channel->setTopic(this->_client, *it); // Sends messages according to the reaction
 	}
-	if (!Channel->getTopic().empty())
-		this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));		
 }
 
 void	Command::Mode(std::vector<std::string> *arg)
@@ -306,7 +307,7 @@ void	Command::privmsg(std::vector<std::string> *arg)
 			{
 				it->erase(0,1);
 				Channel *Channel = this->_server->getChannel(*it);
-				Channel->SendToAll(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
+				Channel->SendToAll(Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 			}
 		}
 		else if (IsOnServer(this->_client, this->_server, *it))
@@ -351,7 +352,7 @@ void	Command::part(std::vector<std::string> *arg)
 				this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
 				ChanToQuit->leaveChannel(this->_client);
 				this->_client->removeChannel(ChanToQuit);
-				ChanToQuit->SendToAll(NULL, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+				ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
 			}
 		}
 		it++;
