@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 17:19:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 17:23:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,7 +307,7 @@ void	Command::privmsg(std::vector<std::string> *arg)
 			{
 				it->erase(0,1);
 				Channel *Channel = this->_server->getChannel(*it);
-				Channel->SendToAll(Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
+				Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 			}
 		}
 		else if (IsOnServer(this->_client, this->_server, *it))

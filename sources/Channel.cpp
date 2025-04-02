@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:17:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 17:26:40 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,4 +277,18 @@ void	Channel::setTopicRestriction(Client *client, char Flag)
 void	Channel::SendToAll(std::string message) const
 {
 	_server->SendToGroup(this->_Clients, message);
+}
+
+void	Channel::SendToAllBut(Client *client, std::string message) const
+{
+	std::vector<Client *>	list;
+	
+	if (this->_Clients.size() == 0)
+		return ;
+	for (std::vector<Client *>::const_iterator it = this->_Clients.begin(); it != this->_Clients.end(); it++)
+	{
+		if (client != *it)
+			list.push_back(*it);
+	}
+	this->_server->SendToGroup(list, message);
 }

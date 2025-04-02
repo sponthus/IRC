@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:17:13 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 17:24:27 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Channel {
 		void				removeOP(Client *client);
 		void				invite(Client *client, Client *invited);
 		void				SendToAll(std::string message) const;
+		void				SendToAllBut(Client *client, std::string message) const;
 
 		// Modify channel settings
 		void				setTopic(Client *client, std::string &topic);
