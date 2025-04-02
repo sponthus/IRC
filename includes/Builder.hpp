@@ -42,15 +42,15 @@ class Builder
 	public:
 		// Commands
 		static std::string Join(const std::string& nick, const std::string& user, const std::string& channel);
-		static std::string PrivMsg(const std::string& sender, const std::string& target, const std::string& message);
-		static std::string PrivMsg(std::string client, std::string msg, const std::string *ChannelName);
+		static std::string PrivMsg(Client *sender, std::string msg, const std::string *ChannelName, const Client *recipient);
 		static std::string Part(std::string nick,std::string user, std::string ChanName, std::string *msg);
 		static std::string PartChan(std::string client, std::string ChanName);
 		static std::string Kick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg);
 		static std::string Quit(std::string nick, std::string user, std::string msg);
 		static std::string Ping();
 		static std::string Nick(const std::string& oldNick, const std::string& user, const std::string& newNick);
-
+		static std::string Invite(Client *inviter, std::string invitedNick, std::string channel);
+		
 		// Responses
 		/* 001*/ static std::string RplWelcome(const Client *Client);
 		/* 002*/ static std::string RplYourHost(const std::string& nick);

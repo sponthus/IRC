@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/01 11:14:05 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:16:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,11 +113,11 @@ void	Command::Invite(std::vector<std::string> *arg)
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") || !IsOnServer(this->_client, this->_server, *it))
+	if (!ThereIsArg(this->_client, this->_server, it, *arg, "INVITE") || !IsOnServer(this->_client, this->_server, *it))
 		return ;
 	const Client *TargetUser = this->_server->getClientByNick(*it);
 	it++;
-	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") || !CheckMaskChan(this->_client, this->_server, &(*it)))
+	if (!ThereIsArg(this->_client, this->_server, it, *arg, "INVITE") || !CheckMaskChan(this->_client, this->_server, &(*it)))
 		return ;
 	Channel *Channel = this->_client->getChannel(*it);
 	if (!Channel)
@@ -127,8 +127,8 @@ void	Command::Invite(std::vector<std::string> *arg)
 		Channel->addOP(this->_client);
 		Channel->joinChannel(this->_server, this->_client, NULL);
 	}
-	if (CheckIsOp(this->_client, this->_server, Channel))
-		Channel->invite(this->_client, (Client *)TargetUser);
+	// if (CheckIsOp(this->_client, this->_server, Channel)) // Inutile car deja check dans la fonction et necessaire seult si invite only
+	Channel->invite(this->_client, (Client *)TargetUser);
 }
 
 void	Command::Topic(std::vector<std::string> *arg)
@@ -306,13 +306,13 @@ void	Command::privmsg(std::vector<std::string> *arg)
 			{
 				it->erase(0,1);
 				Channel *Channel = this->_server->getChannel(*it);
-				Channel->SendToAll(this->_client, Builder::PrivMsg(this->_client->getNick(), *msg, &(Channel->getName())));
+				Channel->SendToAll(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 			}
 		}
 		else if (IsOnServer(this->_client, this->_server, *it))
 		{
 			const Client *TargetUser = this->_server->getClientByNick(*it);
-			this->_server->SendToClient(TargetUser, Builder::PrivMsg(this->_client->getNick(), *msg, NULL));
+			this->_server->SendToClient(TargetUser, Builder::PrivMsg(this->_client, *msg, NULL, TargetUser));
 		}
 		it++;
 	}
@@ -329,6 +329,7 @@ void	Command::quit(std::vector<std::string> *arg)
 	this->_server->SendToAllChannels(this->_client, Builder::Quit(this->_client->getNick(), this->_client->getUser(), *it));
 	this->_server->clearClient(this->_client->getFD());
 }
+
 void	Command::part(std::vector<std::string> *arg)
 {
 	std::cout << "part function called " << std::endl;

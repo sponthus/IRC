@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 13:49:32 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/02 14:35:14 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,8 +118,9 @@ bool	IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::st
 	return (true);
 }
 
-bool	CheckMaskChan(Client *client, Server *server,std::string *ChannelName)
+bool	CheckMaskChan(Client *client, Server *server, std::string *ChannelName)
 {
+	std::cout << "Arg tested = " << *ChannelName << std::endl;
 	if (ChannelName->find("#", 0) == 0 || ChannelName->find("&", 0) ==0)
 	{
 		ChannelName->erase(0, 1);

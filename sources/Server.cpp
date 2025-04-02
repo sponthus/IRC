@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 16:23:54 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/02 15:12:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,15 @@ const std::string	Server::getPW() const
 
 const Client *		Server::getClientByNick(std::string nick) const
 {
+	// // Debug
+	// for (std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.begin(); it != this->_ClientsByNick.end(); it++)
+	// {
+	// 	std::cout << "it->first = " << it->first << " / second = " << it->second->getNick() << std::endl;
+	// }
+	// std::cout << "Looking for " << nick << std::endl;
+	// // Debug
 	const std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.find(nick);
-	if (it !=  this->_ClientsByNick.end())
+	if (it != this->_ClientsByNick.end())
 		return (it->second);
 	return (NULL);
 }
@@ -336,7 +343,7 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
     std::map<std::string, Client *>::const_iterator it = _ClientsByNick.find(nick);
     if (it != _ClientsByNick.end())
 	{
-		sendData(it->second->getFD(), Builder::PrivMsg(sender->getNick(), nick, message));
+		sendData(it->second->getFD(), message);
     }
 	else
 	{

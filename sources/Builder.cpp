@@ -75,31 +75,20 @@ std::string Builder::Ping()
 		.toString();
 }
 
-// TODO = Double
-std::string Builder::PrivMsg(const std::string& sender, const std::string& target, const std::string& message)
+std::string Builder::PrivMsg(Client *sender, std::string msg, const std::string *ChannelName, const Client *recipient)
 {
-	return create()
-		.setPrefix(sender)
-		.setCode("PRIVMSG")
-		.setContent(target)
-		.setSuffix(message)
-		.build()
-		.toString();
-}
-
-std::string Builder::PrivMsg(std::string client, std::string msg, const std::string *ChannelName)
-{
-	std::string _ChannelName;
+	std::string destination = "";
 	if (ChannelName)
 	{
-		_ChannelName += "#";
-		_ChannelName = *ChannelName;
+		destination += "#";
+		destination += *ChannelName;
 	}
-	else
-		_ChannelName = "";
+	else if (recipient)
+		destination = recipient->getNick();
 	return create()
-		.setPrefix(client)
-		.setContent(" PRIVMSG " + *ChannelName)
+		.setPrefix(sender->getNick() + "!" + sender->getUser() + "@" + SERVER)
+		.setCode("PRIVMSG")
+		.setContent(destination)
 		.setSuffix(msg)
 		.build()
 		.toString();
@@ -134,7 +123,8 @@ std::string Builder::Part(std::string nick,std::string user, std::string ChanNam
 		reason = *msg;
 	return create()
 		.setPrefix(nick + "!" + user + "@" + HOST)
-		.setContent("PART #" + ChanName)
+		.setCode("PART")
+		.setContent("#" + ChanName)
 		.setSuffix(reason)
 		.build()
 		.toString();
@@ -147,7 +137,8 @@ std::string Builder::Kick(std::string client, std::string clientKicked, std::str
 		reason = *msg;
 	return create()
 		.setPrefix(client)
-		.setContent("KICK #" + ChanName + " " + clientKicked)
+		.setCode("KICK")
+		.setContent("#" + ChanName + " " + clientKicked)
 		.setSuffix(reason)
 		.build()
 		.toString();
@@ -157,9 +148,19 @@ std::string Builder::Kick(std::string client, std::string clientKicked, std::str
 std::string Builder::Quit(std::string nick, std::string user, std::string msg)
 {
 	return create()
-		.setPrefix(nick + "!" + user + "@" + "HOST")
+		.setPrefix(nick + "!" + user + "@" + SERVER)
 		.setCode("QUIT")
 		.setSuffix(msg)
+		.build()
+		.toString();
+}
+
+std::string Builder::Invite(Client *inviter, std::string invitedNick, std::string channel)
+{
+	return create()
+		.setPrefix(inviter->getNick() + "!" + inviter->getUser() + "@" + SERVER)
+		.setCode("INVITE")
+		.setContent(invitedNick + " #" + channel)
 		.build()
 		.toString();
 }
@@ -519,7 +520,7 @@ std::string Builder::ErrUserOnChannel(const std::string& requestingNick, const s
 	return create()
 		.setPrefix(SERVER)
 		.setCode("443")
-		.setContent(requestingNick + " " + targetNick + " " + channel)
+		.setContent(requestingNick + " " + targetNick + " #" + channel)
 		.setSuffix("is already on channel")
 		.build()
 		.toString();

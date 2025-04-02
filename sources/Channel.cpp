@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/01 10:40:35 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:01:56 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ const std::vector<Client *> &Channel::getClients() const
 void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 {
 	if (isClient(client))
-		return; // Client is already registered in channel, send a response
+		return; // Client is already registered in channel, no response
 	if (hasPW())
 	{
 		if (!PW || (PW && *PW != getPW()))
@@ -165,6 +165,7 @@ void	Channel::invite(Client *client, Client *invited)
 	if (!isInvited(client))
 		_InvitedClients.push_back(invited);
 	this->_server->SendToClient(invited, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
+	this->_server->SendToClient(client, Builder::Invite(client, invited->getNick(), this->_name));
 }
 
 const std::string&	Channel::getPW() const
