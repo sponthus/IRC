@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:23:48 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/03 14:28:48 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,9 +166,9 @@ void	Command::Mode(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (it == arg->end()) // No args -> Wants to know the mode
+	if (it == arg->end())
 		this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
-	else if (!CheckIsOp(this->_client, this->_server, Channel)) // Args = Wants to change the modes
+	else if (!CheckIsOp(this->_client, this->_server, Channel))
 		return ;	
 	char Flag = (*it)[0];
 	if (!isValidFlag(this->_client, this->_server, Flag))
