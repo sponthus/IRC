@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:13:34 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/03 14:22:01 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,6 @@ void	Command::Invite(std::vector<std::string> *arg)
 		Channel->addOP(this->_client);
 		Channel->joinChannel(this->_server, this->_client, NULL);
 	}
-	// if (CheckIsOp(this->_client, this->_server, Channel)) // Inutile car deja check dans la fonction et necessaire seult si invite only
 	Channel->invite(this->_client, (Client *)TargetUser);
 }
 
@@ -142,17 +141,15 @@ void	Command::Topic(std::vector<std::string> *arg)
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
-	if (it == arg->end())
-		if (Channel->getTopic().empty())
-			this->_server->SendToClient(this->_client, Builder::RplNoTopic(this->_client->getNick(), Channel->getName()));
-		else
-			this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));
-	else
+	if (it == arg->end() && Channel->getTopic().empty())
+		this->_server->SendToClient(this->_client, Builder::RplNoTopic(this->_client->getNick(), Channel->getName()));
+	else if (it != arg->end())
 	{
 		if (it->find(":", 0) == 0)
 			it->replace(0, 1, "");
-		Channel->setTopic(this->_client, *it); // Sends messages according to the reaction
+		Channel->setTopic(this->_client, *it); 
 	}
+	this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));
 }
 
 void	Command::Mode(std::vector<std::string> *arg)

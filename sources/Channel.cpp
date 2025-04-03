@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/03 12:15:24 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/03 14:21:04 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void	Channel::invite(Client *client, Client *invited)
 	{
 		this->_server->SendToClient(client, Builder::ErrUserOnChannel(client->getNick(), invited->getNick(), this->getName()));
 		return ;
-	} 
+	}
 	if (!isInvited(client))
 		_InvitedClients.push_back(invited);
 	this->_server->SendToClient(invited, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
@@ -229,8 +229,6 @@ void	Channel::setTopic(Client *client, std::string &topic)
 		return ;
 	}
 	this->_topic = topic;
-	this->_server->SendToGroup(this->_Clients, Builder::RplTopic(client->getNick(), this->_name, this->_topic));
-	
 }
 
 bool	Channel::hasUserLimit() const
