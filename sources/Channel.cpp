@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 18:40:00 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/03 12:15:24 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,26 +112,28 @@ bool	Channel::isOP(const Client *client) const
 	return (false);
 }
 
-void	Channel::addOP(Client *client)
+bool	Channel::addOP(Client *client)
 {
 	if (isOP(client))
-		return ; // Is already OP
+		return (false); // Is already OP
 	this->_ops.push_back(client);
+	return (true);
 }
 
-void	Channel::removeOP(Client *client)
+bool	Channel::removeOP(Client *client)
 {
 	if (!isOP(client))
-		return ;
+		return (false);
 	std::vector<Client *>::iterator it;
 	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
 		if ((*it)->getNick() == client->getNick())
 		{
 			_ops.erase(it);
-			return ;
+			return (true);
 		}
 	}
+	return (false);
 }
 
 bool	Channel::isInviteOnly() const

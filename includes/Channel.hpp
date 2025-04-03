@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 18:39:49 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/03 12:14:16 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ class Channel {
 		// Channel actions
 		void				joinChannel(Server *server, Client *client, std::string *PW);
 		void				leaveChannel(Client *client);
-		void				addOP(Client *client);
-		void				removeOP(Client *client);
+		bool				addOP(Client *client);
+		bool				removeOP(Client *client);
 		void				invite(Client *client, Client *invited);
 		void				SendToAll(std::string message) const;
 		void				SendToAllBut(Client *client, std::string message) const;

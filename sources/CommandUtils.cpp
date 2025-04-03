@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 18:49:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/03 14:01:43 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::strin
 	{
 		if	(it != arg->end() && mod[i])
 		{
-			if ((Flag == '+' && mod[i] == 'l' )|| (Flag == '+' && mod[i] == 'k') || mod[i] == 'o')
+			if ((Flag == '+' && mod[i] == 'l' )|| (mod[i] == 'k') || mod[i] == 'o')
 			{
 				Mods[mod[i]] = &(*it);
 				it++;
@@ -37,6 +37,42 @@ std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::strin
 			Mods[mod[i]] = NULL;
 	}
 	return (Mods);
+}
+
+bool	isModWhitOption(char c)
+{
+	std::string mods = "okl";
+	if (mods.find(c) != std::string::npos)
+		return (true);
+	return (false);
+}
+void	SetModeInChan(Client *client, Server *server, Channel *Channel, std::map<char, std::string *> Mods, char Flag)
+{
+	std::string recapModes(1, Flag);
+	std::string recapOptions;
+	for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
+	{
+		if (Flag == '+')
+		{
+			if (addmod(client, server, Channel, it))
+			{
+				recapModes += it->first;
+				if (isModWhitOption(it->first))
+					SetRecapOptions(*it->second, &recapOptions, it->first);
+			}
+		}
+		else
+		{
+			if (removemod(client, server, Channel, it))
+			{
+				recapModes += it->first;
+				if (it->first == 'o' || it->first == 'k') // Only case of options with -
+					SetRecapOptions(*it->second, &recapOptions, it->first);
+			}
+		}
+	}
+	if (recapModes.size() != 1)
+		Channel->SendToAll(Builder::Mode(client->getNick(), Channel->getName(), recapModes, recapOptions));
 }
 
 bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
@@ -52,19 +88,14 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (IsClientOnChannel(client, server, Channel, *it->second))
-			{
-				TargetUser = server->getClientByNick(*it->second);
-				if (!Channel->isOP(TargetUser))
-					return (false);
-				Channel->removeOP((Client *)TargetUser);
-			}
-			else
+			if (!IsClientOnChannel(client, server, Channel, *it->second))
 				return (false);
+			TargetUser = server->getClientByNick(*it->second);
+			return (Channel->removeOP((Client *)TargetUser));
 		}
 		else
 		{
-			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
+			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE -o") + it->first));
 			return (false);
 		}
 	}
@@ -76,14 +107,6 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		return (false);
 	}
 	return (true);
-}
-
-bool	isMod(char c)
-{
-	std::string mods = "itkol";
-	if (mods.find(c) != std::string::npos)
-		return (true);
-	return (false);
 }
 
 bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it)
@@ -102,15 +125,10 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (IsClientOnChannel(client, server, Channel, *it->second))
-			{
-				TargetUser = server->getClientByNick(*it->second);
-				if (Channel->isOP(TargetUser))
-					return (false);
-				Channel->addOP((Client *)TargetUser);
-			}
-			else
+			if (!IsClientOnChannel(client, server, Channel, *it->second))
 				return (false);
+			TargetUser = server->getClientByNick(*it->second);
+			return (Channel->addOP((Client *)TargetUser));
 		}
 	}
 	else if (it->first == 'l')
@@ -129,7 +147,7 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 		return (false);
 	}
-	if ((it->first == 'o' && !it->second) || (it->first == 'k' && !it->second) || (it->first == 'l' && !it->second))
+	if (isModWhitOption(it->first) && !it->second)
 	{
 		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
 		return (false);
@@ -137,6 +155,17 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	return (true);
 }
 
+void	SetRecapOptions(std::string arg, std::string *recapOptions, char c)
+{
+	if (c == 'k')
+	{
+		for	(size_t i = 0; i < arg.size(); i++)
+			*recapOptions += "*";
+	}
+	else
+		*recapOptions += arg;
+	*recapOptions += " ";
+}
 /*								JOIN UTILS								*/
 
 std::vector<std::string>::iterator	FindLastChannel(std::vector<std::string>* arg)
@@ -156,10 +185,14 @@ void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std
 	std::vector<std::string>::iterator it = arg->begin();
 	if (lastChan != arg->end())
 		lastChan++;
-	while (++it != arg->end() && lastChan != it)
+	std::vector<std::string>::iterator key = lastChan;
+	while (++it != arg->end() && it != lastChan)
 	{
-		if (lastChan != arg->end())
-			(*JoinnedChan)[*it] = *lastChan;
+		if (key != arg->end())
+		{	
+			(*JoinnedChan)[*it] = *key;
+			key++;
+		}
 		else
 			(*JoinnedChan)[*it] = "";
 	}

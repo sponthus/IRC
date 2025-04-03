@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 18:49:31 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/03 14:01:18 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,12 @@ bool							CheckChanOnServer(Client *client, Server *server, std::string Channel
 
 /*							Command Utils							*/
 
+bool							isModWhitOption(char c);
 bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag);
+void							SetRecapOptions(std::string arg, std::string *recapOptions, char c);
+void							SetModeInChan(Client *client, Server *server, Channel *Channel, std::map<char, std::string *> Mods, char Flag);
 
 void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg);
 

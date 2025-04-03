@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/02 18:59:49 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/03 14:01:38 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,46 +174,7 @@ void	Command::Mode(std::vector<std::string> *arg)
 		if (!isValidFlag(this->_client, this->_server, Flag))
 			return ;
 		std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
-		std::string recapModes = "";
-		if (Flag == '+')
-			recapModes += "+";
-		else
-			recapModes += "-";
-		std::string recapOptions = "";
-		std::string modesWithOptions = "okl";
-		for (std::map<char, std::string *>::iterator it = Mods.begin(); it != Mods.end(); it++)
-		{
-			if (Flag == '+')
-			{
-				if (addmod(this->_client, this->_server, Channel, it))
-				{
-					recapModes += it->first;
-					if (modesWithOptions.find(it->first) != std::string::npos)
-					{
-						if (!recapOptions.empty())
-							recapOptions += " ";
-						if (it->first == 'k')
-							recapOptions += "****";
-						else
-							recapOptions += *it->second;
-					}
-				}
-			}
-			else
-			{
-				if (removemod(this->_client, this->_server, Channel, it))
-				{
-					recapModes += it->first;
-					if (it->first == 'o') // Only case of options with -
-					{
-						if (!recapOptions.empty())
-							recapOptions += " ";
-						recapOptions += *it->second;
-					}
-				}
-			}
-		}
-		Channel->SendToAll(Builder::Mode(this->_client->getNick(), Channel->getName(), recapModes, recapOptions));
+		SetModeInChan(this->_client, this->_server, Channel, Mods, Flag);
 	}
 }
 
@@ -252,10 +213,7 @@ void	Command::nick(std::vector<std::string> *arg)
 		if (!CheckNickInUse(this->_client, this->_server, *it))
 			return ;
 		if (this->_client->getNick().empty() && this->_client->isRegistered())
-		{
-			// this->_server->SendToClient(this->_client, "----------------you've been successfully registered----------------\n");
 			this->_server->SendToClient(this->_client, Builder::RplWelcome(*it, this->_client->getUser()));
-		}
 		else
 		{
 			this->_server->SendToClient(this->_client, Builder::Nick(this->_client->getNick(), this->_client->getUser(), *it));
@@ -313,10 +271,7 @@ void	Command::user(std::vector<std::string> *arg)
 		this->_client->setFullName(*i);
 		this->_client->registerUser();
 		if(!this->_client->getNick().empty())
-		{
-			// this->_server->SendToClient(this->_client, "-----------you've been successfully registered-----------\n");
 			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client->getNick(), this->_client->getUser()));
-		}
 	}
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "USER"));	
@@ -335,14 +290,11 @@ void	Command::privmsg(std::vector<std::string> *arg)
 	it++;
 	while (it != msg)
 	{
-		if ((*it)[0] == '#' || (*it)[0] == '&')
+		if (((*it)[0] == '#' || (*it)[0] == '&') && CheckChannelArg(this->_client, this->_server, *it))
 		{
-			if (CheckChannelArg(this->_client, this->_server, *it))
-			{
-				it->erase(0,1);
-				Channel *Channel = this->_server->getChannel(*it);
-				Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
-			}
+			it->erase(0,1);
+			Channel *Channel = this->_server->getChannel(*it);
+			Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 		}
 		else if (IsOnServer(this->_client, this->_server, *it))
 		{
@@ -378,17 +330,14 @@ void	Command::part(std::vector<std::string> *arg)
 	it++;
 	while (it != msg)
 	{
-		if (CheckMaskChan(this->_client, this->_server, &(*it)) && CheckChanOnServer(this->_client, this->_server, *it))
-		{
-			Channel *ChanToQuit = this->_server->getChannel(*it);
-			if (IsClientOnChannel(this->_client, this->_server, ChanToQuit, this->_client->getNick()))
-			{
-				this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
-				ChanToQuit->leaveChannel(this->_client);
-				this->_client->removeChannel(ChanToQuit);
-				ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
-			}
-		}
+		if (!CheckChannelArg(this->_client, this->_server, *it))
+			return ;
+		it->erase(0,1);
+		Channel *ChanToQuit = this->_server->getChannel(*it);
+		this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+		ChanToQuit->leaveChannel(this->_client);
+		this->_client->removeChannel(ChanToQuit);
+		ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
 		it++;
 	}
 }
