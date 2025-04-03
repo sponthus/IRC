@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:01:43 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/03 14:11:01 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		}
 		else
 		{
-			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE -o") + it->first));
+			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE -o" + it->first));
 			return (false);
 		}
 	}
@@ -149,7 +149,7 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	}
 	if (isModWhitOption(it->first) && !it->second)
 	{
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ") + it->first));
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE " + it->first));
 		return (false);
 	}
 	return (true);

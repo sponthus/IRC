@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:01:38 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/03 14:13:34 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,14 +168,13 @@ void	Command::Mode(std::vector<std::string> *arg)
 	it++;
 	if (it == arg->end()) // No args -> Wants to know the mode
 		this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
-	else if (CheckIsOp(this->_client, this->_server, Channel)) // Args = Wants to change the modes
-	{
-		char Flag = (*it)[0];
-		if (!isValidFlag(this->_client, this->_server, Flag))
-			return ;
-		std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
-		SetModeInChan(this->_client, this->_server, Channel, Mods, Flag);
-	}
+	else if (!CheckIsOp(this->_client, this->_server, Channel)) // Args = Wants to change the modes
+		return ;	
+	char Flag = (*it)[0];
+	if (!isValidFlag(this->_client, this->_server, Flag))
+		return ;
+	std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+	SetModeInChan(this->_client, this->_server, Channel, Mods, Flag);
 }
 
 void	Command::join(std::vector<std::string> *arg)
@@ -244,7 +243,7 @@ void	Command::pass(std::vector<std::string> *arg)
 	else
 	{
 		this->_server->SendToClient(this->_client, Builder::ErrPasswdMismatch(this->_client->getNick()));
-		this->_server->clearClient(this->_client->getFD()); // Disconnects the client
+		this->_server->clearClient(this->_client->getFD()); // Disconnects the client 
 	}
 }
 
