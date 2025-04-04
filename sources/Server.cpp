@@ -6,12 +6,15 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:16:04 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:25:45 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Command.hpp"
+#include "Colors.hpp"
+
+extern bool	g_shutdown;
 
 // Private
 Server::Server()
@@ -53,13 +56,6 @@ const std::string	Server::getPW() const
 
 const Client *		Server::getClientByNick(std::string nick) const
 {
-	// // Debug
-	// for (std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.begin(); it != this->_ClientsByNick.end(); it++)
-	// {
-	// 	std::cout << "it->first = " << it->first << " / second = " << it->second->getNick() << std::endl;
-	// }
-	// std::cout << "Looking for " << nick << std::endl;
-	// // Debug
 	const std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.find(nick);
 	if (it != this->_ClientsByNick.end())
 		return (it->second);
@@ -142,29 +138,29 @@ void	Server::initPoll(int fd)
 	this->_fds.push_back(poll);
 }
 
-std::string	Server::recieveData(int fd, std::string msg) // fd from the client that sent a msg
+// fd from the client who sent a msg
+// Reccursively recieves data if buffer is not big enouth
+std::string	Server::recieveData(int fd, std::string msg)
 {
 	ssize_t	size = 1;
 	char	buffer[BUFF_SIZE];
-	for (size_t i = 0; i < BUFF_SIZE - 1; i++) // memeset
+	for (size_t i = 0; i < BUFF_SIZE - 1; i++) // memset
 		buffer[i] = 0;
-
 	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	std::string str = msg;
 	if (size < 0)
 	{
-		std::cout << "recv() error: " << strerror(errno) << std::endl;
+		std::cout << RED << "recv() error: " << strerror(errno) << RESET << std::endl;
 		clearClient(fd);
 	}
 	else if (size == 0)
 	{
-		std::cout << "Client closed connection properly" << std::endl;
+		std::cout << CYAN << "Client closed connection properly" << RESET << std::endl;
 		clearClient(fd);
 	}
 	else
 	{
 		buffer[size] = '\0';
-		// std::cout << size << std::endl;
 		str += buffer;
 		if (size + 1 == BUFF_SIZE)
 			str = recieveData(fd, str);
@@ -209,20 +205,20 @@ void	Server::initClient(int fd, struct sockaddr_in ClientAddress)
 
 void	Server::connectClient()
 {
-	std::cout << "Accepting client" << std::endl;
+	std::cout << CYAN << "Accepting client" << RESET << std::endl;
 	struct sockaddr_in	ClientAddress;
 	socklen_t			LenAddress = sizeof(ClientAddress);
 
 	int	fd = accept(this->_socketFD, (sockaddr *)&ClientAddress, &LenAddress);
 	if (fd == -1)
 	{
-		std::cerr << "Accept failed" << std::endl;
+		std::cerr << RED << "Accept failed" << RESET << std::endl;
 		return ; // Throw error ?
 	}
-	std::cout << "New connection accepted on fd " << fd << std::endl;
+	std::cout << CYAN << "New connection accepted on fd " << fd << RESET << std::endl;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
-		std::cerr << "fcntl failed on new client" << std::endl;
+		std::cerr << RED << "fcntl failed on new client" << RESET << std::endl;
 		return ; // Throw error ?
 	}
 	try
@@ -230,12 +226,12 @@ void	Server::connectClient()
 		initClient(fd, ClientAddress);
 	    initPoll(fd);
 
-        std::cout << "Client " << fd << " connected successfully with IP " 
-                  << inet_ntoa(ClientAddress.sin_addr) << std::endl;
+        std::cout << GREEN << "Client " << fd << " connected successfully with IP " 
+                  << inet_ntoa(ClientAddress.sin_addr) << RESET << std::endl;
     }
     catch (const std::exception& e)
 	{
-        std::cerr << "Error setting up client: " << e.what() << std::endl;
+        std::cerr << RED << "Error setting up client: " << e.what() << RESET << std::endl;
         close(fd);
         return;
     }
@@ -268,18 +264,18 @@ void	Server::handleData(std::string message, Client *cl)
 
 void	Server::run()
 {
-	if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1) // & sig == false ?, waits for messages
+	if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1 && g_shutdown == false)
 		throw(std::runtime_error("poll failed"));
 	for (size_t i = 0; i < this->_fds.size(); i++)
 	{
 		if (this->_fds[i].revents != 0)
 		{
-			std::cout << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << std::endl;
+			std::cout << CYAN << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << RESET << std::endl;
 			if (this->_fds[i].fd == this->_socketFD)
 				connectClient();
 			else if (this->_fds[i].revents & POLLNVAL)
 			{
-				std::cerr << "POLLNVAL detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << RED << "POLLNVAL detected for fd " << this->_fds[i].fd << RESET << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			else if (this->_fds[i].revents & POLLIN)
@@ -295,7 +291,7 @@ void	Server::run()
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 			{
-				std::cerr << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << std::endl;
+				std::cerr << RED << "POLLHUP or POLLERR detected for fd " << this->_fds[i].fd << RESET << std::endl;
 				clearClient(this->_fds[i].fd);
 			}
 			this->_fds[i].revents = 0;

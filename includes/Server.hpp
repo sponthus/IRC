@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 17:16:14 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:20:18 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 # define SERVER_HPP
 
 #include <string>
-#include <cstring> // strerror
-#include <iostream>
 #include <vector>
+#include <map>
+#include <iostream>
 #include <algorithm>
 #include <cstdlib> // atoi()
+#include <signal.h>
 #include <sys/socket.h> // socket(), address
 #include <netinet/in.h> // IP specialties 
 #include <unistd.h> // fcntl
@@ -26,8 +27,8 @@
 #include <poll.h>
 #include <netinet/in.h> // inet_ntoa
 #include <arpa/inet.h> // inet_ntoa
-#include <cerrno> 
-#include <map>
+#include <cerrno> // recv errno
+#include <cstring> // strerror
 
 #include "Client.hpp"
 #include "Command.hpp"
@@ -35,6 +36,7 @@
 #include "Builder.hpp"
 
 # define BUFF_SIZE 512
+# define MAX_PORT 65535
 
 class Command;
 class Channel;
@@ -87,7 +89,7 @@ class Server {
 
 		std::vector<struct pollfd>			_fds;
 		std::vector<Client *>				_Clients;
-		std::map<std::string, Client *>		_ClientsByNick; // Add nickname validation
+		std::map<std::string, Client *>		_ClientsByNick;
 		std::map<int, Client *>				_ClientsByFD;
 		std::map<std::string, Channel *>	_ChannelsByName;
 };
@@ -95,5 +97,10 @@ class Server {
 bool	isValidPW(std::string arg);
 bool	isValidPort(std::string arg);
 
+# define ERROR "Error :"
+# define ERR_NB_ARG "Wrong number of arguments, expected 2 : <port> <password>"
+# define ERR_PORT_NUM "Port value should be numeric"
+# define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
+# define ERR_PW "Password should not contain spaces, \' or \""
 
 #endif

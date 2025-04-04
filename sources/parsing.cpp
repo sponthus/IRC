@@ -6,14 +6,13 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/02 14:35:14 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:24:01 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "messages.hpp"
 #include "Server.hpp"
+#include "Colors.hpp"
 
-#include <cstdlib>
 // No space, no ' or "
 bool	isValidPW(std::string arg)
 {
@@ -29,6 +28,7 @@ bool	isValidPW(std::string arg)
 }
 
 // Positive port between 1024 and 65535
+// To avoid port already used and not usable
 bool	isValidPort(std::string arg)
 {
 	int	port;
@@ -38,15 +38,15 @@ bool	isValidPort(std::string arg)
 	{
 		if (std::isdigit((unsigned char)(*it)) == 0)
 		{
-			std::cout << ERROR << ERR_PORT_NUM << std::endl;
+			std::cout << RED << ERROR << ERR_PORT_NUM << RESET << std::endl;
 			return false;
 		}
 		it++;
 	}
 	port = std::atoi(arg.c_str());
-	if (port < 1024 || port > 65535)
+	if (port < 1024 || port > MAX_PORT)
 	{
-		std::cout << ERROR << ERR_PORT_VAL << std::endl;
+		std::cout << RED << ERROR << ERR_PORT_VAL << RESET << std::endl;
 		return false;
 	}
 	return true;
@@ -120,7 +120,6 @@ bool	IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::st
 
 bool	CheckMaskChan(Client *client, Server *server, std::string *ChannelName)
 {
-	std::cout << "Arg tested = " << *ChannelName << std::endl;
 	if (ChannelName->find("#", 0) == 0 || ChannelName->find("&", 0) ==0)
 	{
 		ChannelName->erase(0, 1);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 15:51:02 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/04 14:44:10 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,7 @@ Client::Client() : _fd(-1), _address(""), _registered(false), _Pass(false)
 {}
 
 Client::~Client()
-{
-	std::cout << "Destructor called for fd " << this->_fd << std::endl;
-}
+{}
 
 void	Client::setFD(int fd)
 {
