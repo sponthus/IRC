@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 15:24:01 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:48:33 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,6 @@ bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
 	if (!IsClientOnChannel(client, server, channel, client->getNick()))
 		return (false);
 	return (true);
-	// return (CheckIsOp(client, server, channel));
 }
 
 bool	CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName)

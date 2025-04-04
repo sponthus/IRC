@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 15:25:45 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:48:16 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ std::string	Server::recieveData(int fd, std::string msg)
 	}
 	else if (size == 0)
 	{
-		std::cout << CYAN << "Client closed connection properly" << RESET << std::endl;
+		std::cout << CYAN << "Client closed connection properly (fd " << fd << ")" << RESET << std::endl;
 		clearClient(fd);
 	}
 	else
@@ -213,19 +213,18 @@ void	Server::connectClient()
 	if (fd == -1)
 	{
 		std::cerr << RED << "Accept failed" << RESET << std::endl;
-		return ; // Throw error ?
+		return ;
 	}
 	std::cout << CYAN << "New connection accepted on fd " << fd << RESET << std::endl;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << RED << "fcntl failed on new client" << RESET << std::endl;
-		return ; // Throw error ?
+		return ;
 	}
 	try
 	{
 		initClient(fd, ClientAddress);
 	    initPoll(fd);
-
         std::cout << GREEN << "Client " << fd << " connected successfully with IP " 
                   << inet_ntoa(ClientAddress.sin_addr) << RESET << std::endl;
     }
@@ -241,9 +240,9 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 {
 	if (send(fd, response.c_str(), response.size(), 0) == -1)
 	{
-		std::cerr << "send failed on response : " << response << std::endl;
+		std::cerr << RED "send failed on response : " << response << RESET << std::endl;
 	}
-	std::cout << "Sent data: //" << response << "// to " << fd << std::endl;
+	std::cout << CYAN << "Sent data: //" << response << "// to " << fd << RESET << std::endl;
 }
 
 void	Server::handleData(std::string message, Client *cl)
@@ -251,7 +250,6 @@ void	Server::handleData(std::string message, Client *cl)
 	Command	cmd(this, cl, message);
 	for (std::vector<std::vector<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
 	{
-		// std::cout << "i = " << (*i->begin()) << std::endl;
 		for (std::map<std::string, void(Command::*)(std::vector<std::string> *arg)>::iterator it = this->CmdMap.begin(); it != this->CmdMap.end(); it++)
 		{
 			if (!i->empty() && it->first == (*i->begin()))
@@ -270,7 +268,6 @@ void	Server::run()
 	{
 		if (this->_fds[i].revents != 0)
 		{
-			std::cout << CYAN << "Event detected on fd " << this->_fds[i].fd << ": revent = " << this->_fds[i].revents << RESET << std::endl;
 			if (this->_fds[i].fd == this->_socketFD)
 				connectClient();
 			else if (this->_fds[i].revents & POLLNVAL)
@@ -283,10 +280,10 @@ void	Server::run()
 				std::string message = recieveData(this->_fds[i].fd, "");
 				Client* cl = this->_ClientsByFD[this->_fds[i].fd];
 				if (cl && cl->getNick().empty())
-					std::cout << this->_fds[i].fd;
+					std::cout << CYAN << this->_fds[i].fd;
 				else if (cl)
 					std::cout << ":" << cl->getNick();
-				std::cout << " sent: //" << message << "//" << std::endl;
+				std::cout << " sent: //" << message << "//" << RESET << std::endl;
 				handleData(message, cl);
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
@@ -302,8 +299,6 @@ void	Server::run()
 void	Server::initChannel(std::string name)
 {
 	Channel *channel = new Channel(this, name);
-	// channel->joinChannel(client, NULL);
-	// channel->addOP(client);
 	this->_ChannelsByName[name] = channel;
 }
 
@@ -330,7 +325,6 @@ void	Server::SendToGroup(const std::vector<Client *> clients, const std::string 
 	}
 }
 
-// For PRIVMSG
 void	Server::SendToNick(const Client *sender, const std::string nick, const std::string message) const
 {
     std::map<std::string, Client *>::const_iterator it = _ClientsByNick.find(nick);
@@ -344,6 +338,7 @@ void	Server::SendToNick(const Client *sender, const std::string nick, const std:
 	}
 }
 
+// Avoids doubles when user present on different channels
 void	Server::SendToAllChannels(const Client *sender, const std::string message)
 {
 	std::vector<Client *>	list;

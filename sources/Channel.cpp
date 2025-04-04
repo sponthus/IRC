@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 14:15:17 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 15:44:29 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ void	Channel::leaveChannel(Client *client)
 {
 	if (isOP(client))
 		removeOP(client);
-	std::cout << "PART" << std::endl; // TODO suppress or order
 	removeClient(client);
 }
 
@@ -197,7 +196,7 @@ void	Channel::deletePW(Client *client)
 {
 	if (!isClient(client))
 		return;
-	this->_PW.clear(); // = "";
+	this->_PW.clear();
 	this->_HasPW = false;
 }
 
