@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 11:45:02 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 14:15:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,8 +166,8 @@ void	Channel::invite(Client *client, Client *invited)
 	}
 	if (!isInvited(client))
 		_InvitedClients.push_back(invited);
-	this->_server->SendToClient(invited, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
-	this->_server->SendToClient(client, Builder::Invite(client, invited->getNick(), this->_name));
+	this->_server->SendToClient(client, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
+	this->_server->SendToClient(invited, Builder::Invite(client, invited->getNick(), this->_name));
 }
 
 const std::string&	Channel::getPW() const
