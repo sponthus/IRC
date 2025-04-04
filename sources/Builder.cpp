@@ -21,37 +21,37 @@ Message Builder::_message;
 Builder::Builder()
 {}
 
-Builder& Builder::setPrefix(const std::string& prefix)
+Builder &Builder::setPrefix(const std::string &Prefix)
 {
-	_message.setPrefix(prefix);
+	_message.setPrefix(Prefix);
 	return getInstance();
 }
 
-Builder& Builder::setCode(const std::string& code)
+Builder &Builder::setCode(const std::string &Code)
 {
-	_message.setCode(code);
+	_message.setCode(Code);
 	return getInstance();
 }
 
-Builder& Builder::setContent(const std::string& content)
+Builder &Builder::setContent(const std::string &Content)
 {
-	_message.setContent(content);
+	_message.setContent(Content);
 	return getInstance();
 }
 
-Builder& Builder::setSuffix(const std::string& suffix)
+Builder &Builder::setSuffix(const std::string &Suffix)
 {
-	_message.setSuffix(suffix);
+	_message.setSuffix(Suffix);
 	return getInstance();
 }
 
-Builder& Builder::create()
+Builder &Builder::create()
 {
 	_message.clear();
 	return getInstance();
 }
 
-Builder& Builder::getInstance()
+Builder &Builder::getInstance()
 {
 	static Builder instance;
 	return instance;
@@ -66,6 +66,20 @@ Message Builder::build()
 
 //////////////////////// COMMAND RESPONSES /////////////////////////
 
+
+// User + every user sharing a canal with him see the change
+// :<oldNick>!<user>@<host> NICK <newNick>
+std::string Builder::Nick(const std::string &OldNick, const std::string &Username, \
+	const std::string &NewNick)
+{
+	return create()
+		.setPrefix(OldNick + "!" + Username + "@" + HOST)
+		.setCode("NICK")
+		.setContent(NewNick)
+		.build()
+		.toString();
+}
+
 std::string Builder::Ping()
 {
 	return create()
@@ -75,109 +89,104 @@ std::string Builder::Ping()
 		.toString();
 }
 
-std::string Builder::PrivMsg(Client *sender, std::string msg, const std::string *ChannelName, const Client *recipient)
+// Uses either a recipient or a channel
+std::string Builder::PrivMsg(Client *Sender, const std::string &Msg, \
+	const std::string *Channel, const Client *Recipient)
 {
-	std::string destination = "";
-	if (ChannelName)
+	std::string Destination = "";
+	if (Channel)
 	{
-		destination += "#";
-		destination += *ChannelName;
+		Destination += "#";
+		Destination += *Channel;
 	}
-	else if (recipient)
-		destination = recipient->getNick();
+	else if (Recipient)
+		Destination = Recipient->getNick();
 	return create()
-		.setPrefix(sender->getNick() + "!" + sender->getUser() + "@" + SERVER)
+		.setPrefix(Sender->getNick() + "!" + Sender->getUser() + "@" + SERVER)
 		.setCode("PRIVMSG")
-		.setContent(destination)
-		.setSuffix(msg)
+		.setContent(Destination)
+		.setSuffix(Msg)
 		.build()
 		.toString();
 }
 
-// User + every user sharing a canal with him see the change
-// :<oldNick>!<user>@<host> NICK <newNick>
-std::string Builder::Nick(const std::string& oldNick, const std::string& user, const std::string& newNick)
+std::string Builder::Join(const std::string &Nickname, const std::string &Username, const std::string &Channel)
 {
 	return create()
-		.setPrefix(oldNick + "!" + user + "@" + HOST)
-		.setCode("NICK")
-		.setContent(newNick)
-		.build()
-		.toString();
-}
-
-std::string Builder::Join(const std::string& nick, const std::string& user, const std::string& channel)
-{
-	return create()
-		.setPrefix(nick + "!" + user + "@" + HOST)
+		.setPrefix(Nickname + "!" + Username + "@" + HOST)
 		.setCode("JOIN")
-		.setContent("#" + channel)
+		.setContent("#" + Channel)
 		.build()
 		.toString();
 }
 
-std::string Builder::Part(std::string nick,std::string user, std::string ChanName, std::string *msg)
+std::string Builder::Part(const std::string &Nickname, const std::string &Username, \
+	const std::string &Channel, const std::string *Msg)
 {
-	std::string reason = "";
-	if (msg)
-		reason = *msg;
+	std::string Reason = "";
+	if (Msg)
+		Reason = *Msg;
 	return create()
-		.setPrefix(nick + "!" + user + "@" + HOST)
+		.setPrefix(Nickname + "!" + Username + "@" + HOST)
 		.setCode("PART")
-		.setContent("#" + ChanName)
-		.setSuffix(reason)
+		.setContent("#" + Channel)
+		.setSuffix(Reason)
 		.build()
 		.toString();
 }
 
-std::string Builder::Kick(std::string client, std::string clientKicked, std::string ChanName, std::string *msg)
+std::string Builder::Kick(const std::string &KickerNick, const std::string &KickedNick, \
+	const std::string &Channel, const std::string *Msg)
 {
-	std::string reason = "";
-	if (msg)
-		reason = *msg;
+	std::string Reason = "";
+	if (Msg)
+		Reason = *Msg;
 	return create()
-		.setPrefix(client)
+		.setPrefix(KickerNick)
 		.setCode("KICK")
-		.setContent("#" + ChanName + " " + clientKicked)
-		.setSuffix(reason)
+		.setContent("#" + Channel + " " + KickedNick)
+		.setSuffix(Reason)
+		.build()
+		.toString();
+}
+
+std::string Builder::Invite(Client *Inviter, const std::string &InvitedNick, \
+	const std::string &Channel)
+{
+	return create()
+		.setPrefix(Inviter->getNick() + "!" + Inviter->getUser() + "@" + SERVER)
+		.setCode("INVITE")
+		.setContent(InvitedNick + " #" + Channel)
+		.build()
+		.toString();
+}
+
+std::string Builder::Mode(const std::string &Nickname, const std::string &Channel, \
+	const std::string &RecapModes, const std::string &RecapOptions)
+{
+	std::string Changes;
+	Changes += RecapModes;
+	if (!RecapOptions.empty())
+	{
+		Changes += " ";
+		Changes += RecapOptions;
+	}
+	return create()
+		.setPrefix(Nickname)
+		.setCode("MODE")
+		.setContent("#" + Channel + " " + Changes)
 		.build()
 		.toString();
 }
 
 // :<nickname>!<user>@<host> QUIT :<message>
-std::string Builder::Quit(std::string nick, std::string user, std::string msg)
+std::string Builder::Quit(const std::string &Nickname, const std::string &Username, \
+	const std::string &Msg)
 {
 	return create()
-		.setPrefix(nick + "!" + user + "@" + SERVER)
+		.setPrefix(Nickname + "!" + Username + "@" + SERVER)
 		.setCode("QUIT")
-		.setSuffix(msg)
-		.build()
-		.toString();
-}
-
-std::string Builder::Invite(Client *inviter, std::string invitedNick, std::string channel)
-{
-	return create()
-		.setPrefix(inviter->getNick() + "!" + inviter->getUser() + "@" + SERVER)
-		.setCode("INVITE")
-		.setContent(invitedNick + " #" + channel)
-		.build()
-		.toString();
-}
-
-std::string Builder::Mode(std::string nickname, std::string Channel, std::string recapModes, std::string recapOptions)
-{
-	std::string changes;
-	changes += recapModes;
-	if (!recapOptions.empty())
-	{
-		changes += " ";
-		changes += recapOptions;
-	}
-	return create()
-		.setPrefix(nickname)
-		.setCode("MODE")
-		.setContent("#" + Channel + " " + changes)
+		.setSuffix(Msg)
 		.build()
 		.toString();
 }
@@ -187,34 +196,31 @@ std::string Builder::Mode(std::string nickname, std::string Channel, std::string
 // 001 RPL_WELCOME
 // Response to a USER when logging in the server
 // ":<server> 001 <nick> :Welcome to the IRC Network, <nick>!<user>@<host>"
-std::string Builder::RplWelcome(const std::string& nick, const std::string&user)
+std::string Builder::RplWelcome(const std::string &Nickname, const std::string &Username)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("001")
-		.setContent(nick)
-		.setSuffix("Welcome to the IRC Network, " + nick + "! " + user + "@" + HOST)
+		.setContent(Nickname)
+		.setSuffix("Welcome to the IRC Network, " + Nickname + "! " + Username + "@" + HOST)
 		.build()
 		.toString();
 }
 
 // 002 RPL_YOURHOST
 // ":server 002 <nick> :Your host is <server_hostname>, running version <version>"
-std::string Builder::RplYourHost(const std::string& nick)
+std::string Builder::RplYourHost(const std::string &Nickname)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("002")
-		.setContent(nick)
+		.setContent(Nickname)
 		.setSuffix("Your host is " + std::string(HOST) + ", running version " + VERSION)
 		.build()
 		.toString();
 }
 
 ///////////////////////// ERROR MESSAGES /////////////////////////
-
-// 263 RPL_TRYAGAIN
-// "<command> :Please wait a while and try again."
 
 // 315 RPL_ENDOFWHO
 // ":server 315 <client> <channel> :End of WHO list"
@@ -225,7 +231,7 @@ query.  If there is a list of parameters supplied
 with a WHO message, a RPL_ENDOFWHO MUST be sent
 after processing each list item with <name> being
 the item.*/
-std::string Builder::RplEndOfWho(const std::string& RequestingNick, const std::string& Channel)
+std::string Builder::RplEndOfWho(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
@@ -238,42 +244,42 @@ std::string Builder::RplEndOfWho(const std::string& RequestingNick, const std::s
 	
 // 324 RPL_CHANNELMODEIS
 //     "<canal> <mode> <paramètres de mode >" 
-std::string Builder::RplChannelModeIs(Channel *Channel, std::string ClientName)
+std::string Builder::RplChannelModeIs(Channel *Channel, const std::string &RequestingNick)
 {
-	std::string mode = "";
-	std::string modeArg = "";
+	std::string Mode = "";
+	std::string ModeArg = "";
 	if (Channel->isInviteOnly())
-		mode += "i";
+		Mode += "i";
 	if (Channel->isTopicRestrict())
-		mode += "t";
-	if (!mode.empty())
-		mode.insert(0, "+");
+		Mode += "t";
+	if (!Mode.empty())
+		Mode.insert(0, "+");
 	if (Channel->hasPW())
 	{
-		modeArg += "+k ";
-		modeArg += Channel->getPW();
+		ModeArg += "+k ";
+		ModeArg += Channel->getPW();
 	}
 	if (Channel->hasUserLimit())
 	{
-		modeArg += " +l";
-		modeArg += Channel->getUserLimit();
+		ModeArg += " +l";
+		ModeArg += Channel->getUserLimit();
 	}
 	return create()
 		.setPrefix(SERVER)
-		.setCode("324 " + ClientName)
-		.setContent("#" + Channel->getName() + " " + mode + " " + modeArg)
+		.setCode("324 " + RequestingNick)
+		.setContent("#" + Channel->getName() + " " + Mode + " " + ModeArg)
 		.build()
 		.toString();
 }
 
 // 331 RPL_NOTOPIC
 // ":<server> 331 <nick> #<channel> :No topic is set"
-std::string Builder::RplNoTopic(const std::string& requestingNick, const std::string& Channel)
+std::string Builder::RplNoTopic(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("331")
-		.setContent(requestingNick + " #" + Channel)
+		.setContent(RequestingNick + " #" + Channel)
 		.setSuffix("No Topic is set")
 		.build()
 		.toString();
@@ -281,12 +287,12 @@ std::string Builder::RplNoTopic(const std::string& requestingNick, const std::st
 
 // 332 RPL_TOPIC
 // Answer to viewing a topic . ":<server> 332 <nick> #<channel> :<topic>"
-std::string Builder::RplTopic(const std::string &client, const std::string &Channel, const std::string &Topic)
+std::string Builder::RplTopic(const std::string &RequestingNick, const std::string &Channel, const std::string &Topic)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("332")
-		.setContent(client + " #" + Channel)
+		.setContent(RequestingNick + " #" + Channel)
 		.setSuffix(Topic)
 		.build()
 		.toString();
@@ -294,12 +300,12 @@ std::string Builder::RplTopic(const std::string &client, const std::string &Chan
 
 // 341 RPL_INVITING
 // "#<channel> <nick>"
-std::string Builder::RplInviting(const std::string &channel, const std::string &inviterNick, const std::string &invitedNick)
+std::string Builder::RplInviting(const std::string &Channel, const std::string &InviterNick, const std::string &InvitedNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("341")
-		.setContent(inviterNick + " " + invitedNick + " " + "#" + channel)
+		.setContent(InviterNick + " " + InvitedNick + " " + "#" + Channel)
 		.build()
 		.toString();
 }
@@ -320,53 +326,56 @@ query.  If there is a list of parameters supplied
 with a WHO message, a RPL_ENDOFWHO MUST be sent
 after processing each list item with <name> being
 the item.*/
-std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, Client *Client)
+std::string Builder::RplWhoReply(Channel *Channel, Client *RequestingClient, Client *RequestedClient)
 {
-	std::string result;
-	std::string prefix = RequestingClient->getNick() + " #" + Channel->getName() + " " + RequestingClient->getUser() + " " + HOST + " " + SERVER;
+	std::string Prefix = RequestingClient->getNick() \
+		+ " #" + Channel->getName() + " " \
+		+ RequestingClient->getUser() + " " \
+		+ HOST + " " + SERVER;
 
-	std::string NickFlags = Client->getNick() + " H";
-	if (Channel->isOP(Client))
+	std::string NickFlags = RequestedClient->getNick() + " H";
+	if (Channel->isOP(RequestedClient))
 		NickFlags += "@";
-	result += create() \
-	.setPrefix(SERVER) \
-	.setCode("352") \
-	.setContent(prefix + " " + NickFlags) \
-	.setSuffix("1") \
-	.build() \
-	.toString();
-	return result;
+	std::string Result = create() \
+		.setPrefix(SERVER) \
+		.setCode("352") \
+		.setContent(Prefix + " " + NickFlags) \
+		.setSuffix("1") \
+		.build() \
+		.toString();
+	return Result;
 }
 
 // 353 RPL_NAMREPLY
 //     ":server 353 <nickname> = <channel> : [[@|+]<pseudo> [[@|+]<pseudo> [...]]]" 
-std::string Builder::RplNamReply(Channel *Channel, std::string requestingNick)
+std::string Builder::RplNamReply(Channel *Channel, const std::string &RequestingNick)
 {
-	std::string names;
-	for (std::vector<Client *>::const_iterator i = Channel->getClients().begin(); i != Channel->getClients().end(); i++)
+	std::string Names;
+	for (std::vector<Client *>::const_iterator i = Channel->getClients().begin(); \
+		i != Channel->getClients().end(); i++)
 	{
 		if (Channel->isOP(*i))
-			names += "@";
-		names += (*i)->getNick();
-		names += " ";
+			Names += "@";
+		Names += (*i)->getNick();
+		Names += " ";
 	}
 	return create()
 		.setPrefix(SERVER)
 		.setCode("353")
-		.setContent(requestingNick + " = #" + Channel->getName())
-		.setSuffix(names)
+		.setContent(RequestingNick + " = #" + Channel->getName())
+		.setSuffix(Names)
 		.build()
 		.toString();
 }
 
 // 401 ERR_NOSUCHNICK 
 // ":<server> 401 <targetNick> <invalidNick> :No such nick/channel" 
-std::string Builder::ErrNoSuchNick(const std::string& targetNick, const std::string& invalidNick)
+std::string Builder::ErrNoSuchNick(const std::string &TargetNick, const std::string &InvalidNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("401")
-		.setContent(targetNick + " " + invalidNick)
+		.setContent(TargetNick + " " + InvalidNick)
 		.setSuffix("No such nick")
 		.build()
 		.toString();
@@ -374,12 +383,12 @@ std::string Builder::ErrNoSuchNick(const std::string& targetNick, const std::str
 
 // 403 ERR_NOSUCHCHANNEL
 // :<server> 403 <requestingNick> <channel> :No such channel
-std::string Builder::ErrNoSuchChannel(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrNoSuchChannel(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("403")
-		.setContent(requestingNick + " #" + channel)
+		.setContent(RequestingNick + " #" + Channel)
 		.setSuffix("No such channel")
 		.build()
 		.toString();
@@ -387,12 +396,12 @@ std::string Builder::ErrNoSuchChannel(const std::string& requestingNick, const s
 
 // 404 ERR_CANNOTSENDTOCHAN ? TODO : check if needed
 // ":<server> 404 <requestingNick> <channel> :Cannot send to channel"
-std::string Builder::ErrCannotSendToChan(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrCannotSendToChan(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("404")
-		.setContent(requestingNick + " " + channel)
+		.setContent(RequestingNick + " " + Channel)
 		.setSuffix("Cannot send to channel")
 		.build()
 		.toString();
@@ -401,12 +410,12 @@ std::string Builder::ErrCannotSendToChan(const std::string& requestingNick, cons
 // 407 ERR_TOOMANYTARGETS
 // :<server> 407 <requestingNick> <targets> :Too many recipients
 // TODO : Function to get list of targets in 1 string with "," separator
-std::string Builder::ErrTooManyTargets(const std::string& requestingNick, const std::string& targets)
+std::string Builder::ErrTooManyTargets(const std::string &RequestingNick, const std::string &Targets)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("407")
-		.setContent(requestingNick + " " + targets)
+		.setContent(RequestingNick + " " + Targets)
 		.setSuffix("Too many recipients")
 		.build()
 		.toString();
@@ -414,25 +423,25 @@ std::string Builder::ErrTooManyTargets(const std::string& requestingNick, const 
 
 // 411 ERR_NORECIPIENT
 // ":<server> 411 <requesting_nick> :No recipient given (<command>)"
-std::string Builder::ErrNoRecipient(const std::string& requestingNick, const std::string& command)
+std::string Builder::ErrNoRecipient(const std::string &RequestingNick, const std::string &Command)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("411")
-		.setContent(requestingNick)
-		.setSuffix("No recipient given (" + command + ")")
+		.setContent(RequestingNick)
+		.setSuffix("No recipient given (" + Command + ")")
 		.build()
 		.toString();
 }
 
 // 412 ERR_NOTEXTTOSEND
 // ":<server> 412 <requesting_nick> :No text to send"
-std::string Builder::ErrNoTextToSend(const std::string& requestingNick)
+std::string Builder::ErrNoTextToSend(const std::string &RequestingNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("412")
-		.setContent(requestingNick)
+		.setContent(RequestingNick)
 		.setSuffix("No text to send")
 		.build()
 		.toString();
@@ -440,12 +449,12 @@ std::string Builder::ErrNoTextToSend(const std::string& requestingNick)
 
 // 421 ERR_UNKNOWNCOMMAND
 // ":<server> 421 <requestingNick> <command> :Unknown command"
-std::string Builder::ErrUnknownCommand(const std::string& requestingNick, const std::string& command)
+std::string Builder::ErrUnknownCommand(const std::string &RequestingNick, const std::string &Command)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("421")
-		.setContent(requestingNick + " " + command)
+		.setContent(RequestingNick + " " + Command)
 		.setSuffix("Unknown command")
 		.build()
 		.toString();
@@ -453,12 +462,12 @@ std::string Builder::ErrUnknownCommand(const std::string& requestingNick, const 
 
 // 431 ERR_NONICKNAMEGIVEN
 // :<server> 431 <requestingNick> :No nickname given
-std::string Builder::ErrNoNickGiven(const std::string& requestingNick)
+std::string Builder::ErrNoNickGiven(const std::string &RequestingNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("431")
-		.setContent(requestingNick)
+		.setContent(RequestingNick)
 		.setSuffix("No nickname given")
 		.build()
 		.toString();
@@ -466,12 +475,12 @@ std::string Builder::ErrNoNickGiven(const std::string& requestingNick)
 
 // 432 ERR_ERRONEUSNICKNAME
 // ":<server> 432 <requestingNick> <nick> :Erroneous nickname"
-std::string Builder::ErrOneUsNick(const std::string& requestingNick, const std::string& nick)
+std::string Builder::ErrOneUsNick(const std::string &RequestingNick, const std::string &RequestedNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("432")
-		.setContent(requestingNick + " " + nick)
+		.setContent(RequestingNick + " " + RequestedNick)
 		.setSuffix("Erroneous nickname")
 		.build()
 		.toString();
@@ -480,12 +489,12 @@ std::string Builder::ErrOneUsNick(const std::string& requestingNick, const std::
 // 433 ERR_NICKNAMEINUSE
 // ":<server> <clientID> <existingNick> :Nickname is already in use"
 // <clientID> is often "*" in this case (undefined)
-std::string Builder::ErrNickInUse(const std::string& clientID, const std::string& existingNick)
+std::string Builder::ErrNickInUse(const std::string &ClientID, const std::string &ExistingNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("433")
-		.setContent(clientID + " " + existingNick)
+		.setContent(ClientID + " " + ExistingNick)
 		.setSuffix("Nickname is already in use")
 		.build()
 		.toString();
@@ -493,12 +502,12 @@ std::string Builder::ErrNickInUse(const std::string& clientID, const std::string
 
 // 436 ERR_NICKCOLLISION
 // ":<server> 436 <user> <collisionNick> :Nickname collision KILL"
-std::string Builder::ErrNickCollision(const std::string& collisionNick, const std::string& user = "*")
+std::string Builder::ErrNickCollision(const std::string &CollisionNick, const std::string &Username = "*")
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("436")
-		.setContent(user + " " + collisionNick)
+		.setContent(Username + " " + CollisionNick)
 		.setSuffix("Nickname collision KILL")
 		.build()
 		.toString();
@@ -506,12 +515,12 @@ std::string Builder::ErrNickCollision(const std::string& collisionNick, const st
 
 // 441 ERR_USERNOTINCHANNEL
 // ":<server> 441 <requestingNick> <targetNick> #<channel> :They aren't on that channel"
-std::string Builder::ErrUserNotInChannel(const std::string& requestingNick, const std::string& targetNick, const std::string& channel)
+std::string Builder::ErrUserNotInChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("441")
-		.setContent(requestingNick + " " + targetNick + " " + channel)
+		.setContent(RequestingNick + " " + TargetNick + " " + Channel)
 		.setSuffix("They aren't on that channel")
 		.build()
 		.toString();
@@ -519,12 +528,12 @@ std::string Builder::ErrUserNotInChannel(const std::string& requestingNick, cons
 
 // 442 ERR_NOTONCHANNEL
 // ":<server> 442 <requestingNick> #<channel> :You're not on that channel"
-std::string Builder::ErrNotOnChannel(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrNotOnChannel(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("442")
-		.setContent(requestingNick + " " + channel)
+		.setContent(RequestingNick + " " + Channel)
 		.setSuffix("You're not on that channel")
 		.build()
 		.toString();
@@ -532,12 +541,12 @@ std::string Builder::ErrNotOnChannel(const std::string& requestingNick, const st
 
 // 443 ERR_USERONCHANNEL
 // ":<server> 443 <requestingNick> <targetNick> #<channel> :is already on channel"
-std::string Builder::ErrUserOnChannel(const std::string& requestingNick, const std::string& targetNick, const std::string& channel)
+std::string Builder::ErrUserOnChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("443")
-		.setContent(requestingNick + " " + targetNick + " #" + channel)
+		.setContent(RequestingNick + " " + TargetNick + " #" + Channel)
 		.setSuffix("is already on channel")
 		.build()
 		.toString();
@@ -558,17 +567,17 @@ std::string Builder::ErrNotRegistered()
 
 // 461 ERR_NEEDMOREPARAMS
 // ":<server> 461 <requestingNick> <command> :Not enough parameters"
-std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const std::string& command)
+std::string Builder::ErrNeedMoreParams(const std::string &RequestingNick, const std::string &Command)
 {
-	std::string nick;
-	if (requestingNick.empty())
-		nick = "*";
+	std::string Nick;
+	if (RequestingNick.empty())
+		Nick = "*";
 	else
-		nick = requestingNick;
+		Nick = RequestingNick;
 	return create()
 		.setPrefix(SERVER)
 		.setCode("461")
-		.setContent(nick + " " + command)
+		.setContent(Nick + " " + Command)
 		.setSuffix("Not enough parameters")
 		.build()
 		.toString();
@@ -576,12 +585,12 @@ std::string Builder::ErrNeedMoreParams(const std::string& requestingNick, const 
 
 // 462 ERR_ALREADYREGISTRED
 // :<server> 451 <requestingUSER> :":You may not reregister
-std::string Builder::ErrAlreadyRegisted(const std::string& nick)
+std::string Builder::ErrAlreadyRegisted(const std::string &Nickname)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("462")
-		.setContent(nick)
+		.setContent(Nickname)
 		.setSuffix("You may not reregister")
 		.build()
 		.toString();
@@ -589,17 +598,17 @@ std::string Builder::ErrAlreadyRegisted(const std::string& nick)
 
 // 464 ERR_PASSWDMISMATCH
 // ":<server> 464 <requestingNick> :Password incorrect"
-std::string Builder::ErrPasswdMismatch(const std::string& requestingNick)
+std::string Builder::ErrPasswdMismatch(const std::string &RequestingNick)
 {
-	std::string nick;
-	if (requestingNick.empty())
-		nick = "*";
+	std::string Nick;
+	if (RequestingNick.empty())
+		Nick = "*";
 	else
-		nick = requestingNick;
+		Nick = RequestingNick;
 	return create()
 		.setPrefix(SERVER)
 		.setCode("464")
-		.setContent(nick)
+		.setContent(Nick)
 		.setSuffix("Password incorrect")
 		.build()
 		.toString();
@@ -607,12 +616,12 @@ std::string Builder::ErrPasswdMismatch(const std::string& requestingNick)
 
 // 467 ERR_KEYSET
 // ":<server> 467 <requestingNick> #<channel> :Channel key already set"
-std::string Builder::ErrKeySet(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrKeySet(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("467")
-		.setContent(requestingNick + " " + channel)
+		.setContent(RequestingNick + " " + Channel)
 		.setSuffix("Channel key already set")
 		.build()
 		.toString();
@@ -620,12 +629,12 @@ std::string Builder::ErrKeySet(const std::string& requestingNick, const std::str
 
 // 471 ERR_CHANNELISFULL
 // ":<server> 471 <requestingNick> #<channel> :Cannot join channel (+l)"
-std::string Builder::ErrChannelIsFull(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrChannelIsFull(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("471")
-			.setContent(requestingNick + " " + channel)
+			.setContent(RequestingNick + " " + Channel)
 			.setSuffix("Cannot join channel (+l)")
 			.build()
 			.toString();
@@ -634,27 +643,27 @@ std::string Builder::ErrChannelIsFull(const std::string& requestingNick, const s
 // TODO = Double !
 // 472 ERR_UNKNOWNMODE
 // ":<server> 472 <requestingNick> <mode> :is unknown mode char to me for #<channel>"
-std::string Builder::ErrUnknownMode(const std::string& requestingNick, const std::string& mode, const std::string& channel)
+std::string Builder::ErrUnknownMode(const std::string &RequestingNick, const std::string &Mode, const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("472")
-			.setContent(requestingNick + " " + mode)
-			.setSuffix("is unknown mode char to me for " + channel)
+			.setContent(RequestingNick + " " + Mode)
+			.setSuffix("is unknown mode char to me for " + Channel)
 			.build()
 			.toString();
 }
 
 // 472 ERR_UNKNOWNMODE
-//     "<caratère> :is unknown mode char to me
-std::string  Builder::ErrUModeUnknownMod(const char &requestingMode)
+//     "<char> :is unknown mode char to me
+std::string  Builder::ErrUModeUnknownMod(const char &RequestedMode)
 {
-	std::string mod;
-	mod += requestingMode;
+	std::string Mode;
+	Mode += RequestedMode;
 	return create()
 		.setPrefix(SERVER)
 		.setCode("472")
-		.setContent(mod)
+		.setContent(Mode)
 		.setSuffix("is unknown mode char to me")
 		.build()
 		.toString();
@@ -662,12 +671,12 @@ std::string  Builder::ErrUModeUnknownMod(const char &requestingMode)
 
 // 473 ERR_INVITEONLYCHAN
 // ":<server> 473 <requestingNick> #<channel> :Cannot join channel (+i)"
-std::string Builder::ErrInviteOnlyChan(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrInviteOnlyChan(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("473")
-			.setContent(requestingNick + " " + channel)
+			.setContent(RequestingNick + " " + Channel)
 			.setSuffix("Cannot join channel (+i)")
 			.build()
 			.toString();
@@ -675,12 +684,12 @@ std::string Builder::ErrInviteOnlyChan(const std::string& requestingNick, const 
 
 // 475 ERR_BADCHANNELKEY
 // ":<server> 475 <requestingNick> #<channel> :Cannot join channel (+k)"
-std::string Builder::BadChannelKey(const std::string& requestingNick, const std::string& channel)
+std::string Builder::BadChannelKey(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("475")
-			.setContent(requestingNick + " " + channel)
+			.setContent(RequestingNick + " " + Channel)
 			.setSuffix("Cannot join channel (+k)")
 			.build()
 			.toString();
@@ -688,12 +697,12 @@ std::string Builder::BadChannelKey(const std::string& requestingNick, const std:
 
 // 476 ERR_BADCHANMASK
 //  "<channel> :Bad Channel Mask"
-std::string Builder::BadChannelMask(const std::string& channel)
+std::string Builder::BadChannelMask(const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("476")
-			.setContent(channel)
+			.setContent(Channel)
 			.setSuffix("Bad Channel Mask")
 			.build()
 			.toString();
@@ -701,12 +710,12 @@ std::string Builder::BadChannelMask(const std::string& channel)
 
 // 481 ERR_NOPRIVILEGES
 // ":<server> 481 <requestingNick> :Permission Denied- You're not an IRC operator"
-std::string Builder::ErrNoPrivileges(const std::string& requestingNick)
+std::string Builder::ErrNoPrivileges(const std::string &RequestingNick)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("481")
-			.setContent(requestingNick)
+			.setContent(RequestingNick)
 			.setSuffix("Permission Denied- You're not an IRC operator")
 			.build()
 			.toString();
@@ -714,12 +723,12 @@ std::string Builder::ErrNoPrivileges(const std::string& requestingNick)
 
 // 482 ERR_CHANOPRIVSNEEDED
 // ":<server> 482 <requestingNick> #<channel> :You're not channel operator"
-std::string Builder::ErrChanOPrivsNeeded(const std::string& requestingNick, const std::string& channel)
+std::string Builder::ErrChanOPrivsNeeded(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("482")
-		.setContent(requestingNick + " #" + channel)
+		.setContent(RequestingNick + " #" + Channel)
 		.setSuffix("You're not channel operator")
 		.build()
 		.toString();
@@ -727,12 +736,12 @@ std::string Builder::ErrChanOPrivsNeeded(const std::string& requestingNick, cons
 
 // 501 ERR_UMODEUNKNOWNFLAG
 // ":<server> 501 <requesting_nick> :Unknown MODE flag"
-std::string Builder::ErrUModeUnknownFlag(const std::string& requestingNick)
+std::string Builder::ErrUModeUnknownFlag(const std::string &RequestingNick)
 {
 	return create()
 		.setPrefix(SERVER)
 		.setCode("501")
-		.setContent(requestingNick)
+		.setContent(RequestingNick)
 		.setSuffix("Unknown MODE flag")
 		.build()
 		.toString();

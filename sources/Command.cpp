@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:28:48 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/04 11:26:18 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,10 @@ void	Command::Mode(std::vector<std::string> *arg)
 	Channel *Channel = this->_client->getChannel(*it);
 	it++;
 	if (it == arg->end())
+	{
 		this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
+		return ;
+	}
 	else if (!CheckIsOp(this->_client, this->_server, Channel))
 		return ;	
 	char Flag = (*it)[0];
@@ -224,7 +227,6 @@ void	Command::nick(std::vector<std::string> *arg)
 	}
 	else
 		this->_server->SendToClient(this->_client, Builder::ErrNoNickGiven(this->_client->getNick()));
-	//ERR_ERRONEUSNICKNAME
 }
 
 void	Command::pass(std::vector<std::string> *arg)

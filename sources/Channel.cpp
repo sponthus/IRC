@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/03 14:21:04 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/04 11:45:02 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,19 +246,17 @@ int	Channel::getUserNb() const
 	return (this->_Clients.size());
 }
 
-void	Channel::setUserLimit(Client *client, int limit, char Flag)
+void	Channel::setUserLimit(int limit, char Flag)
 {
 	if (limit <= 0)
 		return ; // Invalid value
 	if (Flag == '+')
 	{
-		this->_server->SendToClient(client, "add user limit\n");
 		this->_HasUserLimit = true;
 		this->_UserLimit = limit;
 	}
 	else if (Flag == '-')
 	{
-		this->_server->SendToClient(client, "remove user limit\n");
 		this->_HasUserLimit = false;
 		this->_UserLimit = 0;
 	}

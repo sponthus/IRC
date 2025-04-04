@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:53 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/03 12:14:16 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/04 11:45:13 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Channel {
 		void				setTopic(Client *client, std::string &topic);
 		void				setPW(Client *client, std::string &PW);
 		void				deletePW(Client *client);
-		void				setUserLimit(Client *client, int limit, char Flag);
+		void				setUserLimit(int limit, char Flag);
 		void				setInviteOnly(Client *client, char Flag);
 		void				setTopicRestriction(Client *client, char Flag);
 
