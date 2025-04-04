@@ -294,7 +294,7 @@ std::string Builder::RplNoTopic(const std::string &RequestingNick, const std::st
 		.setPrefix(SERVER)
 		.setCode("331")
 		.setContent(RequestingNick + " #" + Channel)
-		.setSuffix("No Topic is set")
+		.setSuffix("No topic is set")
 		.build()
 		.toString();
 }

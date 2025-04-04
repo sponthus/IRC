@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/04 11:45:41 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/04 14:29:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ bool	isModWhitOption(char c)
 		return (true);
 	return (false);
 }
+
 void	SetModeInChan(Client *client, Server *server, Channel *Channel, std::map<char, std::string *> Mods, char Flag)
 {
 	std::string recapModes(1, Flag);
