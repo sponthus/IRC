@@ -252,22 +252,36 @@ std::string Builder::RplChannelModeIs(Channel *Channel, const std::string &Reque
 		Mode += "i";
 	if (Channel->isTopicRestrict())
 		Mode += "t";
-	if (!Mode.empty())
-		Mode.insert(0, "+");
 	if (Channel->hasPW())
 	{
-		ModeArg += "+k ";
+		Mode += "k";
 		ModeArg += Channel->getPW();
 	}
 	if (Channel->hasUserLimit())
 	{
-		ModeArg += " +l";
-		ModeArg += Channel->getUserLimit();
+		Mode += "l";
+		if (!ModeArg.empty())
+			ModeArg += " ";
+		std::stringstream ss;
+		ss << Channel->getUserLimit();
+		ModeArg += ss.str();
+	}
+	if (!Mode.empty())
+		Mode.insert(0, "+");
+
+	std::string Result = "";
+	if (!Mode.empty())
+		Result += Mode;
+	if (!ModeArg.empty())
+	{
+		if (!Result.empty())
+			Result += " ";
+		Result += ModeArg;
 	}
 	return create()
 		.setPrefix(SERVER)
 		.setCode("324 " + RequestingNick)
-		.setContent("#" + Channel->getName() + " " + Mode + " " + ModeArg)
+		.setContent("#" + Channel->getName() + " " + Result)
 		.build()
 		.toString();
 }
