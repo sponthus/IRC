@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:16:01 by sponthus          #+#    #+#             */
-/*   Updated: 2025/03/31 15:46:15 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/04/15 16:17:22 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,11 @@ class Client {
 		Channel				*getChannel(std::string name);
 		const std::vector<Channel *>		getChannels() const;
 
+		std::string			getMessage() const;
+		void			addMessage(std::string message);
+		void			setMessage(std::string message);
+		void			clearMessage();
+
 		void		setFD(int fd);
 		void		setAddress(std::string address);
 		void		setNick(std::string nickname);
@@ -60,6 +65,7 @@ class Client {
 		bool					_registered;
 		bool					_Pass;
 		std::vector<Channel *>	_Channels;
+		std::string				_Message;
 };
 
 #endif

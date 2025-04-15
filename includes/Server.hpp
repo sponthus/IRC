@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 15:20:18 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/15 16:13:31 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ class Server {
 		void	SetCmdMap();
 
 		std::string	recieveData(int fd, std::string msg);
-		void		handleData(std::string message, Client *cl);
+		bool	messageIsFull(Client *cl, std::string *message);
+		void	handleData(Client *cl, std::string message);
 		void		connectClient();
 		void		clearClient(int fd);
 

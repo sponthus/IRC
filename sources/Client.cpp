@@ -6,14 +6,14 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 14:44:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/15 16:18:02 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <iostream> // Debug msg
 
-Client::Client() : _fd(-1), _address(""), _registered(false), _Pass(false)
+Client::Client() : _fd(-1), _address(""), _registered(false), _Pass(false), _Message("")
 {}
 
 Client::~Client()
@@ -134,4 +134,24 @@ void	Client::leaveChannels()
 	{
 		(*it)->leaveChannel(this);
 	}
+}
+
+std::string	Client::getMessage() const
+{
+	return (this->_Message);
+}
+
+void	Client::addMessage(std::string message)
+{
+	this->_Message += message;
+}
+
+void	Client::setMessage(std::string message)
+{
+	this->_Message = message;
+}
+
+void	Client::clearMessage()
+{
+	this->_Message = "";
 }

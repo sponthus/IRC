@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 15:48:16 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/15 16:56:27 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,7 @@ void	Server::sendData(int fd, std::string response) const // A surcharger avec t
 	std::cout << CYAN << "Sent data: //" << response << "// to " << fd << RESET << std::endl;
 }
 
-void	Server::handleData(std::string message, Client *cl)
+void	Server::handleData(Client *cl, std::string message)
 {
 	Command	cmd(this, cl, message);
 	for (std::vector<std::vector<std::string> >::iterator i = cmd.input.begin(); i != cmd.input.end() ; i++)
@@ -258,6 +258,28 @@ void	Server::handleData(std::string message, Client *cl)
 			}
 		}
 	}
+}
+
+bool	Server::messageIsFull(Client *cl, std::string *message)
+{
+	cl->addMessage(*message);
+	size_t pos = cl->getMessage().find_last_of("\r\n");
+	if (pos == std::string::npos) // Data does not contain \r\n
+	{
+		return (false);
+	}
+	if (pos != cl->getMessage().size() - 1) // Data doesn't end with /r/n but contains it
+	{
+		*message = cl->getMessage().substr(0, pos);
+		std::string keep = cl->getMessage().substr(pos + 2, cl->getMessage().size() - pos - 2);
+		cl->setMessage(keep);
+	}
+	else // Data ends with /r/n
+	{
+		*message = cl->getMessage();
+		cl->clearMessage();
+	}
+	return (true);
 }
 
 void	Server::run()
@@ -284,7 +306,8 @@ void	Server::run()
 				else if (cl)
 					std::cout << ":" << cl->getNick();
 				std::cout << " sent: //" << message << "//" << RESET << std::endl;
-				handleData(message, cl);
+				if (messageIsFull(cl, &message))
+					handleData(cl, message);
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 			{
