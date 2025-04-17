@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/15 16:13:31 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/17 15:06:28 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ class Server {
 		Channel*	getChannel(std::string name);
 
 	private :
-		Server();
+		Server(); // Not usable
 		void	initSocket();
 		void	initPoll(int fd);
 

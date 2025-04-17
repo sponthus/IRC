@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 16:47:37 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/17 17:09:46 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,22 @@ Server::Server(int port, std::string pw) : _port(port), _pw(pw), _socketFD(-1)
 
 Server::~Server()
 {
-	close(this->_socketFD);
+	if (this->_socketFD != -1)
+	{
+		shutdown(this->_socketFD, SHUT_RDWR);
+		close(this->_socketFD);
+	}
 	for (std::vector<Client*>::iterator it = _Clients.begin(); it != _Clients.end(); ++it)
 	{
-		delete *it;
+		if (*it)
+			delete *it;
 	}
 	_Clients.clear();
 	_ClientsByNick.clear();
 	for (std::map<std::string, Channel*>::iterator it = _ChannelsByName.begin(); it != _ChannelsByName.end(); ++it)
     {
-        delete it->second;
+        if (it->second)
+			delete it->second;
     }
 	_ChannelsByName.clear();
 }
