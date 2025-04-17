@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/15 16:56:27 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/17 16:47:37 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,24 +44,6 @@ Server::~Server()
 	_ChannelsByName.clear();
 }
 
-int	Server::getPort() const
-{
-	return this->_port;
-}
-
-const std::string	Server::getPW() const
-{
-	return this->_pw;
-}
-
-const Client *		Server::getClientByNick(std::string nick) const
-{
-	const std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.find(nick);
-	if (it != this->_ClientsByNick.end())
-		return (it->second);
-	return (NULL);
-}
-
 void	Server::SetCmdMap()
 {
 	this->CmdMap["KICK"] = &Command::Kick;
@@ -77,21 +59,6 @@ void	Server::SetCmdMap()
 	this->CmdMap["PART"] = &Command::part;
 	this->CmdMap["WHO"] = &Command::Who;
 	return ;
-}
-void	Server::SetClientByNick(std::string nick, Client *client)
-{
-	this->_ClientsByNick[nick] = client;
-}
-void	Server::EraseClientByNick(std::string nick)
-{
-	std::map<std::string, Client *>::iterator it = this->_ClientsByNick.find(nick);
-	this->_ClientsByNick.erase(it);
-}
-bool	Server::FindClientByNick(std::string nick)
-{
-	if (this->_ClientsByNick.find(nick) != this->_ClientsByNick.end())
-		return (true);
-	return (false);
 }
 
 void	Server::initSocket()
@@ -110,10 +77,10 @@ void	Server::initSocket()
 	}
 	
 	struct sockaddr_in	address;
-	address.sin_addr.s_addr = INADDR_ANY; // Accepts connexions on every network interface
+	address.sin_addr.s_addr = INADDR_ANY; // Accepts connexions from any local IP (0.0.0.0)
 	address.sin_family = AF_INET; // IPV4
 	address.sin_port = htons(this->_port); // Links port and network (converts byte orders)
-	if (fcntl(this->_socketFD, F_SETFL, O_NONBLOCK) == -1) // Configuration in non-blocking, can treat info while listening
+	if (fcntl(this->_socketFD, F_SETFL, O_NONBLOCK) == -1) // Configuration of socket in non-blocking, can treat info while listening
 	{
 		throw std::runtime_error("fcntl failed on socket");
 	}
@@ -123,7 +90,7 @@ void	Server::initSocket()
 		throw std::runtime_error("bind failed on socket");
 	}
 
-	if (listen(this->_socketFD, SOMAXCONN) == -1) // Defines max connexions, limit is SOMAXCONN
+	if (listen(this->_socketFD, SOMAXCONN) == -1) // Now is listening, with max connexions = SOMAXCONN (the limit)
 	{
 		throw std::runtime_error("listen failed on socket");
 	}
@@ -262,6 +229,8 @@ void	Server::handleData(Client *cl, std::string message)
 
 bool	Server::messageIsFull(Client *cl, std::string *message)
 {
+	if (message->size() == 0)
+		return (false);
 	cl->addMessage(*message);
 	size_t pos = cl->getMessage().find_last_of("\r\n");
 	if (pos == std::string::npos) // Data does not contain \r\n
@@ -317,6 +286,42 @@ void	Server::run()
 			this->_fds[i].revents = 0;
 		}
 	}
+}
+
+int	Server::getPort() const
+{
+	return this->_port;
+}
+
+const std::string	Server::getPW() const
+{
+	return this->_pw;
+}
+
+const Client *		Server::getClientByNick(std::string nick) const
+{
+	const std::map<std::string, Client *>::const_iterator it = this->_ClientsByNick.find(nick);
+	if (it != this->_ClientsByNick.end())
+		return (it->second);
+	return (NULL);
+}
+
+void	Server::SetClientByNick(std::string nick, Client *client)
+{
+	this->_ClientsByNick[nick] = client;
+}
+
+void	Server::EraseClientByNick(std::string nick)
+{
+	std::map<std::string, Client *>::iterator it = this->_ClientsByNick.find(nick);
+	this->_ClientsByNick.erase(it);
+}
+
+bool	Server::FindClientByNick(std::string nick)
+{
+	if (this->_ClientsByNick.find(nick) != this->_ClientsByNick.end())
+		return (true);
+	return (false);
 }
 
 void	Server::initChannel(std::string name)
