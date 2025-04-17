@@ -1,0 +1,2 @@
+What is the capital city of France ?|Paris/paris
+What is the capital city of England ?|London/london/Londres/londres 
