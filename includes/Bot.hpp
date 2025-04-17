@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 17:14:46 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/17 18:35:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,22 +30,30 @@
 
 # define NICK "QuestBot"
 # define USER "QuestBot"
+# define CHANNEL "#Quizz"
+# define SERVER_PREFIX ":irc.server.42 "
 
 class Bot {
 	public:
 		Bot(const int port, const char *serverIp, std::string pw);
 		~Bot();
 
-		int					getPort() const;
+		int		getPort() const;
 
 		void	log();
 		void	run();
+		void	quizz();
+		void	handleMessage(std::string message);
+		bool	messageIsFull(std::string *message);
+		std::string recieveData(std::string message);
 
 	private:
 		Bot(); // Not usable
 
 		std::string		_pw;
 		int				_socket;
+		std::string		_message;
+		bool			_ready;
 		std::map<std::string, std::vector<std::string> >	_qa;
 };
 

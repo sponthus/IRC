@@ -514,6 +514,7 @@ std::string Builder::ErrNickInUse(const std::string &ClientID, const std::string
 		.toString();
 }
 
+// TODO = Not used
 // 436 ERR_NICKCOLLISION
 // ":<server> 436 <user> <collisionNick> :Nickname collision KILL"
 std::string Builder::ErrNickCollision(const std::string &CollisionNick, const std::string &Username = "*")

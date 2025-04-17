@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 17:09:46 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/17 17:47:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,7 @@ std::string	Server::recieveData(int fd, std::string msg)
 {
 	ssize_t	size = 1;
 	char	buffer[BUFF_SIZE];
-	for (size_t i = 0; i < BUFF_SIZE - 1; i++) // memset
-		buffer[i] = 0;
+	memset(buffer, 0, sizeof(buffer));
 	size = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	std::string str = msg;
 	if (size < 0)
