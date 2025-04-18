@@ -44,11 +44,11 @@ server: $(NAME)
 bot: $(BOT)
 
 clean: 
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(BON_OBJ_DIR)
 	@echo "clean done"
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -rf $(NAME) $(BOT)
 	@echo "fclean done"
 
 re: fclean all

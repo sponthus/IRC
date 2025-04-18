@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:51:46 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 16:42:26 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/18 11:24:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ bool	g_shutdown = false;
 void	sig(int signal)
 {
 	(void)signal;
-	std::cout << std::endl;
 	g_shutdown = true;
 }
 
@@ -41,9 +40,9 @@ int	main(int argc, char **argv)
 		bot.log();
 		signal(SIGINT, sig);
 		signal(SIGQUIT, sig);
-		while (!g_shutdown)
+		while (!g_shutdown) {
 			bot.run();
-
+		}
 	}
 	catch (const std::exception &e)
 	{

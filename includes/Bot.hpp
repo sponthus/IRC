@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 18:35:17 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/18 11:23:23 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,10 @@
 #include <arpa/inet.h> // inet_pton
 #include <cstdlib> // atoi()
 #include <cstring> // memset
+#include <fcntl.h>
 
 #include "Colors.hpp"
+#include "Timer.hpp"
 
 # define NICK "QuestBot"
 # define USER "QuestBot"
@@ -39,22 +41,26 @@ class Bot {
 		~Bot();
 
 		int		getPort() const;
-
 		void	log();
+		void	parseQuestions(std::string file);
 		void	run();
 		void	quizz();
 		void	handleMessage(std::string message);
 		bool	messageIsFull(std::string *message);
 		std::string recieveData(std::string message);
+		void	sendData(std::string message) const;
 
 	private:
 		Bot(); // Not usable
 
 		std::string		_pw;
 		int				_socket;
+		struct pollfd 	_pfd;
 		std::string		_message;
 		bool			_ready;
 		std::map<std::string, std::vector<std::string> >	_qa;
+		Timer			_timer;
+		int				_players;
 };
 
 # define ERROR "Error :"

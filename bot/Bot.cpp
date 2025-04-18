@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 18:48:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/18 11:23:19 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,16 @@ Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _messa
 	inet_pton(AF_INET, serverIp, &server_addr.sin_addr); // convert IP addresses from text to binary form
 
 	if (connect(this->_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-		std::cerr << RED << ERROR << "Is the server online at " << serverIp << ":" << port << "?" << RESET << std::endl; 
+		std::cerr << RED << ERROR << "Is the server online at " << serverIp << "::" << port << "?" << RESET << std::endl; 
         close(this->_socket);
 		throw std::runtime_error("connection failed");
     }
-		
+
+	_pfd.fd = this->_socket;
+	_pfd.events = POLLIN;
+	_pfd.revents = 0;
+
+	_timer.resetTimer();
 }
 
 Bot::~Bot()
@@ -44,13 +49,43 @@ Bot::~Bot()
 	close(this->_socket);
 }
 
+void	Bot::run()
+{
+	int ret = poll(&_pfd, 1, 0);
+	if (ret == -1)
+	{
+		g_shutdown = true;
+		throw std::runtime_error("poll error");
+	}
+	else if (ret > 0)
+	{
+		std::string msg = recieveData(_message);
+		if (g_shutdown)
+			return;
+		if (messageIsFull(&msg))
+		{
+			std::cout << BLUE << ">>" << msg << RESET;
+			handleMessage(msg);
+		}
+	}
+	if (_ready)
+		quizz();
+}
+
 void	Bot::log()
 {
 	std::string cmd = "PASS " + this->_pw + "\r\n" \
 		+ "NICK " + NICK + "\r\n" \
-		+ "USER " + USER + " 0 * IRCbot\r\n";
+		+ "USER " + USER + " 0 * IRCbot";
 
-	send(this->_socket, cmd.c_str(), cmd.length(), 0);
+	sendData(cmd);
+}
+
+void	Bot::sendData(std::string message) const
+{
+	message += "\r\n";
+	std::cout << MAGENTA << "<<" << message << RESET;
+	send(this->_socket, message.c_str(), message.length(), 0);
 }
 
 std::string	Bot::recieveData(std::string message)
@@ -59,7 +94,7 @@ std::string	Bot::recieveData(std::string message)
 	memset(buffer, 0, sizeof(buffer));
 	int size = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
 	if (size <= 0) {
-		std::cout << RED << "You have been disconnected by the server" << RESET << std::endl;
+		std::cout << RED << NICK << " has been disconnected by the server" << RESET << std::endl;
 		g_shutdown = true;
 		return ("");
 	}
@@ -96,21 +131,9 @@ bool	Bot::messageIsFull(std::string *message)
 	return (true);
 }
 
-void	Bot::run()
-{
-	std::string msg = recieveData(_message);
-	if (messageIsFull(&msg) && !g_shutdown)
-	{
-		handleMessage(msg);
-	}
-	if (_ready)
-		quizz();
-}
-
 void	Bot::handleMessage(std::string msg)
 {
-	std::cout << BLUE << msg << RESET;
-	std::cout << SERVER_PREFIX + std::string("476") << std::endl;
+	
 	// Handle answers : 001 or error of log
 	// Then create his own channel
 	// And send questions to every new person in the channel, and with a timer
@@ -119,26 +142,25 @@ void	Bot::handleMessage(std::string msg)
 	if (_ready == false)
 	{
 		if (msg.find(SERVER_PREFIX + std::string("464")) == 0) {
-			std::cout << RED << ERROR << "Bot has the wrong password !" << std::endl;
+			std::cout << RED << ERROR << NICK << " has the wrong password for the server !" << std::endl;
 			g_shutdown = true;
 			return ;
 		}
 		else if (msg.find(SERVER_PREFIX + std::string("433")) == 0) {
-			std::cout << RED << ERROR << "Bot is already connected !" << std::endl;
+			std::cout << RED << ERROR << NICK << " is already connected !" << std::endl;
 			g_shutdown = true;
 			return ;
 		}
 		else if (msg.find(SERVER_PREFIX + std::string("001")) == 0) {
-			std::cout << GREEN << "I am connected !" << std::endl;
+			std::cout << GREEN << NICK << " is connected !" << std::endl;
 			std::string cmd = "JOIN " + std::string(CHANNEL);
-			send(this->_socket, cmd.c_str(), cmd.length(), 0);
+			sendData(cmd);
 			return ;
 		}
-		else if (msg.find(SERVER_PREFIX + std::string("476")) \
-		|| msg.find(SERVER_PREFIX + std::string("475")) \
-		|| msg.find(SERVER_PREFIX + std::string("473")) \
-		|| msg.find(SERVER_PREFIX + std::string("471"))) // TODO = Rentre toujours ici ?
-		{
+		else if (msg.find(SERVER_PREFIX + std::string("476")) == 0 \
+			|| msg.find(SERVER_PREFIX + std::string("475")) == 0 \
+			|| msg.find(SERVER_PREFIX + std::string("473")) == 0 \
+			|| msg.find(SERVER_PREFIX + std::string("471")) == 0) {
 			std::cout << RED << ERROR << "The channel is invalid (probably already occupied): " << CHANNEL << std::endl;
 			g_shutdown = true;
 			return ;
@@ -150,7 +172,7 @@ void	Bot::handleMessage(std::string msg)
 		}
 	}
 
-	else if (msg.find("PING") == 0) {
+	if (msg.find("PING") == 0) {
 		std::string pong = "PONG" + msg.substr(4);
 		send(this->_socket, pong.c_str(), pong.length(), 0);
 	}
@@ -158,5 +180,5 @@ void	Bot::handleMessage(std::string msg)
 
 void	Bot::quizz()
 {
-	std::cout << "I am quizzing" << std::endl;
+	std::cout << "I am quizzing ..." << std::endl;
 }
