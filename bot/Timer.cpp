@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 10:49:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 11:00:34 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/18 15:58:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void Timer::getCurrentTime(struct timeval& result) const
 	gettimeofday(&result, 0);
 }
 
-double Timer::getElapsedMicroseconds() const
+double Timer::getElapsedSeconds() const
 {
 	if (_isRunning)
 	{
@@ -48,13 +48,13 @@ double Timer::getElapsedMicroseconds() const
 		getCurrentTime(currentTime);
 		double seconds = currentTime.tv_sec - _startTime.tv_sec;
 		double microseconds = currentTime.tv_usec - _startTime.tv_usec;
-		return (seconds * 1000000.0 + microseconds);
+		double time = seconds + microseconds / 1000000.0;
+		return (time);
 	}
 
 	double seconds = _endTime.tv_sec - _startTime.tv_sec;
 	double microseconds = _endTime.tv_usec - _startTime.tv_usec;
-
-	return seconds * 1000000 + microseconds;
+	return (seconds + microseconds / 1000000.0);
 }
 
 void	Timer::resetTimer()

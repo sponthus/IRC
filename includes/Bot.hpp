@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 11:23:23 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/18 16:58:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,22 @@
 #include <cstdlib> // atoi()
 #include <cstring> // memset
 #include <fcntl.h>
+#include <unistd.h> // usleep
+#include <algorithm> // toupper
 
 #include "Colors.hpp"
 #include "Timer.hpp"
+#include "Questions.hpp"
 
 # define NICK "QuestBot"
 # define USER "QuestBot"
 # define CHANNEL "#Quizz"
-# define SERVER_PREFIX ":irc.server.42 "
+# define SERVER "irc.server.42 "
+# define CHANMSG "PRIVMSG #Quizz :"
+# define WINMSG "Congrats, you won "
+# define ASK "-> Question about "
+# define LATE "It's too late, maybe next time !"
+# define ANSWER " Answer was : "
 
 class Bot {
 	public:
@@ -45,10 +53,18 @@ class Bot {
 		void	parseQuestions(std::string file);
 		void	run();
 		void	quizz();
+		void	handleMessageConnexion(std::string msg);
 		void	handleMessage(std::string message);
 		bool	messageIsFull(std::string *message);
 		std::string recieveData(std::string message);
+		void	sendToChan(std::string message) const;
 		void	sendData(std::string message) const;
+		bool	isAnswerToActualQuestion(std::string msg);
+		std::string whoSentThis(std::string message);
+		void	winner(std::string winner);
+		void	nextQuestion();
+		void	askQuestion();
+		size_t	getQuestionId();
 
 	private:
 		Bot(); // Not usable
@@ -58,9 +74,11 @@ class Bot {
 		struct pollfd 	_pfd;
 		std::string		_message;
 		bool			_ready;
-		std::map<std::string, std::vector<std::string> >	_qa;
+		std::map<std::string, Questions *>	_questions;
 		Timer			_timer;
-		int				_players;
+		int				_nbPlayers;
+		int				_actualId;
+		std::string		_actualTheme;
 };
 
 # define ERROR "Error :"

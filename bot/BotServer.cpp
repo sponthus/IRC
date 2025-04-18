@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Bot.cpp                                            :+:      :+:    :+:   */
+/*   BotServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 11:23:19 by sponthus         ###   ########.fr       */
+/*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
+/*   Updated: 2025/04/18 16:52:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Bot::Bot()
 {
 }
 
-Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _message(""), _ready(false)
+Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _message(""), _ready(false), _nbPlayers(0), _actualId(0), _actualTheme("")
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket < 0)
@@ -40,45 +40,23 @@ Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _messa
 	_pfd.events = POLLIN;
 	_pfd.revents = 0;
 
+	_timer.stopTimer();
 	_timer.resetTimer();
+
+	srand(time(NULL));
 }
 
 Bot::~Bot()
 {
 	shutdown(this->_socket, SHUT_RDWR);
 	close(this->_socket);
-}
 
-void	Bot::run()
-{
-	int ret = poll(&_pfd, 1, 0);
-	if (ret == -1)
-	{
-		g_shutdown = true;
-		throw std::runtime_error("poll error");
-	}
-	else if (ret > 0)
-	{
-		std::string msg = recieveData(_message);
-		if (g_shutdown)
-			return;
-		if (messageIsFull(&msg))
-		{
-			std::cout << BLUE << ">>" << msg << RESET;
-			handleMessage(msg);
-		}
-	}
-	if (_ready)
-		quizz();
-}
-
-void	Bot::log()
-{
-	std::string cmd = "PASS " + this->_pw + "\r\n" \
-		+ "NICK " + NICK + "\r\n" \
-		+ "USER " + USER + " 0 * IRCbot";
-
-	sendData(cmd);
+	for (std::map<std::string, Questions*>::iterator it = _questions.begin(); it != _questions.end(); ++it)
+    {
+        if (it->second)
+			delete it->second;
+    }
+	_questions.clear();
 }
 
 void	Bot::sendData(std::string message) const
@@ -86,6 +64,14 @@ void	Bot::sendData(std::string message) const
 	message += "\r\n";
 	std::cout << MAGENTA << "<<" << message << RESET;
 	send(this->_socket, message.c_str(), message.length(), 0);
+}
+
+void	Bot::sendToChan(std::string message) const
+{
+	std::string result = CHANMSG + message;
+	result += "\r\n";
+	std::cout << MAGENTA << "<<" << result << RESET;
+	send(this->_socket, result.c_str(), result.length(), 0);
 }
 
 std::string	Bot::recieveData(std::string message)
@@ -131,54 +117,21 @@ bool	Bot::messageIsFull(std::string *message)
 	return (true);
 }
 
-void	Bot::handleMessage(std::string msg)
+void	Bot::parseQuestions(std::string filename)
 {
-	
-	// Handle answers : 001 or error of log
-	// Then create his own channel
-	// And send questions to every new person in the channel, and with a timer
-	// Counts score ?
-
-	if (_ready == false)
+	try
 	{
-		if (msg.find(SERVER_PREFIX + std::string("464")) == 0) {
-			std::cout << RED << ERROR << NICK << " has the wrong password for the server !" << std::endl;
-			g_shutdown = true;
-			return ;
-		}
-		else if (msg.find(SERVER_PREFIX + std::string("433")) == 0) {
-			std::cout << RED << ERROR << NICK << " is already connected !" << std::endl;
-			g_shutdown = true;
-			return ;
-		}
-		else if (msg.find(SERVER_PREFIX + std::string("001")) == 0) {
-			std::cout << GREEN << NICK << " is connected !" << std::endl;
-			std::string cmd = "JOIN " + std::string(CHANNEL);
-			sendData(cmd);
-			return ;
-		}
-		else if (msg.find(SERVER_PREFIX + std::string("476")) == 0 \
-			|| msg.find(SERVER_PREFIX + std::string("475")) == 0 \
-			|| msg.find(SERVER_PREFIX + std::string("473")) == 0 \
-			|| msg.find(SERVER_PREFIX + std::string("471")) == 0) {
-			std::cout << RED << ERROR << "The channel is invalid (probably already occupied): " << CHANNEL << std::endl;
-			g_shutdown = true;
-			return ;
-		}
-		else if (msg.find(SERVER_PREFIX + std::string("353 ") + std::string(NICK) + " = " + std::string(CHANNEL) + " :@" + std::string(NICK)))
+		Questions *qa = new Questions(filename);
+		std::string theme = qa->getTheme();
+		if (_questions.find(theme) != _questions.end())
 		{
-			_ready = true;
-			return ;
+			throw (std::invalid_argument(NICK + std::string(" already knows questions about ") + theme));
 		}
+		_questions[theme] = qa;
+		std::cout << GREEN << "Learned questions about " << qa->getTheme() << std::endl;
 	}
-
-	if (msg.find("PING") == 0) {
-		std::string pong = "PONG" + msg.substr(4);
-		send(this->_socket, pong.c_str(), pong.length(), 0);
+	catch (const std::exception &e)
+	{
+		std::cerr << RED << ERROR << e.what() << RESET << std::endl;
 	}
-}
-
-void	Bot::quizz()
-{
-	std::cout << "I am quizzing ..." << std::endl;
 }
