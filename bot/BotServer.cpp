@@ -6,13 +6,11 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 16:52:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 14:59:46 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Bot.hpp"
-
-extern bool	g_shutdown;
 
 // Not usable
 Bot::Bot()

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 10:49:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 15:58:04 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 15:11:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,4 @@ void	Timer::resetTimer()
 	_endTime.tv_sec = 0;
 	_endTime.tv_usec = 0;
 	_isRunning = false;
-}
-
-std::string	Timer::getTimestamp(void)
-{
-	std::time_t	timestamp = std::time(NULL);
-	std::tm *now = std::localtime(&timestamp);
-	char buff[24];
-	
-	std::strftime(buff, sizeof(buff), "%Y/%m/%d at %Hh%Mm%Ss", now);
-	std::string time(buff);
-	return time;
 }

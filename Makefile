@@ -22,13 +22,7 @@ BOT_OBJ_DIR = ./OBJ_BOT/
 
 BOT_OBJ = $(patsubst $(BOT_DIR)%.cpp, $(BOT_OBJ_DIR)%.o, $(BOT_SRC))
 
-## INC & GENERAL
-
 DEP = $(OBJ:%.o=%.d), $(BOT_OBJ:%.o=%.d)
-
-# INC_DIR = includes/
-
-# INC = SRC = $(shell find $(INC_DIR) -name "*.hpp")
 
 CC = c++
 CFLAGS =  -g -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes

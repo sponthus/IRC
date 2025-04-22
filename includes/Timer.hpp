@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 10:50:08 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 15:10:28 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 15:11:07 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class Timer {
 		void	resetTimer();
 		double	getElapsedSeconds() const;
 		void	getCurrentTime(struct timeval& result) const;
-		std::string	getTimestamp(void);
 
 	private:
 		bool	_isRunning;

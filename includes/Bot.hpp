@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 16:58:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 14:59:55 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@
 # define ASK "-> Question about "
 # define LATE "It's too late, maybe next time !"
 # define ANSWER " Answer was : "
+
+extern bool g_shutdown;
 
 class Bot {
 	public:

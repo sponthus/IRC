@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 17:47:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 15:13:26 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,10 +276,10 @@ void	Server::run()
 				std::string message = recieveData(this->_fds[i].fd, "");
 				Client* cl = this->_ClientsByFD[this->_fds[i].fd];
 				if (cl && cl->getNick().empty())
-					std::cout << CYAN << this->_fds[i].fd;
+					std::cout << MAGENTA << this->_fds[i].fd;
 				else if (cl)
 					std::cout << ":" << cl->getNick();
-				std::cout << " sent: //" << message << "//" << RESET << std::endl;
+				std::cout << MAGENTA << " sent: //" << message << "//" << RESET << std::endl;
 				if (messageIsFull(cl, &message))
 					handleData(cl, message);
 			}

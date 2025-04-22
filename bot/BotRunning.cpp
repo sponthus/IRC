@@ -6,13 +6,11 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 16:59:18 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 15:10:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Bot.hpp"
-
-extern bool	g_shutdown;
 
 void	Bot::run()
 {
@@ -157,7 +155,7 @@ void	Bot::quizz()
 	{
 		if (_actualTheme.size() == 0)
 		{
-			_actualTheme = "Capitals"; // TODO theme aleatoire
+			_actualTheme = "Capitals"; // TODO random theme
 			std::cout << GREEN << "I have " << _questions[_actualTheme]->getNbQuestions() << " questions" << RESET << std::endl;
 		}
 		_actualId = getQuestionId();

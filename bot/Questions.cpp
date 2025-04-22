@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 13:08:51 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 16:38:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/04/22 15:03:29 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	Questions::parseLine(std::string line)
 	size_t	pipe = line.find_first_of("|");
 	if (pipe == std::string::npos || pipe == line.size())
 	{
-		throw std::invalid_argument("Question should follow [question]|[answerA]/[answerB] format : " + line);
+		throw std::invalid_argument(std::string("Question should follow [question]|[answerA]/[answerB] format : ") + line);
 	}
 	question = line.substr(0, pipe);
 	// std::cout << "Adding question : " << question << std::endl;
