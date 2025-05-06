@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/04 15:43:01 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/06 14:45:17 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,25 +257,36 @@ void	Command::user(std::vector<std::string> *arg)
 		return ;
 	if (!IsPassGiven(this->_client, this->_server))
 		return ;
-	if (arg->size() >= 5)
+	std::vector<std::string>::iterator i = arg->begin();
+	if (++i == arg->end())
 	{
-		std::vector<std::string>::iterator i = arg->begin();
-		i++;
-		this->_client->setUser(*i);
-		i++;
-		this->_client->setHostname(*i);
-		i++;
-		this->_client->setServerName(*i);
-		i++;
-		if (i->find(":", 0) == 0)
-			i->erase(0, 1);
-		this->_client->setFullName(*i);
-		this->_client->registerUser();
-		if(!this->_client->getNick().empty())
-			this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client->getNick(), this->_client->getUser()));
+		SetVoidUser(this->_client);
+		return ;
 	}
-	else
-		this->_server->SendToClient(this->_client, Builder::ErrNeedMoreParams(this->_client->getNick(), "USER"));	
+	this->_client->setUser(*i);
+	if (++i == arg->end())
+	{
+		SetVoidUser(this->_client);
+		return ;
+	}
+	this->_client->setHostname(*i);
+	if (++i != arg->end())
+	{
+		SetVoidUser(this->_client);
+		return ;
+	}
+	this->_client->setServerName(*i);
+	if (++i == arg->end())
+	{
+		SetVoidUser(this->_client);
+		return ;
+	}
+	if (i->find(":", 0) == 0)
+		i->erase(0, 1);
+	this->_client->setRealname(*i);
+	this->_client->registerUser();
+	if(!this->_client->getNick().empty())
+		this->_server->SendToClient(this->_client, Builder::RplWelcome(this->_client->getNick(), this->_client->getUser()));	
 }
 
 void	Command::privmsg(std::vector<std::string> *arg)
@@ -310,11 +321,17 @@ void	Command::quit(std::vector<std::string> *arg)
 {
 	std::cout << "quit function called " << std::endl;
 	PrintArg(*arg);
-	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
-		return ;
+	if (!this->_client->isRegistered() || this->_client->getNick().empty())
+	{
+		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered());
+		return;
+	}
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
-	this->_server->SendToAllChannels(this->_client, Builder::Quit(this->_client->getNick(), this->_client->getUser(), *it));
+	if (it != arg->end())
+		this->_server->SendToAllChannels(this->_client, Builder::Quit(this->_client->getNick(), this->_client->getUser(), *it));
+	else
+		this->_server->SendToAllChannels(this->_client, Builder::Quit(this->_client->getNick(), this->_client->getUser(), "leaving"));
 	this->_server->clearClient(this->_client->getFD());
 }
 
@@ -324,9 +341,12 @@ void	Command::part(std::vector<std::string> *arg)
 	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
+	std::string _msg = "leaving";
 	std::vector<std::string>::iterator msg = arg->begin();
 	for (size_t i = 0; i < arg->size() - 1; i++)
 		msg++;
+	if (msg->find(":", 0) != 0)
+		msg = arg->end();
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
 	while (it != msg)
@@ -335,10 +355,16 @@ void	Command::part(std::vector<std::string> *arg)
 			return ;
 		it->erase(0,1);
 		Channel *ChanToQuit = this->_server->getChannel(*it);
-		this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+		if (msg != arg->end())
+			this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+		else
+			this->_server->SendToClient(this->_client, Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(_msg)));
 		ChanToQuit->leaveChannel(this->_client);
 		this->_client->removeChannel(ChanToQuit);
-		ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+		if (msg != arg->end())
+			ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(), &(*msg)));
+		else
+			ChanToQuit->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), ChanToQuit->getName(),  &(_msg)));
 		it++;
 	}
 }

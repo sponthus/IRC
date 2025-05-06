@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:01:18 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/06 14:32:15 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ bool							CheckChanOnServer(Client *client, Server *server, std::string Channel
 
 /*							Command Utils							*/
 
+void							SetVoidUser(Client *client);
 bool							isModWhitOption(char c);
 bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);

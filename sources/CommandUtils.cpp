@@ -3,14 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   CommandUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/04 14:29:03 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/06 14:41:25 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Command.hpp"
+
+/*								USER UTILS								*/
+
+void	SetVoidUser(Client *client)
+{
+	if (client->getUser().empty())
+		client->setUser("");
+	if (client->getHostname().empty())
+		client->setHostname("");
+	if (client->getServerName().empty())
+		client->setServerName("");
+	if (client->getRealName().empty())
+		client->setRealname("");
+	client->registerUser();
+	return ;
+}
 
 /*								MODE UTILS								*/
 
