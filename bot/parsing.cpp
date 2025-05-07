@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:02:13 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 15:28:33 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 14:02:34 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,3 +51,18 @@ bool	isValidPort(std::string arg)
 	return true;
 }
 
+bool	isCode(std::string arg)
+{
+	if (arg.size() != 3)
+		return false;
+	
+	std::string::const_iterator it = arg.begin();
+
+	while (it != arg.end())
+	{
+		if (std::isdigit((unsigned char)(*it)) == 0)
+			return false;
+		it++;
+	}
+	return true;
+}

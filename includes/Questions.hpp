@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 13:03:19 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/18 16:06:01 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 13:55:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+
+#include "Colors.hpp"
 
 class Questions {
 	public:
@@ -37,5 +39,8 @@ class Questions {
 		std::map<std::string, std::vector<std::string> >	_qa;
 		std::string							_theme;
 };
+
+void	WriteMessage(bool error, std::string color, std::string message);
+void	WriteMessage(bool error, std::string color, int value, std::string message);
 
 # endif

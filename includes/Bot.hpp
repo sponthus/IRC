@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/22 14:59:55 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:41:40 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@
 #include <fcntl.h>
 #include <unistd.h> // usleep
 #include <algorithm> // toupper
+#include <iomanip> // getline
+#include <cstdlib>
+#include <cstdio>
+#include <pthread.h> // Thread
+#include <sstream>
 
 #include "Colors.hpp"
 #include "Timer.hpp"
@@ -41,7 +46,13 @@
 # define WINMSG "Congrats, you won "
 # define ASK "-> Question about "
 # define LATE "It's too late, maybe next time !"
-# define ANSWER " Answer was : "
+# define ANSWER ", the answer was "
+# define SERVER_IP "127.0.0.1"
+# define QUIT "QUIT :bye bye!"
+
+# define TIME_TO_ANSWER 20.0
+# define TIME_TO_WAIT 3.0
+# define TIME_TO_DIE 30.0
 
 extern bool g_shutdown;
 
@@ -52,12 +63,15 @@ class Bot {
 
 		int		getPort() const;
 		void	log();
+		bool	CheckInput(std::string input);
 		void	parseQuestions(std::string file);
+		void	handleInput(std::string input);
 		void	run();
 		void	quizz();
 		void	handleMessageConnexion(std::string msg);
 		void	handleMessage(std::string message);
 		bool	messageIsFull(std::string *message);
+		std::vector<std::string>	splitMessages(const std::string& raw);
 		std::string recieveData(std::string message);
 		void	sendToChan(std::string message) const;
 		void	sendData(std::string message) const;
@@ -81,6 +95,7 @@ class Bot {
 		int				_nbPlayers;
 		int				_actualId;
 		std::string		_actualTheme;
+		pthread_mutex_t	_questionsMutex;
 };
 
 # define ERROR "Error :"
@@ -88,11 +103,19 @@ class Bot {
 # define ERR_PORT_NUM "Port value should be numeric"
 # define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
 # define ERR_PW "Password should not contain spaces, \' or \""
+# define ERR_CHANN " The channel is invalid (probably already occupied) "
+# define ERR_CHANN_PW " Wrong password for the server !"
+# define ERR_ALREADY_CONN " A bot is already connected !"
 
 # define BUFF_SIZE 512
 # define MAX_PORT 65535
 
 bool	isValidPW(std::string arg);
 bool	isValidPort(std::string arg);
+bool	isCode(std::string arg);
+void	setShutdown(bool value);
+bool	isShutdown();
+void	WriteMessage(bool error, std::string color, std::string message);
+void	WriteMessage(bool error, std::string color, int value, std::string message);
 
 # endif

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/22 14:59:46 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:52:07 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,11 @@ Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _messa
 
 	_timer.stopTimer();
 	_timer.resetTimer();
+	_timer.startTimer();
 
 	srand(time(NULL));
+
+	_questionsMutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 Bot::~Bot()
@@ -49,18 +52,40 @@ Bot::~Bot()
 	shutdown(this->_socket, SHUT_RDWR);
 	close(this->_socket);
 
+	pthread_mutex_lock(&_questionsMutex);
 	for (std::map<std::string, Questions*>::iterator it = _questions.begin(); it != _questions.end(); ++it)
     {
         if (it->second)
 			delete it->second;
     }
 	_questions.clear();
+	pthread_mutex_unlock(&_questionsMutex);
+}
+
+bool	Bot::CheckInput(std::string input)
+{
+	if (input.empty())
+		return (false);
+	if (input.rfind("LEARN ", 0) != 0)
+		return (false);
+	return (true);
+}
+
+void	Bot::handleInput(std::string input)
+{
+	if (input.length() < 7)
+	{
+		WriteMessage(true, RED, "No infile given, use: LEARN [infile]");
+		return ;
+	}
+	std::string infile = input.substr(6, input.length() - 6);
+	parseQuestions(infile);
 }
 
 void	Bot::sendData(std::string message) const
 {
 	message += "\r\n";
-	std::cout << MAGENTA << "<<" << message << RESET;
+	WriteMessage(false, MAGENTA, "<< " + message);
 	send(this->_socket, message.c_str(), message.length(), 0);
 }
 
@@ -68,7 +93,7 @@ void	Bot::sendToChan(std::string message) const
 {
 	std::string result = CHANMSG + message;
 	result += "\r\n";
-	std::cout << MAGENTA << "<<" << result << RESET;
+	WriteMessage(false, MAGENTA, "<< " + result);
 	send(this->_socket, result.c_str(), result.length(), 0);
 }
 
@@ -78,8 +103,8 @@ std::string	Bot::recieveData(std::string message)
 	memset(buffer, 0, sizeof(buffer));
 	int size = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
 	if (size <= 0) {
-		std::cout << RED << NICK << " has been disconnected by the server" << RESET << std::endl;
-		g_shutdown = true;
+		WriteMessage(false, RED, NICK + std::string(" has been disconnected by the server"));
+		setShutdown(true);
 		return ("");
 	}
 	else
@@ -115,21 +140,38 @@ bool	Bot::messageIsFull(std::string *message)
 	return (true);
 }
 
+std::vector<std::string> Bot::splitMessages(const std::string& raw)
+{
+	std::vector<std::string> messages;
+	size_t start = 0, end;
+
+	while ((end = raw.find("\r\n", start)) != std::string::npos)
+	{
+		messages.push_back(raw.substr(start, end - start));
+		start = end + 2;
+	}
+	return messages;
+}
+
 void	Bot::parseQuestions(std::string filename)
 {
 	try
 	{
 		Questions *qa = new Questions(filename);
 		std::string theme = qa->getTheme();
+		pthread_mutex_lock(&_questionsMutex);
 		if (_questions.find(theme) != _questions.end())
 		{
+			delete qa;
+			pthread_mutex_unlock(&_questionsMutex);
 			throw (std::invalid_argument(NICK + std::string(" already knows questions about ") + theme));
 		}
 		_questions[theme] = qa;
-		std::cout << GREEN << "Learned questions about " << qa->getTheme() << std::endl;
+		pthread_mutex_unlock(&_questionsMutex);
+		WriteMessage(false, GREEN, "Learned questions about " +  qa->getTheme());
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << RED << ERROR << e.what() << RESET << std::endl;
+		WriteMessage(true, RED, ERROR + std::string(e.what()));
 	}
 }

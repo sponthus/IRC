@@ -60,7 +60,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 ## Bot compilation rules
 
 $(BOT): $(BOT_OBJ)
-	$(CC) $(CFLAGS) $(BOT_OBJ) -o $@
+	$(CC) $(CFLAGS) -pthread $(BOT_OBJ) -o $@
 	@echo "$(BOT) done"
 
 $(BOT_OBJ_DIR)%.o: $(BOT_DIR)%.cpp

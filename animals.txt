@@ -1,0 +1,11 @@
+theme=Animals
+What animal is known as man's best friend ?|Dog/Chien
+What animal says "meow" ?|Cat/Chat
+What animal is the largest land mammal ?|Elephant/Éléphant
+What animal lives in water and has fins ?|Fish/Poisson
+What animal has a long neck and lives in Africa ?|Giraffe/Girafe
+What animal is famous for its black and white stripes ?|Zebra/Zèbre
+What animal jumps and carries its baby in a pouch ?|Kangaroo/Kangourou
+What animal makes honey ?|Bee/Abeille
+What animal hoots and is active at night ?|Owl/Hibou/Chouette
+What animal barks and guards houses ?|Dog/Chien

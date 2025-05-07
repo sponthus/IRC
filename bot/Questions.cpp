@@ -6,17 +6,15 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 13:08:51 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/22 15:03:29 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 14:03:25 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Questions.hpp"
 
 Questions::Questions(std::string filename) : _theme("")
-{
-	// std::cout << "Understanding " << filename << std::endl;
+{;
 	parseFile(filename);
-	// std::cout << "My theme is " << _theme << std::endl;
 }
 
 Questions::~Questions()
@@ -36,7 +34,6 @@ void	Questions::parseLine(std::string line)
 		throw std::invalid_argument(std::string("Question should follow [question]|[answerA]/[answerB] format : ") + line);
 	}
 	question = line.substr(0, pipe);
-	// std::cout << "Adding question : " << question << std::endl;
 	allAnswers = line.substr(pipe + 1, line.size() - pipe - 1);
 	size_t sep = allAnswers.find_first_of("/");
 	if (sep == std::string::npos)
@@ -44,14 +41,12 @@ void	Questions::parseLine(std::string line)
 		answer = allAnswers;
 		std::transform(answer.begin(), answer.end(), answer.begin(), ::toupper);
 		answers.push_back(answer);
-		// std::cout << "Adding full answer : " << allAnswers << std::endl;
 	}
 	else
 	{
 		answer = allAnswers.substr(0, sep);
 		std::transform(answer.begin(), answer.end(), answer.begin(), ::toupper);
 		answers.push_back(answer);
-		// std::cout << "Adding answer : " << allAnswers.substr(0, sep) << std::endl;
 		allAnswers = allAnswers.substr(sep + 1, allAnswers.size() - sep - 1);
 		while (sep != std::string::npos)
 		{
@@ -59,12 +54,10 @@ void	Questions::parseLine(std::string line)
 			answer = allAnswers.substr(0, sep);
 			std::transform(answer.begin(), answer.end(), answer.begin(), ::toupper);
 			answers.push_back(answer);
-			// std::cout << "Adding answer : " << allAnswers.substr(0, sep) << std::endl;
 			allAnswers = allAnswers.substr(sep + 1, allAnswers.size() - sep - 1);
 		}
 	}
 	_qa[question] = answers;
-	// std::cout << "Question OK" << std::endl;
 }
 
 void	Questions::parseFile(std::string filename)
@@ -105,7 +98,7 @@ int	Questions::getNbQuestions() const
 std::string	Questions::getQuestion(size_t id) const
 {
 	if (id >= _qa.size()) {
-        std::cerr << "Invalid ID" << std::endl;
+        WriteMessage(true, RED, "Invalid ID");
         return ("");
     }
 	std::map<std::string, std::vector<std::string> >::const_iterator it = _qa.begin();
@@ -116,7 +109,7 @@ std::string	Questions::getQuestion(size_t id) const
 std::vector<std::string>	Questions::getAnswers(size_t id) const
 {
 	if (id >= _qa.size()) {
-        std::cerr << "Invalid ID" << std::endl;
+        WriteMessage(true, RED, "Invalid ID");
         return (std::vector<std::string>());
     }
 	std::map<std::string, std::vector<std::string> >::const_iterator it = _qa.begin();
@@ -127,7 +120,7 @@ std::vector<std::string>	Questions::getAnswers(size_t id) const
 std::string	Questions::getFirstAnswer(size_t id) const
 {
 	if (id >= _qa.size()) {
-        std::cerr << "Invalid ID" << std::endl;
+        WriteMessage(true, RED, "Invalid ID");
         return ("");
     }
 	std::map<std::string, std::vector<std::string> >::const_iterator it = _qa.begin();

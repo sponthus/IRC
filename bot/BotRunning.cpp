@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/22 15:10:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:52:47 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,41 @@
 void	Bot::run()
 {
 	int ret = poll(&_pfd, 1, 1000);
-	if (g_shutdown == true)
+	if (isShutdown())
+	{
+		if (ret > 0)
+			sendData(QUIT);
 		return ;
+	}
 	if (ret == -1)
 	{
-		g_shutdown = true;
+		setShutdown(true);
 		throw std::runtime_error("poll error");
 	}
 	else if (ret > 0)
 	{
-		std::string msg = recieveData(_message);
-		if (g_shutdown)
+		std::string data = recieveData(_message);
+		if (isShutdown())
 			return;
-		if (messageIsFull(&msg))
+		if (messageIsFull(&data))
 		{
-			std::cout << BLUE << ">>" << msg << RESET;
-			handleMessage(msg);
+			std::vector<std::string> messages = splitMessages(data);
+			for (size_t i = 0; i < messages.size() && !isShutdown(); ++i)
+			{
+				WriteMessage(false, BLUE, ">> " + messages[i]);
+				handleMessage(messages[i]);
+			}
 		}
 	}
 	if (_ready && _nbPlayers != 0)
+	{
 		quizz();
+	}
+	else if (!_ready && _timer.getElapsedSeconds() >= TIME_TO_DIE)
+	{
+		setShutdown(true);
+		throw std::runtime_error("Unable to connect to the server");
+	}
 }
 
 void	Bot::log()
@@ -50,13 +65,15 @@ std::string Bot::whoSentThis(std::string msg)
 {
 	size_t prefix = msg.find_first_of(":");
 	size_t end_prefix = msg.find_first_of("!");
-	std::string sender = msg.substr(prefix + 1, end_prefix - prefix - 2);
+	std::string sender = msg.substr(prefix + 1, end_prefix - prefix - 1);
 	return (sender);
 }
 
 size_t	Bot::getQuestionId()
 {
+	pthread_mutex_lock(&_questionsMutex);
 	size_t max = _questions[_actualTheme]->getNbQuestions();
+	pthread_mutex_unlock(&_questionsMutex);
 	size_t nb = 0;
 	if (max > 0)
 		nb = (rand() % max) + 1;
@@ -65,13 +82,38 @@ size_t	Bot::getQuestionId()
 
 void	Bot::askQuestion()
 {
+	pthread_mutex_lock(&_questionsMutex);
 	sendToChan(ASK + _actualTheme + " - " + _questions[_actualTheme]->getQuestion(_actualId - 1));
+	pthread_mutex_unlock(&_questionsMutex);
 }
 
 void	Bot::nextQuestion()
 {
 	_timer.stopTimer();
-	_actualId = getQuestionId();
+	pthread_mutex_lock(&_questionsMutex);
+	if (_questions.size() > 1)
+	{
+		if (rand() % 2 == 0) //  1/10 chances to change the theme
+		{
+			usleep(1000000);
+			std::string newTheme = _actualTheme;
+			while (_questions.size() > 1 && newTheme == _actualTheme) // Don't take the same theme
+			{
+				std::map<std::string, Questions*>::iterator it = _questions.begin();
+				std::advance(it, rand() % _questions.size());
+				newTheme = it->first;
+			}
+			_actualTheme = newTheme;
+			sendToChan("Change of theme, " + _actualTheme);
+		}
+	}
+	int	nbQuestions = _questions[_actualTheme]->getNbQuestions();
+	pthread_mutex_unlock(&_questionsMutex);
+	int	oldId = _actualId;
+	while (nbQuestions > 1 && _actualId == oldId)
+	{
+		_actualId = getQuestionId();
+	}
 	_actualId *= -1;
 	_timer.resetTimer();
 	_timer.startTimer();
@@ -79,17 +121,17 @@ void	Bot::nextQuestion()
 
 void	Bot::winner(std::string winner)
 {
+	pthread_mutex_lock(&_questionsMutex);
 	sendToChan(WINMSG + winner + ANSWER + _questions[_actualTheme]->getFirstAnswer(_actualId - 1));
+	pthread_mutex_unlock(&_questionsMutex);
 	nextQuestion();
 }
 
+// Handle initial server answers : 001 or error of log
+// Then create his own channel
+// And send questions to every new person in the channel, and with a timer
 void	Bot::handleMessage(std::string msg)
 {	
-	// Handle answers : 001 or error of log
-	// Then create his own channel
-	// And send questions to every new person in the channel, and with a timer
-	// Counts score ?
-	
 	if (_ready == false)
 		handleMessageConnexion(msg);
 	else
@@ -103,13 +145,13 @@ void	Bot::handleMessage(std::string msg)
 				_actualId = 0;
 				_timer.resetTimer();
 			}
-			std::cout << GREEN << _nbPlayers << " player(s) available to play ..." << RESET << std::endl;
+			WriteMessage(false, GREEN, _nbPlayers, " player(s) available to play ...");
 			return ;
 		}
 		if (msg.find("JOIN") != std::string::npos)
 		{
 			_nbPlayers += 1;
-			std::cout << GREEN << _nbPlayers << " player(s) available to play ..." << RESET << std::endl;
+			WriteMessage(false, GREEN, _nbPlayers, " player(s) available to play ...");
 			return ;
 		}
 		if (_actualId > 0) // A question was asked
@@ -129,7 +171,10 @@ void	Bot::handleMessage(std::string msg)
 
 bool Bot::isAnswerToActualQuestion(std::string msg)
 {
+	pthread_mutex_lock(&_questionsMutex);
 	std::vector<std::string>	answers = _questions[_actualTheme]->getAnswers(_actualId - 1);
+	pthread_mutex_unlock(&_questionsMutex);
+	
 	std::string	upperMsg = msg;
 	std::transform(upperMsg.begin(), upperMsg.end(), upperMsg.begin(), ::toupper);
 	std::vector<std::string>::const_iterator it;
@@ -146,29 +191,46 @@ bool Bot::isAnswerToActualQuestion(std::string msg)
 
 void	Bot::quizz()
 {
-	if (_nbPlayers == 0)
+	pthread_mutex_lock(&_questionsMutex);
+	if (_nbPlayers == 0 || _questions.size() == 0) // No players or no questions known = No launch
 	{
+		pthread_mutex_unlock(&_questionsMutex);
 		usleep(1000);
 		return ;
 	}
-	else if (_actualId == 0) // Beginning
+	pthread_mutex_unlock(&_questionsMutex);
+	if (_actualId == 0) // Beginning
 	{
 		if (_actualTheme.size() == 0)
 		{
-			_actualTheme = "Capitals"; // TODO random theme
-			std::cout << GREEN << "I have " << _questions[_actualTheme]->getNbQuestions() << " questions" << RESET << std::endl;
+			pthread_mutex_lock(&_questionsMutex);
+			if (_questions.size() == 0)
+			{
+				pthread_mutex_unlock(&_questionsMutex);
+				return ;
+			}
+			std::map<std::string, Questions *>::iterator it = _questions.begin();
+			std::advance(it, rand() % _questions.size());
+			_actualTheme = it->first;
+			int nb = _questions[_actualTheme]->getNbQuestions();
+			pthread_mutex_unlock(&_questionsMutex);
+			std::ostringstream oss;
+			oss << "Let's play! Actual theme is " << _actualTheme << ", " << nb << " questions available";
+			sendToChan(oss.str());
 		}
 		_actualId = getQuestionId();
 		askQuestion();
 	}
 	else
 	{
-		if (_actualId > 0 && _timer.getElapsedSeconds() >= 20.0)
+		if (_actualId > 0 && _timer.getElapsedSeconds() >= TIME_TO_ANSWER)
 		{
+			pthread_mutex_lock(&_questionsMutex);
 			sendToChan(LATE + std::string(ANSWER) + _questions[_actualTheme]->getFirstAnswer(_actualId - 1));
+			pthread_mutex_unlock(&_questionsMutex);
 			nextQuestion();
 		}
-		if (_actualId < 0 && _timer.getElapsedSeconds() >= 3.0)
+		if (_actualId < 0 && _timer.getElapsedSeconds() >= TIME_TO_WAIT)
 		{
 			_actualId *= -1;
 			askQuestion();
@@ -178,41 +240,72 @@ void	Bot::quizz()
 
 void	Bot::handleMessageConnexion(std::string msg)
 {
-	if (msg.find(SERVER + std::string("464")) != std::string::npos) {
-		std::cout << RED << ERROR << NICK << " has the wrong password for the server !" << std::endl;
-		g_shutdown = true;
+	if (msg.find(SERVER) == std::string::npos || msg.size() < std::string(SERVER).size() + 4)
 		return ;
-	}
-	else if (msg.find(SERVER + std::string("433")) != std::string::npos) {
-		std::cout << RED << ERROR << NICK << " is already connected !" << std::endl;
-		g_shutdown = true;
+	std::string code = msg.substr(std::string(SERVER).size() + 1, 3);
+	if (!isCode(code))
 		return ;
-	}
-	else if (msg.find(SERVER + std::string("001")) != std::string::npos) {
-		std::cout << GREEN << NICK << " is connected !" << std::endl;
-		std::string cmd = "JOIN " + std::string(CHANNEL);
-		sendData(cmd);
-		return ;
-	}
-	else if (msg.find(SERVER + std::string("476")) != std::string::npos \
-		|| msg.find(SERVER + std::string("475")) != std::string::npos \
-		|| msg.find(SERVER + std::string("473")) != std::string::npos \
-		|| msg.find(SERVER + std::string("471")) != std::string::npos) {
-		std::cout << RED << ERROR << "The channel is invalid (probably already occupied): " << CHANNEL << std::endl;
-		g_shutdown = true;
-		return ;
-	}
-	else if (msg.find(SERVER + std::string("353")) != std::string::npos) {
-		size_t sep = msg.find_last_of(":");
-		std::string players = msg.substr(sep, msg.size() - sep - 1);
-		int count = 0;
-		for (size_t i = 0; (i = players.find(' ', i)) != std::string::npos; i++) {
-			count++;
+	int codeNb = atoi(code.c_str());
+	switch (codeNb)
+	{
+		case 001 :
+		{
+			WriteMessage(false, GREEN, NICK + std::string(" is connected !"));
+			std::string cmd = "JOIN " + std::string(CHANNEL);
+			sendData(cmd);
+			break ;
 		}
-		_nbPlayers = count - 1;
-		std::cout << GREEN << _nbPlayers << " player(s) available to play ..." << RESET << std::endl;
-		parseQuestions("capitals.txt");
-		_ready = true;
-		return ;
+		case 353 :
+		{
+			size_t sep = msg.find_last_of(":");
+			std::string players = msg.substr(sep, msg.size() - sep - 1);
+			int count = 0;
+			for (size_t i = 0; (i = players.find(' ', i)) != std::string::npos; i++) {
+				count++;
+			}
+			_nbPlayers = count;
+			WriteMessage(false, GREEN, _nbPlayers, std::string(" player(s) available to play ..."));
+			_ready = true;
+			_timer.resetTimer();
+			pthread_mutex_lock(&_questionsMutex);
+			if (_questions.size() == 0)
+				WriteMessage(false, GREEN, "Warning: I know no questions ...");
+			pthread_mutex_unlock(&_questionsMutex);
+			break ;
+		};
+		case 433 :
+		{
+			WriteMessage(true, RED, ERROR + std::string(ERR_ALREADY_CONN));
+			setShutdown(true);
+			break ;
+		}
+		case 464 :
+			WriteMessage(true, RED, ERROR + std::string(ERR_CHANN_PW));
+			setShutdown(true);
+			break ;
+		case 471 :
+		{
+			WriteMessage(true, RED, ERROR + std::string(ERR_CHANN) + CHANNEL);
+			setShutdown(true);
+			break ;
+		}
+		case 473 :
+		{
+			WriteMessage(true, RED, ERROR + std::string(ERR_CHANN) + CHANNEL);
+			setShutdown(true);
+			break ;
+		}
+		case 475 :
+		{
+			WriteMessage(true, RED, ERROR + std::string(ERR_CHANN) + CHANNEL);
+			setShutdown(true);
+			break ;
+		}
+		case 476 :
+		{
+			WriteMessage(true, RED, ERROR + std::string(ERR_CHANN) + CHANNEL);
+			setShutdown(true);
+			break ;
+		}
 	}
 }

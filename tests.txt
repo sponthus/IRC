@@ -1,0 +1,115 @@
+check la reponse comprise par hexchat pour l'utilisat 
+et ceux avec lui sur un channel
+
+?? = Est-ce qu'on le fait ou pas ? genre est-ce qu'on CHOISIT de le faire
+
+Arguments
+	mdp vide, port vide
+	nb args 
+	\r\n dans le mdp ? Caracteres definissans un mdp dans RFC
+Log
+	ordre des cmd de log pas bon (sur nc)
+	etre kick quand le mdp est mauvais
+PASS
+	No args
+	mauvais mdp
+USER
+	no args
+	empty username
+	use after log
+	check la reponse comprise par hexchat
+NICK
+	no args
+	empty nickname
+	nickname collision
+	use after log +/- nick collision, avec kick ?
+	check la reponse comprise par hexchat
+INVITE
+	no args 
+	Empty args 
+	Channel non rejoint par le user quand on tente de INVITE
+	Deja sur le channel
+	check la reponse comprise par hexchat
+	?? Bad channel mask : pas de #, # au milieu -> PAS CETTE ERREUR normalement sur INVITE
+	Channel restricted +i
+	Inviter un pelo, enlever le +i puis tenter de rejoindre ? 
+TOPIC
+	Sans aucun channel rejoint / existant
+	Avec channel non rejoint existant
+	Avec channel non existant
+	Channel mode ? 
+	check la reponse comprise par hexchat
+	Bad channel mask : pas de #, # au milieu
+MODE
+	combos de plusieurs options 
+	combos avec des arguments alors que les options n'en necessitent pas
+	check la reponse comprise par hexchat par le sender + utilisateur sur le channel
+	i 
+		ajouter/retirer l'option
+		argument vide ? absent ?
+		argument litteral
+	t
+		ajouter/retirer l'option
+		check son application 
+	k 
+		ajouter/retirer l'option
+		check son application
+		argument vide ? absent ?
+	o 
+		ajouter/retirer op
+		argument vide ? absent ?
+		plusieurs users en argument
+	l 
+		ajouter/retirer l'option
+		argument vide ? absent ? mis a 0 ?
+		check application de la limite
+KICK
+	no args 
+	empty args
+	Bad channel mask : pas de #, # au milieu
+	Channel non existant
+	Channel existant mais user pas dessus
+	Channel existant mais user cible pas dessus
+
+Non demandes par le sujet mais obligatoire du fait des requirements :
+
+JOIN 
+	Sans arguments
+	Avec args vides
+	Avec channel inexistant = creation
+	Avec channel existant = JOIN
+	avec plusieurs channels mixes
+	Bad channel mask : pas de #, # au milieu (seul / dans une liste)
+	Channel full
+	Channel avec key ?
+	?? Rejoindre channel avec sa key directement ? JOIN #foo,&bar fubar
+	?? JOIN 0 ?
+
+PART 
+	Sans parametre
+	Parametre vide
+	Channel non rejoint
+	Channel non existant
+	Bad channel mask : pas de #, # au milieu
+	?? Servers MUST be able to parse arguments in the form of a list of
+   target, but SHOULD NOT use lists when sending PART messages to
+   clients. 
+
+WHO
+	no args
+	empty args
+	check la reponse comprise par hexchat 
+	?? Dans la RFC il fait pas avec #channel ? JSP je suis perdue
+
+QUIT
+	check qu'on quitte bien
+	check la reponse comprise par hexchat
+	avec/sans message
+	message vide
+
+PRIVMSG
+	no args 
+	empty args
+	check la reponse comprise par hexchat
+	Nick introuvable
+	Bad channel mask : pas de #, # au milieu
