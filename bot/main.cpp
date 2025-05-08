@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:51:46 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 13:41:17 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:45:38 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,9 +126,7 @@ int	main(int argc, char **argv)
 		inputThreadStarted = true;
 
 		while (!isShutdown())
-		{
 			bot.run();
-		}
 
 		if (inputThreadStarted)
 			pthread_join(inputThread, NULL);

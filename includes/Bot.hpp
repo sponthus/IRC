@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 13:11:03 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:33:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@
 # define QUIT "QUIT :bye bye!"
 
 // Error messages
-# define ERROR "Error :"
+# define ERROR "Error: "
 # define ERR_NB_ARG "Wrong number of arguments, expected 2 :<port> <password>"
 # define ERR_PORT_NUM "Port value should be numeric"
 # define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
@@ -66,8 +66,9 @@
 # define BUFF_SIZE 512
 # define MAX_PORT 65535
 # define TIME_TO_ANSWER 20.0
-# define TIME_TO_WAIT 3.0
-# define TIME_TO_DIE 30.0
+# define TIME_TO_WAIT 3.0 // Between 2 questions
+# define TIME_TO_DIE 30.0 // If not logged, will exit
+# define THEME_PROBA 2 // (1 / THEME_PROBA) chance to change theme if possible
 
 extern bool g_shutdown;
 
@@ -83,6 +84,7 @@ class Bot {
 		void	handleInput(std::string input);
 		void	run();
 		void	quizz();
+		int		findErrorCode(std::string msg);
 		void	handleMessageConnexion(std::string msg);
 		void	handleMessage(std::string message);
 		bool	messageIsFull(std::string *message);
@@ -95,7 +97,7 @@ class Bot {
 		void	winner(std::string winner);
 		void	nextQuestion();
 		void	askQuestion();
-		size_t	getQuestionId();
+		size_t	getRandomQuestionId();
 
 	private:
 		Bot(); // Not usable
@@ -108,6 +110,7 @@ class Bot {
 		std::map<std::string, Questions *>	_questions;
 		Timer			_timer;
 		int				_nbPlayers;
+		int 			_count;
 		int				_actualId;
 		std::string		_actualTheme;
 		pthread_mutex_t	_questionsMutex;

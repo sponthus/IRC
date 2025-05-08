@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 13:34:04 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:39:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ std::string Bot::whoSentThis(std::string msg)
 	return (sender);
 }
 
-size_t	Bot::getQuestionId()
+size_t	Bot::getRandomQuestionId()
 {
 	pthread_mutex_lock(&_questionsMutex);
 	size_t max = _questions[_actualTheme]->getNbQuestions();
@@ -95,7 +95,7 @@ void	Bot::nextQuestion()
 	pthread_mutex_lock(&_questionsMutex);
 	if (_questions.size() > 1)
 	{
-		if (rand() % 2 == 0) //  1/10 chances to change the theme
+		if (rand() % THEME_PROBA == 0) //  1/10 chances to change the theme
 		{
 			usleep(1000000);
 			std::string newTheme = _actualTheme;
@@ -107,6 +107,7 @@ void	Bot::nextQuestion()
 			}
 			_actualTheme = newTheme;
 			sendToChan("Change of theme, " + _actualTheme);
+			sendData("TOPIC " + std::string(CHANNEL) + std::string(" :") + _actualTheme);
 		}
 	}
 	int	nbQuestions = _questions[_actualTheme]->getNbQuestions();
@@ -114,7 +115,7 @@ void	Bot::nextQuestion()
 	int	oldId = _actualId;
 	while (nbQuestions > 1 && _actualId == oldId)
 	{
-		_actualId = getQuestionId();
+		_actualId = getRandomQuestionId();
 	}
 	_actualId *= -1;
 	_timer.resetTimer();
@@ -138,23 +139,45 @@ void	Bot::handleMessage(std::string msg)
 		handleMessageConnexion(msg);
 	else
 	{
-		if (msg.find("QUIT") != std::string::npos || msg.find("PART") != std::string::npos)
+		if (msg.find("QUIT") != std::string::npos 
+		|| msg.find("PART") != std::string::npos
+		|| msg.find("JOIN") != std::string::npos
+		|| msg.find("KICK") != std::string::npos) // A departure, arrival or kick is possible, counting
 		{
-			if (_nbPlayers >= 1)
-				_nbPlayers -= 1;
-			if (_nbPlayers == 0)
-			{
-				_actualId = 0;
-				_timer.resetTimer();
-			}
-			WriteMessage(false, GREEN, _nbPlayers, " player(s) available to play ...");
+			std::string cmd = "WHO " + std::string(CHANNEL);
+			sendData(cmd);
+			_count = 0;
 			return ;
 		}
-		if (msg.find("JOIN") != std::string::npos)
+		int codeNb = findErrorCode(msg);
+		switch (codeNb)
 		{
-			_nbPlayers += 1;
-			WriteMessage(false, GREEN, _nbPlayers, " player(s) available to play ...");
-			return ;
+			case 352 :
+			{
+				_count++;
+				break ;
+			}
+			case 315 :
+			{
+				if (_count - 1 != _nbPlayers)
+				{
+					_nbPlayers = _count - 1; // Remove Bot from count
+					if (_nbPlayers == 0)
+					{
+						_actualId = 0;
+						_timer.resetTimer();
+					}
+					WriteMessage(false, GREEN, _nbPlayers, " player(s) available to play ...");
+				}
+				_count = 0;
+				break ;
+			}
+			case 442 :
+			{
+				WriteMessage(true, RED, NICK + std::string(" is not on the channel anymore..."));
+				setShutdown(true);
+				break ;
+			}
 		}
 		if (_actualId > 0) // A question was asked
 		{
@@ -219,8 +242,10 @@ void	Bot::quizz()
 			std::ostringstream oss;
 			oss << "Let's play! Actual theme is " << _actualTheme << ", " << nb << " questions available";
 			sendToChan(oss.str());
+			sendData("TOPIC " + std::string(CHANNEL) + std::string(" :") + _actualTheme);
+			_timer.startTimer();
 		}
-		_actualId = getQuestionId();
+		_actualId = getRandomQuestionId();
 		askQuestion();
 	}
 	else
@@ -240,14 +265,20 @@ void	Bot::quizz()
 	}
 }
 
-void	Bot::handleMessageConnexion(std::string msg)
+int		Bot::findErrorCode(std::string msg)
 {
 	if (msg.find(SERVER) == std::string::npos || msg.size() < std::string(SERVER).size() + 4)
-		return ;
+		return -1;
 	std::string code = msg.substr(std::string(SERVER).size() + 1, 3);
 	if (!isCode(code))
-		return ;
+		return -1;
 	int codeNb = atoi(code.c_str());
+	return codeNb;
+}
+
+void	Bot::handleMessageConnexion(std::string msg)
+{
+	int codeNb = findErrorCode(msg);
 	switch (codeNb)
 	{
 		case 001 :

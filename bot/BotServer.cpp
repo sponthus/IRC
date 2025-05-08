@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 13:23:15 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:20:32 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Bot::Bot()
 {
 }
 
-Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _message(""), _ready(false), _nbPlayers(0), _actualId(0), _actualTheme("")
+Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _message(""), _ready(false), _nbPlayers(0), _count(0), _actualId(0), _actualTheme("")
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket < 0)

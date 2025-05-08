@@ -33,7 +33,7 @@ INVITE
 	?? Bad channel mask : pas de #, # au milieu -> PAS CETTE ERREUR normalement sur INVITE
 	Channel restricted +i
 	Inviter un pelo, enlever le +i puis tenter de rejoindre ? 
-TOPIC
+TOPIC !!! Envoie pas a tous les users ??
 	Sans aucun channel rejoint / existant
 	Avec channel non rejoint existant
 	Avec channel non existant
