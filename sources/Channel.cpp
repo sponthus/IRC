@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/04 15:44:29 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:42:50 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,6 +228,7 @@ void	Channel::setTopic(Client *client, std::string &topic)
 		return ;
 	}
 	this->_topic = topic;
+	SendToAll(Builder::RplTopic(client->getNick(), this->getName(), this->getTopic()));
 }
 
 bool	Channel::hasUserLimit() const

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/04 15:43:01 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:42:06 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,8 @@ void	Command::Topic(std::vector<std::string> *arg)
 			it->replace(0, 1, "");
 		Channel->setTopic(this->_client, *it); 
 	}
-	this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));
+	else
+		this->_server->SendToClient(this->_client, Builder::RplTopic(this->_client->getNick(), Channel->getName(), Channel->getTopic()));
 }
 
 void	Command::Mode(std::vector<std::string> *arg)
