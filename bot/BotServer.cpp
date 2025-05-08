@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/07 17:52:07 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:23:15 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _messa
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	inet_pton(AF_INET, serverIp, &server_addr.sin_addr); // convert IP addresses from text to binary form
-
+	
 	if (connect(this->_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 		std::cerr << RED << ERROR << "Is the server online at " << serverIp << "::" << port << "?" << RESET << std::endl; 
         close(this->_socket);

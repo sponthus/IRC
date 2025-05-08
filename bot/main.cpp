@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:51:46 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/07 17:55:02 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:41:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,14 +75,22 @@ void*	inputListener(void* arg)
 	{
 		FD_ZERO(&fds); // Zero initialization of fds
 		FD_SET(STDIN_FILENO, &fds); // Put stdin in fds
-		int ret = select(STDIN_FILENO + 1, &fds, NULL, NULL, &timeout); // max fd, fd_set
-		if (ret > 0 && FD_ISSET(STDIN_FILENO, &fds)) // at least 1 fd is ready to read, it's STDIN
+		int ret = select(STDIN_FILENO + 1, &fds, NULL, NULL, &timeout); // options = max fd observed, fd_set - Monitors STDIN status
+		if (ret > 0 && FD_ISSET(STDIN_FILENO, &fds)) // STDIN is ready
 		{
 			std::string input;
-			if (!std::getline(std::cin, input))
-				continue;
+			if (!std::getline(std::cin, input)) // EOF detected
+			{
+				setShutdown(true);
+				break;
+			}
 			if (!input.empty() && bot->CheckInput(input))
 				bot->handleInput(input);
+		}
+		else if (ret < 0) // STDIN has a problem
+		{
+			setShutdown(true);
+			break;
 		}
 	}
 	return NULL;

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/07 17:52:47 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:34:04 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,10 @@ void	Bot::run()
 	int ret = poll(&_pfd, 1, 1000);
 	if (isShutdown())
 	{
-		if (ret > 0)
-			sendData(QUIT);
+		char buffer[2];
+		int size = recv(this->_socket, buffer, 1, MSG_PEEK | MSG_DONTWAIT);
+		if (size > 0 || (size == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+			sendData(QUIT); // Closed by a signal server still running
 		return ;
 	}
 	if (ret == -1)

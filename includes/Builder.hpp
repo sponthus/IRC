@@ -18,7 +18,7 @@
 #include "Message.hpp"
 
 # define SERVER "irc.server.42"
-# define HOST "localhost" // TODO : what about host in IRC ?
+# define HOST "localhost"
 # define VERSION "42.0"
 
 class Message;

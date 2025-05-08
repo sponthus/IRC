@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:58:43 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/07 17:41:40 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:11:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@
 # define USER "QuestBot"
 # define CHANNEL "#Quizz"
 # define SERVER "irc.server.42 "
+
+// Messages
 # define CHANMSG "PRIVMSG #Quizz :"
 # define WINMSG "Congrats, you won "
 # define ASK "-> Question about "
@@ -50,6 +52,19 @@
 # define SERVER_IP "127.0.0.1"
 # define QUIT "QUIT :bye bye!"
 
+// Error messages
+# define ERROR "Error :"
+# define ERR_NB_ARG "Wrong number of arguments, expected 2 :<port> <password>"
+# define ERR_PORT_NUM "Port value should be numeric"
+# define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
+# define ERR_PW "Password should not contain spaces, \' or \""
+# define ERR_CHANN " The channel is invalid (probably already occupied) "
+# define ERR_CHANN_PW " Wrong password for the server !"
+# define ERR_ALREADY_CONN " A bot is already connected !"
+
+// Variables
+# define BUFF_SIZE 512
+# define MAX_PORT 65535
 # define TIME_TO_ANSWER 20.0
 # define TIME_TO_WAIT 3.0
 # define TIME_TO_DIE 30.0
@@ -98,17 +113,6 @@ class Bot {
 		pthread_mutex_t	_questionsMutex;
 };
 
-# define ERROR "Error :"
-# define ERR_NB_ARG "Wrong number of arguments, expected 2 :<port> <password>"
-# define ERR_PORT_NUM "Port value should be numeric"
-# define ERR_PORT_VAL "Valid port should be between 1024 and 65535"
-# define ERR_PW "Password should not contain spaces, \' or \""
-# define ERR_CHANN " The channel is invalid (probably already occupied) "
-# define ERR_CHANN_PW " Wrong password for the server !"
-# define ERR_ALREADY_CONN " A bot is already connected !"
-
-# define BUFF_SIZE 512
-# define MAX_PORT 65535
 
 bool	isValidPW(std::string arg);
 bool	isValidPort(std::string arg);
