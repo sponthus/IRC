@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 17:38:26 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 17:53:53 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,8 @@ void	Command::Topic(std::vector<std::string> *arg)
 	{
 		if (it->find(":", 0) == 0)
 			it->replace(0, 1, "");
+		if (Channel->isTopicRestrict() && !CheckIsOp(this->_client, this->_server, Channel))
+			return ;
 		Channel->setTopic(this->_client, *it); 
 	}
 	else

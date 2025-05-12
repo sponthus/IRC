@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 17:00:26 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 18:08:00 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	}
 	if (isModWhitOption(it->first) && !it->second)
 	{
-		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE ").append(&it->first)));
+		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), std::string("MODE +") + (it->first)));
 		return (false);
 	}
 	return (true);

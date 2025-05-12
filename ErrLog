@@ -1,3 +1,1 @@
 NICK >> eroneurnickname
-INVITE b # && JOIN b # >> pas de mesg d'erreur
-TOPIC -t >> peu quand meme changer le topic
