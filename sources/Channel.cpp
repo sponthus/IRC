@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 11:53:20 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 12:56:38 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,11 @@ bool	Channel::isInvited(Client *client) const
 
 void	Channel::invite(Client *client, Client *invited)
 {
+	if (!this->isClient(client))
+	{
+		this->_server->SendToClient(client, Builder::ErrNotOnChannel(client->getNick(), this->getName()));
+		return ;
+	}
 	if (isInviteOnly() && !isOP(client))
 	{
 		this->_server->SendToClient(client, Builder::ErrChanOPrivsNeeded(client->getNick(), this->getName()));
@@ -210,7 +215,10 @@ void	Channel::setInviteOnly(Client *client, char Flag)
 	if (!isClient(client))
 		return;
 	if (Flag == '+')
+	{
+		std::cout << "invite only is set" << std::endl;
 		this->_InviteOnly = true;
+	}
 	else if (Flag == '-')
 		this->_InviteOnly = false;
 }

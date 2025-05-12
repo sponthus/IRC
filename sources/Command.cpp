@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 11:53:06 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 12:54:22 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void	Command::Invite(std::vector<std::string> *arg)
 	it++;
 	if (!ThereIsArg(this->_client, this->_server, it, *arg, "INVITE") || !CheckMaskChan(this->_client, this->_server, &(*it)))
 		return ;
-	Channel *Channel = this->_client->getChannel(*it);
+	Channel *Channel = this->_server->getChannel(*it);
 	if (!Channel)
 	{
 		this->_server->initChannel(*it);

@@ -113,3 +113,5 @@ PRIVMSG
 	check la reponse comprise par hexchat
 	Nick introuvable
 	Bad channel mask : pas de #, # au milieu
+
+TODO Pas de check de +i lors du join d'un channel 
