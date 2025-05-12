@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 14:07:42 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 15:09:52 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void	Command::SetInputCmd(std::vector<std::string> VectorMsg)
 			std::vector<std::string> _M;
 			_M.push_back(*it);
 			it++;
-			while (it != VectorMsg.end() && !IsCmd(*it))
+			while (it != VectorMsg.end())
 			{
 				_M.push_back(*it);
 				it++;
