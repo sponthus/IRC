@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 16:08:25 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 17:38:26 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,9 +301,26 @@ void	Command::privmsg(std::vector<std::string> *arg)
 	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
+	bool    noText = false;
 	std::vector<std::string>::iterator msg = arg->begin();
-	for (size_t i = 0; i < arg->size() - 1; i++)
+	for (size_t i = 0; i < arg->size(); i++)
+	{
+		if (!(*msg).empty() && (*msg)[0] == ':')
+		{
+			if ((*msg).size() == 2)
+				noText = true;
+			if (i == 1)
+			{
+				this->_server->SendToClient(this->_client, Builder::ErrNoRecipient(this->_client->getNick(), "PRIVMSG"));
+				return ;
+			}
+			(*msg).erase(0, 1);
+			break ;
+		}
 		msg++;
+	}
+	if (msg == arg->end())
+		noText = true;
 	std::vector<std::string>::iterator it = arg->begin();
 	it++;
 	while (it != msg)
@@ -314,13 +331,22 @@ void	Command::privmsg(std::vector<std::string> *arg)
 			{
 				it->erase(0,1);
 				Channel *Channel = this->_server->getChannel(*it);
-				Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
+				if (noText)
+					Channel->SendToAll(Builder::ErrNoTextToSend(*it));
+				else
+					Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 			}
 		}
 		else if (IsOnServer(this->_client, this->_server, *it))
 		{
 			const Client *TargetUser = this->_server->getClientByNick(*it);
-			this->_server->SendToClient(TargetUser, Builder::PrivMsg(this->_client, *msg, NULL, TargetUser));
+			if (noText)
+			{
+				this->_server->SendToClient(this->_client, Builder::ErrNoTextToSend(*it));
+				this->_server->SendToClient(TargetUser, Builder::ErrNoTextToSend(this->_client->getNick()));
+			}
+			else
+				this->_server->SendToClient(TargetUser, Builder::PrivMsg(this->_client, *msg, NULL, TargetUser));
 		}
 		it++;
 	}

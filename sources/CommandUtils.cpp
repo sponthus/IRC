@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 16:06:34 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 17:00:26 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,19 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 	else if (it->first == 't')
 		Channel->setTopicRestriction(client, '-');
 	else if (it->first == 'k')
+	{
+		if (!it->second)
+		{
+			server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), "MODE -k"));
+			return (false);
+		}
+		if (*it->second != Channel->getPW())
+		{
+			server->SendToClient(client, Builder::ErrPasswdMismatch(client->getNick()));
+			return (false);
+		}
 		Channel->deletePW(client);
+	}
 	else if (it->first == 'o')
 	{
 		if (it->second)
@@ -231,7 +243,7 @@ bool	IsCmd(std::string input)
 
 std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
 {
-	ToPushed.erase(0, 1);
+	//ToPushed.erase(0, 1);
 	std::string _ToPushed = ToPushed;
 	*ss >> ToPushed;
 	while (!ss->eof() && !IsCmd(ToPushed))

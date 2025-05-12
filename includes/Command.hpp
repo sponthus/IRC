@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 16:06:53 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 17:21:01 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ class Command
 		std::vector<std::vector<std::string> >		input;
 };
 
-/*							Parsing Command							*/
+/*								Parsing Command							*/
 bool							CheckNickInUse(Client *client, Server *server, std::string GivenNick);
 bool							parsingCmd(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
 bool							ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName);
