@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 12:56:38 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 13:24:48 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,7 +216,6 @@ void	Channel::setInviteOnly(Client *client, char Flag)
 		return;
 	if (Flag == '+')
 	{
-		std::cout << "invite only is set" << std::endl;
 		this->_InviteOnly = true;
 	}
 	else if (Flag == '-')

@@ -6,11 +6,27 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/08 17:06:05 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 13:31:17 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Command.hpp"
+
+/*								USER UTILS								*/
+
+void	SetVoidUser(Client *client)
+{
+	if (client->getUser().empty())
+		client->setUser("");
+	if (client->getHostname().empty())
+		client->setHostname("");
+	if (client->getServerName().empty())
+		client->setServerName("");
+	if (client->getRealName().empty())
+		client->setRealname("");
+	client->registerUser();
+	return ;
+}
 
 /*								MODE UTILS								*/
 

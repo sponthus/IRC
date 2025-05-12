@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/15 16:18:02 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/06 14:29:40 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,17 @@ const std::string	Client::getUser() const
 {
 	return (this->_user);
 }
-
+const std::string	Client::getHostname() const
+{
+	return (this->_hostname);
+}
+const std::string	Client::getServerName() const
+{
+	return (this->_servername);
+}
 const std::string	Client::getRealName() const
 {
-	return (this->_fullname);
+	return (this->_realname);
 }
 bool	Client::isRegistered() const
 {
@@ -89,9 +96,9 @@ void	Client::setUser(std::string username)
 	this->_user = username;
 }
 
-void		Client::setFullName(std::string fullname)
+void		Client::setRealname(std::string Realname)
 {
-	this->_fullname = fullname;
+	this->_realname = Realname;
 }
 
 void		Client::setHostname(std::string hostname)
