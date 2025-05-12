@@ -6,7 +6,7 @@
 /*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 15:09:52 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 16:08:25 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,25 +266,25 @@ void	Command::user(std::vector<std::string> *arg)
 	std::vector<std::string>::iterator i = arg->begin();
 	if (++i == arg->end())
 	{
-		SetVoidUser(this->_client);
+		SetVoidUser(this->_client, this->_server);
 		return ;
 	}
 	this->_client->setUser(*i);
 	if (++i == arg->end())
 	{
-		SetVoidUser(this->_client);
+		SetVoidUser(this->_client, this->_server);
 		return ;
 	}
 	this->_client->setHostname(*i);
 	if (++i != arg->end())
 	{
-		SetVoidUser(this->_client);
+		SetVoidUser(this->_client, this->_server);
 		return ;
 	}
 	this->_client->setServerName(*i);
 	if (++i == arg->end())
 	{
-		SetVoidUser(this->_client);
+		SetVoidUser(this->_client, this->_server);
 		return ;
 	}
 	if (i->find(":", 0) == 0)

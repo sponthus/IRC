@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 13:31:24 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 16:06:53 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ bool							CheckChanOnServer(Client *client, Server *server, std::string Channel
 
 /*							Command Utils							*/
 
-void							SetVoidUser(Client *client);
+void							SetVoidUser(Client *client, Server *server);
 bool							isModWhitOption(char c);
 bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
 bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);

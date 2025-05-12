@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 13:31:17 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 16:06:34 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /*								USER UTILS								*/
 
-void	SetVoidUser(Client *client)
+void	SetVoidUser(Client *client, Server *server)
 {
 	if (client->getUser().empty())
 		client->setUser("");
@@ -25,6 +25,8 @@ void	SetVoidUser(Client *client)
 	if (client->getRealName().empty())
 		client->setRealname("");
 	client->registerUser();
+	if(!client->getNick().empty())
+		server->SendToClient(client, Builder::RplWelcome(client->getNick(), client->getUser()));
 	return ;
 }
 
