@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 17:05:33 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 15:45:49 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ bool	isValidPW(std::string arg)
 {
 	std::string::const_iterator it = arg.begin();
 	
+	if (arg.size() < 1)
+		return false;
 	while (it != arg.end())
 	{
 		if (*it == ' ' || *it == 34 || *it == 39)

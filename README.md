@@ -60,7 +60,7 @@ By default, the server will be hosted at `localhost:[port]`.
 * `INVITE` allows you to invite someone to a channel you're in
 * `TOPIC` allows you to either see the topic of a channel, or change it
 * `WHO` with a channel, allows you to see who is connected on a channel
-* `MODE` with options:
+* `MODE` with options to add/remove:
     `i`: invitation only channel
     `k`: key-protected channel
     `o`: add/remove operator privilege on channel
@@ -83,6 +83,11 @@ Questions can be formatted by following:
 * Followed by questions formatted as : `[question ?]|[answer(s)]`
 * You can add 1 or more answers, using : `[answer1]/[answer2]/...`
 * Answers accepted will include capitalized or non-capitalized answers
+You can teach questions to the bot by using :
+```shell
+LEARN [question_file]
+```
+In the bot program.
 
 :hugs: Enjoy !
 ---
