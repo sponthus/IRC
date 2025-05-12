@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/22 15:13:26 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 16:49:42 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,28 +232,46 @@ void	Server::handleData(Client *cl, std::string message)
 	}
 }
 
+// Check if \r\n is recieved
+// then stores the full message in *message
+// and the remaining data in cl->_Message
 bool	Server::messageIsFull(Client *cl, std::string *message)
 {
 	if (message->size() == 0)
 		return (false);
 	cl->addMessage(*message);
 	size_t pos = cl->getMessage().find_last_of("\r\n");
-	if (pos == std::string::npos) // Data does not contain \r\n
+	if (pos == std::string::npos) // Data does not contain \r\n, everything is stored
 	{
 		return (false);
 	}
-	if (pos != cl->getMessage().size() - 1) // Data doesn't end with /r/n but contains it
+	if (pos != cl->getMessage().size() - 1) // Data doesn't end with /r/n but contains it, store msg + rest
 	{
 		*message = cl->getMessage().substr(0, pos);
 		std::string keep = cl->getMessage().substr(pos + 2, cl->getMessage().size() - pos - 2);
 		cl->setMessage(keep);
 	}
-	else // Data ends with /r/n
+	else // Data ends with /r/n -> Store everything in *message
 	{
 		*message = cl->getMessage();
 		cl->clearMessage();
 	}
 	return (true);
+}
+
+// If multiple messages with \r\n recieved in 1 row, splits them
+std::vector<std::string> Server::splitMessages(const std::string& raw)
+{
+	std::vector<std::string> messages;
+	size_t start = 0, end;
+
+	while ((end = raw.find("\r\n", start)) != std::string::npos)
+	{
+		end += 2;
+		messages.push_back(raw.substr(start, end - start));
+		start = end;
+	}
+	return messages;
 }
 
 void	Server::run()
@@ -278,10 +296,17 @@ void	Server::run()
 				if (cl && cl->getNick().empty())
 					std::cout << MAGENTA << this->_fds[i].fd;
 				else if (cl)
-					std::cout << ":" << cl->getNick();
-				std::cout << MAGENTA << " sent: //" << message << "//" << RESET << std::endl;
+					std::cout << MAGENTA << cl->getNick();
+				std::cout << MAGENTA << " sent: " << RESET << std::endl;
 				if (messageIsFull(cl, &message))
-					handleData(cl, message);
+				{
+					std::vector<std::string> messages = splitMessages(message);
+					for (size_t i = 0; i < messages.size(); ++i)
+					{
+						std::cout << MAGENTA << " - " << messages[i] << RESET;
+						handleData(cl, messages[i]);
+					}
+				}
 			}
 			else if (this->_fds[i].revents & (POLLHUP | POLLERR))
 			{

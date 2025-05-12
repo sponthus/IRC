@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/04 14:29:03 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:06:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (!IsClientOnChannel(client, server, Channel, *it->second))
+			if (!IsClientOnChannel(client, server, Channel->getName(), *it->second))
 				return (false);
 			TargetUser = server->getClientByNick(*it->second);
 			return (Channel->removeOP((Client *)TargetUser));
@@ -126,7 +126,7 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 		if (it->second)
 		{
 			const Client *TargetUser = NULL;
-			if (!IsClientOnChannel(client, server, Channel, *it->second))
+			if (!IsClientOnChannel(client, server, Channel->getName(), *it->second))
 				return (false);
 			TargetUser = server->getClientByNick(*it->second);
 			return (Channel->addOP((Client *)TargetUser));

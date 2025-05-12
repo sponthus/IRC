@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/04/03 14:01:18 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/08 16:59:40 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ bool							parsingCmd(Client *client, Server *server, std::vector<std::string> a
 bool							ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName);
 bool							IsAlreadyRegistered(Client *client, Server *server);
 bool							IsPassGiven(Client *client, Server *server);
-bool							IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient);
+bool							IsClientOnChannel(Client *client, Server *server, std::string ChannelName, std::string TargetClient);
 bool							CheckChannelArg(Client *client, Server *server, std::string ChannelName);
 bool							CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
 bool							CheckMaskChan(Client *client, Server *server,std::string *ChannelName);

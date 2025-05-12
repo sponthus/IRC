@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/08 14:42:06 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:08:58 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,10 @@ void	Command::Kick(std::vector<std::string> *arg)
 	it++;
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
+	std::string ChannelName = *it;
 	it++;
 	if (!ThereIsArg(this->_client, this->_server, it, *arg, "TOPIC") 
-		|| !IsClientOnChannel(this->_client, this->_server, Channel, *it)
+		|| !IsClientOnChannel(this->_client, this->_server, ChannelName, *it)
 		|| !CheckIsOp(this->_client, this->_server, Channel))
 		return ;
 	const Client *TargetUser = this->_server->getClientByNick(*it);
@@ -166,6 +167,7 @@ void	Command::Mode(std::vector<std::string> *arg)
 	it++;
 	it->erase(0, 1);
 	Channel *Channel = this->_client->getChannel(*it);
+	std::string ChannelName = *it;
 	it++;
 	if (it == arg->end())
 	{
@@ -178,6 +180,8 @@ void	Command::Mode(std::vector<std::string> *arg)
 	if (!isValidFlag(this->_client, this->_server, Flag))
 		return ;
 	std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+	if (!Channel)
+		this->_server->SendToClient(this->_client, Builder::ErrNotOnChannel(this->_client->getNick(), ChannelName));
 	SetModeInChan(this->_client, this->_server, Channel, Mods, Flag);
 }
 
@@ -357,7 +361,8 @@ void	Command::Who(std::vector<std::string> *arg)
 		if (CheckMaskChan(this->_client, this->_server, &(*it)))
 		{
 			Channel *ChanToWho = this->_server->getChannel(*it);
-			if (IsClientOnChannel(this->_client, this->_server, ChanToWho, this->_client->getNick()))
+			std::string ChanToWhoName = *it;
+			if (IsClientOnChannel(this->_client, this->_server, ChanToWhoName, this->_client->getNick()))
 			{
 				for (std::vector<Client *>::const_iterator i = ChanToWho->getClients().begin(); i != ChanToWho->getClients().end(); i++)
 					this->_server->SendToClient(this->_client, Builder::RplWhoReply(ChanToWho, this->_client, (*i))); // 352 RPL_WHOREPLY

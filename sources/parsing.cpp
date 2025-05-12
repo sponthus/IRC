@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 14:49:57 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:05:33 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,14 +105,28 @@ bool	IsOnServer(Client *client, Server *server, std::string TargetClient)
 	return (true);
 }
 
-bool	IsClientOnChannel(Client *client, Server *server, Channel *Channel, std::string TargetClient)
+// bool	IsClientOnChannel(Client *client, Server *server, Channel *channel, std::string TargetClient)
+// {
+// 	if (!IsOnServer(client, server, TargetClient))
+// 		return (false);
+// 	const Client *TargetUser = server->getClientByNick(TargetClient);
+// 	if (!channel || !channel->isClient((Client *)TargetUser))
+// 	{
+// 		server->SendToClient(client, Builder::ErrNotOnChannel(TargetClient, ""));
+// 		return (false);
+// 	}
+// 	return (true);
+// }
+
+bool	IsClientOnChannel(Client *client, Server *server, std::string ChannelName, std::string TargetClient)
 {
 	if (!IsOnServer(client, server, TargetClient))
 		return (false);
+	Channel *channel = client->getChannel(ChannelName);
 	const Client *TargetUser = server->getClientByNick(TargetClient);
-	if (!Channel || !Channel->isClient((Client *)TargetUser))
+	if (!channel || !channel->isClient((Client *)TargetUser))
 	{
-		server->SendToClient(client, Builder::ErrNotOnChannel(TargetUser->getNick(), Channel->getName()));
+		server->SendToClient(client, Builder::ErrNotOnChannel(TargetClient, ChannelName));
 		return (false);
 	}
 	return (true);
@@ -154,8 +168,7 @@ bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName)
 		return (false);
 	if (!CheckChanOnServer(client, server, ChannelName))
 		return (false);
-	Channel *channel = client->getChannel(ChannelName);
-	if (!IsClientOnChannel(client, server, channel, client->getNick()))
+	if (!IsClientOnChannel(client, server, ChannelName, client->getNick()))
 		return (false);
 	return (true);
 }

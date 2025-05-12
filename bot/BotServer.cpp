@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 14:20:32 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/08 16:49:16 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,7 @@ bool	Bot::messageIsFull(std::string *message)
 	return (true);
 }
 
+// If multiple messages with \r\n recieved in 1 row, splits them
 std::vector<std::string> Bot::splitMessages(const std::string& raw)
 {
 	std::vector<std::string> messages;
@@ -147,8 +148,9 @@ std::vector<std::string> Bot::splitMessages(const std::string& raw)
 
 	while ((end = raw.find("\r\n", start)) != std::string::npos)
 	{
+		end += 2;
 		messages.push_back(raw.substr(start, end - start));
-		start = end + 2;
+		start = end;
 	}
 	return messages;
 }
