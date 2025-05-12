@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 16:49:16 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 14:13:58 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Bot::Bot(const int port, const char *serverIp, std::string pw) : _pw(pw), _messa
 
 	srand(time(NULL));
 
-	_questionsMutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_init(&_questionsMutex, NULL);
 }
 
 Bot::~Bot()
@@ -60,6 +60,7 @@ Bot::~Bot()
     }
 	_questions.clear();
 	pthread_mutex_unlock(&_questionsMutex);
+	pthread_mutex_destroy(&_questionsMutex);
 }
 
 bool	Bot::CheckInput(std::string input)

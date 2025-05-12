@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:20:23 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 14:39:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 14:24:12 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,8 @@ void	Bot::run()
 void	Bot::log()
 {
 	std::string cmd = "PASS " + this->_pw + "\r\n" \
-		+ "NICK " + NICK + "\r\n" \
-		+ "USER " + USER + " 0 * IRCbot";
+		+ "USER " + USER + " 0 * IRCbot \r\n" \
+		+ "NICK " + NICK;
 
 	sendData(cmd);
 }
@@ -292,7 +292,7 @@ void	Bot::handleMessageConnexion(std::string msg)
 		{
 			size_t sep = msg.find_last_of(":");
 			std::string players = msg.substr(sep, msg.size() - sep - 1);
-			int count = 0;
+			int count = -1;
 			for (size_t i = 0; (i = players.find(' ', i)) != std::string::npos; i++) {
 				count++;
 			}

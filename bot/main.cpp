@@ -6,15 +6,15 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 14:51:46 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 13:45:38 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 14:15:03 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Bot.hpp"
 
 bool	g_shutdown = false;
-pthread_mutex_t	shutdown_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t	write_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t	shutdown_mutex;
+pthread_mutex_t	write_mutex;
 
 void	WriteMessage(bool error, std::string color, std::string message)
 {
@@ -108,6 +108,10 @@ int	main(int argc, char **argv)
 
 	const char *serverIp = SERVER_IP;
 	const int port = std::atoi(argv[1]);
+
+	pthread_mutex_init(&write_mutex, NULL);
+	pthread_mutex_init(&shutdown_mutex, NULL);
+
 	pthread_t inputThread;
 	bool inputThreadStarted = false;
 
@@ -136,5 +140,7 @@ int	main(int argc, char **argv)
 			pthread_join(inputThread, NULL);
 		WriteMessage(true, RED, ERROR + std::string(" ") + e.what());
 	}
+	pthread_mutex_destroy(&write_mutex);
+	pthread_mutex_destroy(&shutdown_mutex);
 	std::cout << BOLDYELLOW << " ------------- Bot closed ------------- " << RESET << std::endl;
 }
