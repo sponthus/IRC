@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/08 17:08:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 11:53:06 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	Command::Invite(std::vector<std::string> *arg)
 	if (!Channel)
 	{
 		this->_server->initChannel(*it);
-		Channel = this->_client->getChannel(*it);
+		Channel = this->_server->getChannel(*it);
 		Channel->addOP(this->_client);
 		Channel->joinChannel(this->_server, this->_client, NULL);
 	}
@@ -250,7 +250,8 @@ void	Command::pass(std::vector<std::string> *arg)
 	else
 	{
 		this->_server->SendToClient(this->_client, Builder::ErrPasswdMismatch(this->_client->getNick()));
-		this->_server->clearClient(this->_client->getFD()); // Disconnects the client 
+		std::cout << "Server closed client " << this->_client->getFD() << " connexion" << std::endl;
+		this->_server->clearClient(this->_client->getFD()); // Disconnects the client
 	}
 }
 

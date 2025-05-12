@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/08 14:42:50 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/12 11:53:20 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@ Channel::Channel(Server *server, std::string name) : _server(server), _name(name
 	 _UserLimit(0), _InviteOnly(false), _HasPW(false), _HasUserLimit(false), \
 	 _TopicRestrict(false)
 {
+	_ops.clear();
+	_Clients.clear();
+	_InvitedClients.clear();
 }
 
 const std::string&	Channel::getName() const
@@ -103,6 +106,8 @@ void	Channel::leaveChannel(Client *client)
 bool	Channel::isOP(const Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
+	if (_ops.size() == 0 || !client)
+		return (false);
 	for (it = _ops.begin(); it != _ops.end(); it++)
 	{
 		if ((*it)->getNick() == client->getNick())
