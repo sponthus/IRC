@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 16:04:02 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:20:19 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ void	SetVoidUser(Client *client, Server *server);
 /*									Nick utils									*/
 
 bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick);
+bool	CheckErroneusNickName(Client *client, Server *server, std::string GivenNick);
 
 /*									Join utils									*/
 
