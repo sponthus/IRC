@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 16:35:56 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:42:31 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,12 +145,12 @@ bool	CheckMaskChan(Client *client, Server *server, std::string *ChannelName)
 		ChannelName->erase(0, 1);
 		if (ChannelName->empty())
 		{	
-			server->SendToClient(client, Builder::BadChannelMask(*ChannelName));
+			server->SendToClient(client, Builder::ErrBadChannelMask(*ChannelName));
 			return (false);
 		}
 		return (true);
 	}
-	server->SendToClient(client, Builder::BadChannelMask(*ChannelName));
+	server->SendToClient(client, Builder::ErrBadChannelMask(*ChannelName));
 	return (false);
 }
 

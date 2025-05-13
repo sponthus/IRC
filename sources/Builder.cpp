@@ -650,7 +650,7 @@ std::string Builder::ErrInviteOnlyChan(const std::string &RequestingNick, const 
 
 // 475 ERR_BADCHANNELKEY
 // ":<server> 475 <requestingNick> #<channel> :Cannot join channel (+k)"
-std::string Builder::BadChannelKey(const std::string &RequestingNick, const std::string &Channel)
+std::string Builder::ErrBadChannelKey(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
@@ -663,26 +663,13 @@ std::string Builder::BadChannelKey(const std::string &RequestingNick, const std:
 
 // 476 ERR_BADCHANMASK
 //  "<channel> :Bad Channel Mask"
-std::string Builder::BadChannelMask(const std::string &Channel)
+std::string Builder::ErrBadChannelMask(const std::string &Channel)
 {
 	return create()
 			.setPrefix(SERVER)
 			.setCode("476")
 			.setContent(Channel)
 			.setSuffix("Bad Channel Mask")
-			.build()
-			.toString();
-}
-
-// 481 ERR_NOPRIVILEGES
-// ":<server> 481 <requestingNick> :Permission Denied- You're not an IRC operator"
-std::string Builder::ErrNoPrivileges(const std::string &RequestingNick)
-{
-	return create()
-			.setPrefix(SERVER)
-			.setCode("481")
-			.setContent(RequestingNick)
-			.setSuffix("Permission Denied- You're not an IRC operator")
 			.build()
 			.toString();
 }

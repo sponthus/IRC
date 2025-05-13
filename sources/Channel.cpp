@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/13 16:16:47 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:42:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	Channel::joinChannel(Server *server,Client *client, std::string *PW = NULL)
 	{
 		if (!PW || (PW && *PW != getPW()))
 		{
-			server->SendToClient(client, Builder::BadChannelKey(client->getNick(), this->getName()));
+			server->SendToClient(client, Builder::ErrBadChannelKey(client->getNick(), this->getName()));
 			return; // Wrong PW
 		}
 	}

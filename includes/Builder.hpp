@@ -82,9 +82,8 @@ class Builder
 		/* 471*/ static std::string ErrChannelIsFull(const std::string &RequestingNick, const std::string &Channel);
 		/* 472*/ static std::string ErrUnknownMode(const std::string &RequestingNick, const std::string &Mode, const std::string &Channel);
 		/* 473*/ static std::string ErrInviteOnlyChan(const std::string &RequestingNick, const std::string &Channel);
-		/* 475*/ static std::string BadChannelKey(const std::string &RequestingNick, const std::string &Channel);
-		/* 476*/ static std::string BadChannelMask(const std::string &Channel);
-		/* 481*/ static std::string ErrNoPrivileges(const std::string &RequestingNick);
+		/* 475*/ static std::string ErrBadChannelKey(const std::string &RequestingNick, const std::string &Channel);
+		/* 476*/ static std::string ErrBadChannelMask(const std::string &Channel);
 		/* 482*/ static std::string ErrChanOPrivsNeeded(const std::string &RequestingNick, const std::string &Channel);
 		/* 501*/ static std::string ErrUModeUnknownFlag(const std::string &RequestingNick);
 };

@@ -33,7 +33,6 @@ void	Command::pass(std::vector<std::string> *arg)
 	it++;
 	if	(!ThereIsArg(this->_client, this->_server, it, *arg, "PASS"))
 		return ;
-	std::cout << "Server mdp = /" << this->_server->getPW() << "/ client sent /" << *it << "/" << std::endl;
 	if	(this->_server->getPW() == *it)
 		this->_client->PassUSer();
 	else
