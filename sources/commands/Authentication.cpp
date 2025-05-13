@@ -10,11 +10,11 @@ void	Command::nick(std::vector<std::string> *arg)
 	{
 		std::vector<std::string>::iterator it = arg->begin();
 		it++;
-		if (!CheckNickInUse(this->_client, this->_server, *it))
+		if (!CheckNickInUse(this->_client, this->_server, *it) || !CheckErroneusNickName(this->_client, this->_server, *it))
 			return ;
 		if (this->_client->getNick().empty() && this->_client->isRegistered())
 			this->_server->SendToClient(this->_client, Builder::RplWelcome(*it, this->_client->getUser()));
-		else
+		else if (!this->_client->getNick().empty())
 		{
 			this->_server->SendToClient(this->_client, Builder::Nick(this->_client->getNick(), this->_client->getUser(), *it));
 			if (!this->_client->getNick().empty())
@@ -138,4 +138,14 @@ bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick)
 		return (false);
 	 }
 	 return (true);
+}
+
+bool	CheckErroneusNickName(Client *client, Server *server, std::string GivenNick)
+{
+	if (GivenNick.find('@', 0) != std::string::npos || GivenNick.find('#', 0) != std::string::npos || GivenNick.find('&', 0) != std::string::npos)
+	{
+		server->SendToClient(client, Builder::ErrOneUsNick(GivenNick, GivenNick));
+		return (false);
+	}
+	return (true);
 }

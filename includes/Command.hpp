@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 13:21:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 14:49:01 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ void	SetVoidUser(Client *client, Server *server);
 /*									Nick utils									*/
 
 bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick);
+bool	CheckErroneusNickName(Client *client, Server *server, std::string GivenNick);
 
 /*									Join utils									*/
 
