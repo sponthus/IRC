@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 11:22:28 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 13:21:58 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,9 @@ class Command
 		
 		/*							private functions							*/
 		void	SetInputCmd(std::vector<std::string> VectorMsg);
+		
+		/* 		Util JOIN 		*/
+		void	LeaveAllChannels();
 
 	public:
 		/*							members functions called by the server		*/

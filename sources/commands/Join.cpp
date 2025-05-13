@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CommandJoin.cpp                                    :+:      :+:    :+:   */
+/*   Join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 10:41:26 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 13:39:00 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@ void	Command::join(std::vector<std::string> *arg)
 	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
+	if ((*arg).size() == 2 && (*arg)[1].size() == 1 && (*arg)[1][0] == '0')
+	{
+		LeaveAllChannels();
+		return ;
+	}
 	std::map<std::string, std::string> JoinnedChan;
 	setMapJoin(&JoinnedChan, arg);
 	for (std::map<std::string, std::string>::iterator it = JoinnedChan.begin(); it != JoinnedChan.end(); it++)
@@ -35,6 +40,19 @@ void	Command::join(std::vector<std::string> *arg)
 }
 
 /*								JOIN UTILS								*/
+
+void	Command::LeaveAllChannels()
+{
+	std::string	reason = "";
+	std::vector<Channel *> Channels = this->_client->getChannels();
+
+	std::vector<Channel *>::const_iterator	it;
+	for (it = Channels.begin(); it != Channels.end(); it++)
+	{
+		(*it)->SendToAll(Builder::Part(this->_client->getNick(), this->_client->getUser(), (*it)->getName(), &reason));
+	}
+	this->_client->leaveChannels();
+}
 
 std::vector<std::string>::iterator	FindLastChannel(std::vector<std::string>* arg)
 {
