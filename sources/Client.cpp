@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 15:18:32 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/06 14:29:40 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 11:08:36 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,10 +115,12 @@ void		Client::registerUser()
 {
 	this->_registered = true;
 }
+
 void		Client::PassUSer()
 {
 	this->_Pass = true;
 }
+
 void		Client::addChannel(Channel *_Channel)
 {
 	this->_Channels.push_back(_Channel);

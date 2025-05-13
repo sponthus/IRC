@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 13:24:48 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 11:07:42 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,7 @@ Channel::Channel(Server *server, std::string name) : _server(server), _name(name
 	_InvitedClients.clear();
 }
 
-const std::string&	Channel::getName() const
-{
-	return (this->_name);
-}
+/* 								JOIN/LEAVE								*/
 
 bool	Channel::isClient(Client *client) const
 {
@@ -103,6 +100,8 @@ void	Channel::leaveChannel(Client *client)
 	removeClient(client);
 }
 
+/* 								OP								*/
+
 bool	Channel::isOP(const Client *client) const
 {
 	std::vector<Client *>::const_iterator it;
@@ -139,6 +138,8 @@ bool	Channel::removeOP(Client *client)
 	}
 	return (false);
 }
+
+/* 								INVITES								*/
 
 bool	Channel::isInviteOnly() const
 {
@@ -178,6 +179,8 @@ void	Channel::invite(Client *client, Client *invited)
 	this->_server->SendToClient(client, Builder::RplInviting(this->_name, client->getNick(), invited->getNick()));
 	this->_server->SendToClient(invited, Builder::Invite(client, invited->getNick(), this->_name));
 }
+
+/* 								GETTER/SETTER								*/
 
 const std::string&	Channel::getPW() const
 {
@@ -274,6 +277,11 @@ void	Channel::setUserLimit(int limit, char Flag)
 	}
 }
 
+const std::string&	Channel::getName() const
+{
+	return (this->_name);
+}
+
 void	Channel::setTopicRestriction(Client *client, char Flag)
 {
 	if (!isClient(client))
@@ -283,6 +291,8 @@ void	Channel::setTopicRestriction(Client *client, char Flag)
 	else if (Flag == '+')
 		this->_TopicRestrict = true;
 }
+
+/* 								SEND MESSAGES								*/
 
 void	Channel::SendToAll(std::string message) const
 {

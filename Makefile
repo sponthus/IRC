@@ -8,7 +8,7 @@ SRC = $(shell find $(SRC_DIR) -name "*.cpp")
 
 OBJ_DIR = ./OBJ/
 
-OBJ = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.o, $(SRC))
+OBJ = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(subst $(SRC_DIR),,$(SRC)))
 
 ## BOT variables
 
@@ -22,7 +22,7 @@ BOT_OBJ_DIR = ./OBJ_BOT/
 
 BOT_OBJ = $(patsubst $(BOT_DIR)%.cpp, $(BOT_OBJ_DIR)%.o, $(BOT_SRC))
 
-DEP = $(OBJ:%.o=%.d), $(BOT_OBJ:%.o=%.d)
+DEP = $(OBJ:%.o=%.d) $(BOT_OBJ:%.o=%.d)
 
 CC = c++
 CFLAGS =  -g -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes

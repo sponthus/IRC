@@ -1,94 +1,117 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing.cpp                                        :+:      :+:    :+:   */
+/*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/24 10:42:14 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 17:58:14 by endoliam         ###   ########lyon.fr   */
+/*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
+/*   Updated: 2025/05/13 11:18:10 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "Colors.hpp"
+#include "Command.hpp"
 
-// No space, no ' or "
-bool	isValidPW(std::string arg)
+/*							functions							*/
+
+Command::Command()
 {
-	std::string::const_iterator it = arg.begin();
-	
-	if (arg.size() < 1)
-		return false;
-	while (it != arg.end())
-	{
-		if (*it == ' ' || *it == 34 || *it == 39)
-			return false;
-		it++;
-	}
-	return true;
+	return ;
 }
 
-// Positive port between 1024 and 65535
-// To avoid port already used and not usable
-bool	isValidPort(std::string arg)
+Command::Command(Server *server, Client *client, std::string msg) : _server(server), _client(client)
 {
-	int	port;
-	std::string::const_iterator it = arg.begin();
+	std::vector<std::string> 	VectorMsg;
+	SetVectorMsg(&VectorMsg, msg);
+	SetInputCmd(VectorMsg);
+	return ;
+}
 
-	while (it != arg.end())
+Command::~Command()
+{
+	return ;
+}
+
+/*							debug									*/
+void PrintArg(std::vector<std::string> arg)
+{
+	for (std::vector<std::string>::iterator it = arg.begin(); it != arg.end(); it++)
+		std::cout << "arg function = " << *it << std::endl;
+	return ;
+}
+
+/*							setter									*/
+
+void	Command::SetInputCmd(std::vector<std::string> VectorMsg)
+{
+	for (std::vector<std::string>::iterator it = VectorMsg.begin(); it != VectorMsg.end(); it++)
 	{
-		if (std::isdigit((unsigned char)(*it)) == 0)
+		if (it != VectorMsg.end() && IsCmd(*it))
 		{
-			std::cout << RED << ERROR << ERR_PORT_NUM << RESET << std::endl;
-			return false;
+			std::vector<std::string> _M;
+			_M.push_back(*it);
+			it++;
+			while (it != VectorMsg.end())
+			{
+				_M.push_back(*it);
+				it++;
+			}
+			this->input.push_back(_M);
+			it--;
 		}
-		it++;
 	}
-	port = std::atoi(arg.c_str());
-	if (port < 1024 || port > MAX_PORT)
-	{
-		std::cout << RED << ERROR << ERR_PORT_VAL << RESET << std::endl;
-		return false;
-	}
-	return true;
 }
 
-bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick)
+/*						CONSTRUCTOR UTILS								*/
+
+bool	IsCmd(std::string input)
 {
-	 if (server->FindClientByNick(GivenNick))
-	 {
-		server->SendToClient(client,  Builder::ErrNickInUse(client->getAddress(), GivenNick));
-		return (false);
-	 }
-	 return (true);
+	if (input == "KICK" || input == "INVITE" || input == "TOPIC" || input == "MODE"
+		|| input == "JOIN" || input == "NICK" || input == "PASS" || input == "USER"
+		|| input == "PRIVMSG" || input == "QUIT" || input == "PART" || input == "WHO")
+		return (true);
+	return (false);
 }
+
+std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
+{
+	//ToPushed.erase(0, 1);
+	std::string _ToPushed = ToPushed;
+	*ss >> ToPushed;
+	while (!ss->eof() && !IsCmd(ToPushed))
+	{
+		_ToPushed += " " + ToPushed;
+		*ss >> ToPushed;
+	}
+	ToPushed.clear();
+	ToPushed = _ToPushed;
+	return (ToPushed);
+}
+
+void	SetVectorMsg(std::vector<std::string> *VectorMsg, std::string msg)
+{
+	std::stringstream			ss;
+	ss << msg;
+	while (!ss.eof())
+	{
+		std::string ToPushed;
+		ss >> ToPushed;
+		if (ToPushed[0] == ':' || ToPushed[0] == ';')
+			ToPushed = JoinMsg(ToPushed, &ss);
+		if (!ToPushed.empty())
+			VectorMsg->push_back(ToPushed);
+		ToPushed.clear();
+	}
+}
+
+/*									COMMAND COMMON UTILS						*/
+
 
 bool	ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName)
 {
 	if (it == arg.end())
 	{
 		server->SendToClient(client, Builder::ErrNeedMoreParams(client->getNick(), cmdName));
-		return (false);
-	}
-	return (true);
-}
-
-bool	IsPassGiven(Client *client, Server *server)
-{
-	if (!client->isPass())
-	{
-		server->SendToClient(client, Builder::ErrPasswdMismatch(client->getNick()));
-		return (false);
-	}
-	return (true);
-}
-
-bool	IsAlreadyRegistered(Client *client, Server *server)
-{
-	if (client->isRegistered())
-	{
-		server->SendToClient(client, Builder::ErrAlreadyRegisted(client->getUser()));
 		return (false);
 	}
 	return (true);
@@ -106,19 +129,6 @@ bool	IsOnServer(Client *client, Server *server, std::string TargetClient)
 	}
 	return (true);
 }
-
-// bool	IsClientOnChannel(Client *client, Server *server, Channel *channel, std::string TargetClient)
-// {
-// 	if (!IsOnServer(client, server, TargetClient))
-// 		return (false);
-// 	const Client *TargetUser = server->getClientByNick(TargetClient);
-// 	if (!channel || !channel->isClient((Client *)TargetUser))
-// 	{
-// 		server->SendToClient(client, Builder::ErrNotOnChannel(TargetClient, ""));
-// 		return (false);
-// 	}
-// 	return (true);
-// }
 
 bool	IsClientOnChannel(Client *client, Server *server, std::string ChannelName, std::string TargetClient)
 {
@@ -159,6 +169,7 @@ bool	CheckIsOp(Client *client, Server *server, Channel *channel)
 	}
 	return (true);
 }
+
 bool	CheckChanOnServer(Client *client, Server *server, std::string ChannelName)
 {
 	if (!server->getChannel(ChannelName))
@@ -204,12 +215,4 @@ bool	parsingCmd(Client *client, Server *server, std::vector<std::string> arg, st
 	if (!ThereIsArg(client, server, it, arg, cmdName))
 		return (false);
 	return (CheckChannelArg(client, server, *it));
-}
-
-bool	isValidFlag(Client *client, Server *server, char Flag)
-{
-	if (Flag == '+' || Flag == '-')
-		return (true);
-	server->SendToClient(client, Builder::ErrUModeUnknownFlag(client->getNick()));
-	return (false);
 }

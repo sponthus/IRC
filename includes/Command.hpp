@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 17:21:01 by endoliam         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 11:22:28 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,12 @@ class Client;
 class Server;
 class Channel;
 
+void PrintArg(std::vector<std::string> arg); // DEBUG
+
 class Command
 {
 	private:
-		/*															*/
 		Command();
-		Command(Command &rhs);
 
 		/*							private atributes							*/
 
@@ -45,57 +45,75 @@ class Command
 		void	SetInputCmd(std::vector<std::string> VectorMsg);
 
 	public:
-		/*							members functions called by the servers							*/
-		void	Kick(std::vector<std::string> *arg);
-		void	Invite(std::vector<std::string> *arg);
+		/*							members functions called by the server		*/
+
+		// Authentication
+		void	pass(std::vector<std::string> *arg);
+		void	user(std::vector<std::string> *arg);
+		void	nick(std::vector<std::string> *arg);
+
 		void	Topic(std::vector<std::string> *arg);
 		void	Mode(std::vector<std::string> *arg);
 		void	join(std::vector<std::string> *arg);
-		void	nick(std::vector<std::string> *arg);
-		void	pass(std::vector<std::string> *arg);
-		void	user(std::vector<std::string> *arg);
 		void	privmsg(std::vector<std::string> *arg);
 		void	quit(std::vector<std::string> *arg);
 		void	part(std::vector<std::string> *arg);
 		void	Who(std::vector<std::string> *arg);
+		void	Kick(std::vector<std::string> *arg);
+		void	Invite(std::vector<std::string> *arg);
+
 	
 		Command(Server *server, Client *client, std::string msg);
 		~Command();
-		Command	&operator=(Command &rhs);
 		
 		/*							public atributes							*/
 		std::vector<std::vector<std::string> >		input;
 };
 
-/*								Parsing Command							*/
-bool							CheckNickInUse(Client *client, Server *server, std::string GivenNick);
-bool							parsingCmd(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
-bool							ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName);
-bool							IsAlreadyRegistered(Client *client, Server *server);
-bool							IsPassGiven(Client *client, Server *server);
-bool							IsClientOnChannel(Client *client, Server *server, std::string ChannelName, std::string TargetClient);
-bool							CheckChannelArg(Client *client, Server *server, std::string ChannelName);
-bool							CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
-bool							CheckMaskChan(Client *client, Server *server,std::string *ChannelName);
-bool							isValidFlag(Client *client, Server *server, char Flag);
-bool							IsOnServer(Client *client, Server *server, std::string TargetClient);
-bool							CheckIsOp(Client *client, Server *server, Channel *channel);
-bool							CheckChanOnServer(Client *client, Server *server, std::string ChannelName);
+/*									Authentication utils						*/
 
-/*							Command Utils							*/
+bool	IsPassGiven(Client *client, Server *server);
+bool	IsAlreadyRegistered(Client *client, Server *server);
 
-void							SetVoidUser(Client *client, Server *server);
-bool							isModWhitOption(char c);
-bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
-bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+/*									User utils									*/
+
+void	SetVoidUser(Client *client, Server *server);
+
+/*									Nick utils									*/
+
+bool	CheckNickInUse(Client *client, Server *server, std::string GivenNick);
+
+/*									Join utils									*/
+
+std::vector<std::string>::iterator	FindLastChannel(std::vector<std::string>* arg);
+void								setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg);
+
+/*									Mode utils									*/
+
 std::map<char, std::string *>	SetMapMods(std::string mod, std::vector<std::string> *arg, char Flag);
-void							SetRecapOptions(std::string arg, std::string *recapOptions, char c);
+bool							isModWhitOption(char c);
 void							SetModeInChan(Client *client, Server *server, Channel *Channel, std::map<char, std::string *> Mods, char Flag);
+bool							removemod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+bool							addmod(Client *client, Server *server, Channel *Channel, std::map<char, std::string *>::iterator it);
+void							SetRecapOptions(std::string arg, std::string *recapOptions, char c);
+bool							isValidFlag(Client *client, Server *server, char Flag);
 
-void							setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg);
+/*									Constructor utils							*/
 
-void							SetVectorMsg(std::vector<std::string> *VectorMsg, std::string msg);
-std::string						JoinMsg(std::string ToPushed,std::stringstream *ss);
-bool							IsCmd(std::string input);
+bool		IsCmd(std::string input);
+std::string	JoinMsg(std::string ToPushed,std::stringstream *ss);
+void		SetVectorMsg(std::vector<std::string> *VectorMsg, std::string msg);
+
+/*									Common utils/checks							*/
+
+bool	ThereIsArg(Client *client, Server *server, std::vector<std::string>::iterator it, std::vector<std::string> &arg, std::string cmdName);
+bool	IsOnServer(Client *client, Server *server, std::string TargetClient);
+bool	IsClientOnChannel(Client *client, Server *server, std::string ChannelName, std::string TargetClient);
+bool	CheckMaskChan(Client *client, Server *server,std::string *ChannelName);
+bool	CheckIsOp(Client *client, Server *server, Channel *channel);
+bool	CheckChanOnServer(Client *client, Server *server, std::string ChannelName);
+bool	CheckChannelArg(Client *client, Server *server, std::string ChannelName);
+bool	CheckArgAndRegister(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
+bool	parsingCmd(Client *client, Server *server, std::vector<std::string> arg, std::string cmdName);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:08 by sponthus          #+#    #+#             */
-/*   Updated: 2025/04/17 16:23:54 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 11:05:39 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,49 @@ void	sig(int signal)
 	(void)signal;
 	std::cout << std::endl;
 	g_shutdown = true;
+}
+
+// No space, no ' or ", no whitespaces, no non-printable char
+bool	isValidPW(std::string arg)
+{
+	std::string::const_iterator it = arg.begin();
+	
+	if (arg.size() < 1)
+		return false;
+	while (it != arg.end())
+	{
+		if (*it == ' ' || *it == 34 || *it == 39)
+			return false;
+		else if (*it < 33 || *it > 126) // Non printable char
+			return false;
+		it++;
+	}
+	return true;
+}
+
+// Positive port between 1024 and 65535
+// To avoid port already used and not usable
+bool	isValidPort(std::string arg)
+{
+	int	port;
+	std::string::const_iterator it = arg.begin();
+
+	while (it != arg.end())
+	{
+		if (std::isdigit((unsigned char)(*it)) == 0)
+		{
+			std::cout << RED << ERROR << ERR_PORT_NUM << RESET << std::endl;
+			return false;
+		}
+		it++;
+	}
+	port = std::atoi(arg.c_str());
+	if (port < 1024 || port > MAX_PORT)
+	{
+		std::cout << RED << ERROR << ERR_PORT_VAL << RESET << std::endl;
+		return false;
+	}
+	return true;
 }
 
 int	main(int argc, char **argv)

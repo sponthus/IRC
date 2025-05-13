@@ -1,33 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CommandUtils.cpp                                   :+:      :+:    :+:   */
+/*   CommandMode.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/26 14:28:35 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/12 18:08:00 by endoliam         ###   ########lyon.fr   */
+/*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
+/*   Updated: 2025/05/13 10:51:56 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "Command.hpp"
+#include "Command.hpp"
 
-/*								USER UTILS								*/
-
-void	SetVoidUser(Client *client, Server *server)
+void	Command::Mode(std::vector<std::string> *arg)
 {
-	if (client->getUser().empty())
-		client->setUser("");
-	if (client->getHostname().empty())
-		client->setHostname("");
-	if (client->getServerName().empty())
-		client->setServerName("");
-	if (client->getRealName().empty())
-		client->setRealname("");
-	client->registerUser();
-	if(!client->getNick().empty())
-		server->SendToClient(client, Builder::RplWelcome(client->getNick(), client->getUser()));
-	return ;
+	std::cout << "Mode function called " << std::endl;
+	PrintArg(*arg);
+	if (!parsingCmd(this->_client, this->_server, *arg, "MODE"))
+		return ;
+	std::vector<std::string>::iterator it = arg->begin();
+	it++;
+	it->erase(0, 1);
+	Channel *Channel = this->_client->getChannel(*it);
+	std::string ChannelName = *it;
+	it++;
+	if (it == arg->end())
+	{
+		this->_server->SendToClient(this->_client, Builder::RplChannelModeIs(Channel, this->_client->getNick()));
+		return ;
+	}
+	else if (!CheckIsOp(this->_client, this->_server, Channel))
+		return ;	
+	char Flag = (*it)[0];
+	if (!isValidFlag(this->_client, this->_server, Flag))
+		return ;
+	std::map<char, std::string *> Mods = SetMapMods(*it, arg, Flag);
+	if (!Channel)
+		this->_server->SendToClient(this->_client, Builder::ErrNotOnChannel(this->_client->getNick(), ChannelName));
+	SetModeInChan(this->_client, this->_server, Channel, Mods, Flag);
 }
 
 /*								MODE UTILS								*/
@@ -197,77 +207,11 @@ void	SetRecapOptions(std::string arg, std::string *recapOptions, char c)
 		*recapOptions += arg;
 	*recapOptions += " ";
 }
-/*								JOIN UTILS								*/
 
-std::vector<std::string>::iterator	FindLastChannel(std::vector<std::string>* arg)
+bool	isValidFlag(Client *client, Server *server, char Flag)
 {
-	std::vector<std::string>::iterator lastChan = arg->end();
-	for (std::vector<std::string>::iterator it = arg->begin(); it != arg->end(); it++)
-	{
-		if (it->find("#", 0) == 0 || it->find("&", 0) == 0)
-			lastChan = it;
-	}
-	return (lastChan);
-}
-
-void	setMapJoin(std::map<std::string, std::string> *JoinnedChan, std::vector<std::string> *arg)
-{
-	std::vector<std::string>::iterator lastChan = FindLastChannel(arg);
-	std::vector<std::string>::iterator it = arg->begin();
-	if (lastChan != arg->end())
-		lastChan++;
-	std::vector<std::string>::iterator key = lastChan;
-	while (++it != arg->end() && it != lastChan)
-	{
-		if (key != arg->end())
-		{	
-			(*JoinnedChan)[*it] = *key;
-			key++;
-		}
-		else
-			(*JoinnedChan)[*it] = "";
-	}
-	return ;
-}
-
-/*								CONSTRUCTOR UTILS								*/
-
-bool	IsCmd(std::string input)
-{
-	if (input == "KICK" || input == "INVITE" || input == "TOPIC" || input == "MODE"
-		|| input == "JOIN" || input == "NICK" || input == "PASS" || input == "USER"
-		|| input == "PRIVMSG" || input == "QUIT" || input == "PART" || input == "WHO")
+	if (Flag == '+' || Flag == '-')
 		return (true);
+	server->SendToClient(client, Builder::ErrUModeUnknownFlag(client->getNick()));
 	return (false);
-}
-
-std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
-{
-	//ToPushed.erase(0, 1);
-	std::string _ToPushed = ToPushed;
-	*ss >> ToPushed;
-	while (!ss->eof() && !IsCmd(ToPushed))
-	{
-		_ToPushed += " " + ToPushed;
-		*ss >> ToPushed;
-	}
-	ToPushed.clear();
-	ToPushed = _ToPushed;
-	return (ToPushed);
-}
-
-void	SetVectorMsg(std::vector<std::string> *VectorMsg, std::string msg)
-{
-	std::stringstream			ss;
-	ss << msg;
-	while (!ss.eof())
-	{
-		std::string ToPushed;
-		ss >> ToPushed;
-		if (ToPushed[0] == ':' || ToPushed[0] == ';')
-			ToPushed = JoinMsg(ToPushed, &ss);
-		if (!ToPushed.empty())
-			VectorMsg->push_back(ToPushed);
-		ToPushed.clear();
-	}
 }
