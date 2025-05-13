@@ -80,15 +80,6 @@ std::string Builder::Nick(const std::string &OldNick, const std::string &Usernam
 		.toString();
 }
 
-std::string Builder::Ping()
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("PING")
-		.build()
-		.toString();
-}
-
 // Uses either a recipient or a channel
 std::string Builder::PrivMsg(Client *Sender, const std::string &Msg, \
 	const std::string *Channel, const Client *Recipient)
@@ -408,19 +399,6 @@ std::string Builder::ErrNoSuchChannel(const std::string &RequestingNick, const s
 		.toString();
 }
 
-// 404 ERR_CANNOTSENDTOCHAN ? TODO : check if needed
-// ":<server> 404 <requestingNick> <channel> :Cannot send to channel"
-std::string Builder::ErrCannotSendToChan(const std::string &RequestingNick, const std::string &Channel)
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("404")
-		.setContent(RequestingNick + " " + Channel)
-		.setSuffix("Cannot send to channel")
-		.build()
-		.toString();
-}
-
 // 407 ERR_TOOMANYTARGETS
 // :<server> 407 <requestingNick> <targets> :Too many recipients
 // TODO : Function to get list of targets in 1 string with "," separator
@@ -487,9 +465,10 @@ std::string Builder::ErrNoNickGiven(const std::string &RequestingNick)
 		.toString();
 }
 
-// 432 ERR_ERRONEUSNICKNAME
+// 432 ERR_ErrErroneusNicknameNAME
 // ":<server> 432 <requestingNick> <nick> :Erroneous nickname"
-std::string Builder::ErrOneUsNick(const std::string &RequestingNick, const std::string &RequestedNick)
+// Returned after receiving a NICK message which contains characters which do not fall in the defined set. 
+std::string Builder::ErrErroneusNickname(const std::string &RequestingNick, const std::string &RequestedNick)
 {
 	return create()
 		.setPrefix(SERVER)
@@ -666,21 +645,6 @@ std::string Builder::ErrUnknownMode(const std::string &RequestingNick, const std
 			.setSuffix("is unknown mode char to me for #" + Channel)
 			.build()
 			.toString();
-}
-
-// 472 ERR_UNKNOWNMODE
-//     "<char> :is unknown mode char to me
-std::string  Builder::ErrUModeUnknownMod(const char &RequestedMode)
-{
-	std::string Mode;
-	Mode += RequestedMode;
-	return create()
-		.setPrefix(SERVER)
-		.setCode("472")
-		.setContent(Mode)
-		.setSuffix("is unknown mode char to me")
-		.build()
-		.toString();
 }
 
 // 473 ERR_INVITEONLYCHAN

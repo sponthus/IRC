@@ -2,8 +2,6 @@
 
 void	Command::Topic(std::vector<std::string> *arg)
 {
-	std::cout << "Topic function called " << std::endl;
-	PrintArg(*arg);
 	if (!parsingCmd(this->_client, this->_server, *arg, "TOPIC"))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();

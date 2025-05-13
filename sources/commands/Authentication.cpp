@@ -2,8 +2,6 @@
 
 void	Command::nick(std::vector<std::string> *arg)
 {
-	std::cout << "nick function called " << std::endl;
-	PrintArg(*arg);
 	if (!IsPassGiven(this->_client, this->_server))
 		return ;
 	if (arg->size() != 1)
@@ -29,8 +27,6 @@ void	Command::nick(std::vector<std::string> *arg)
 
 void	Command::pass(std::vector<std::string> *arg)
 {
-	std::cout << "pass function called " << std::endl;
-	PrintArg(*arg);
 	if (!IsAlreadyRegistered(this->_client, this->_server))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
@@ -50,8 +46,6 @@ void	Command::pass(std::vector<std::string> *arg)
 
 void	Command::user(std::vector<std::string> *arg)
 {
-	std::cout << "user function called " << std::endl;
-	PrintArg(*arg);
 	if (!IsAlreadyRegistered(this->_client, this->_server))
 		return ;
 	if (!IsPassGiven(this->_client, this->_server))

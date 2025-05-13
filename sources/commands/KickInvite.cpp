@@ -2,8 +2,6 @@
 
 void	Command::Kick(std::vector<std::string> *arg)
 {
-	std::cout << "kick function called " << std::endl;
-	PrintArg(*arg);
 	if (!parsingCmd(this->_client, this->_server, *arg, "KICK"))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
@@ -34,8 +32,6 @@ void	Command::Kick(std::vector<std::string> *arg)
 
 void	Command::Invite(std::vector<std::string> *arg)
 {
-	std::cout << "invite function called " << std::endl;
-	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "INVITE"))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();

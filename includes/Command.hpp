@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:25:17 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 13:21:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:04:02 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@
 class Client;
 class Server;
 class Channel;
-
-void PrintArg(std::vector<std::string> arg); // DEBUG
 
 class Command
 {

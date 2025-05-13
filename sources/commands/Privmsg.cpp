@@ -2,8 +2,6 @@
 
 void	Command::privmsg(std::vector<std::string> *arg)
 {
-	std::cout << "privmsg function called " << std::endl;
-	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "PRIVMSG"))
 		return ;
 	bool    noText = false;

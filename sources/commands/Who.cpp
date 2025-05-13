@@ -3,8 +3,6 @@
 
 void	Command::Who(std::vector<std::string> *arg)
 {
-	std::cout << "WHO function called " << std::endl;
-	PrintArg(*arg);
 	if (!parsingCmd(this->_client, this->_server, *arg, "WHO"))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();

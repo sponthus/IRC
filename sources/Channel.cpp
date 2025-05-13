@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 11:25:35 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/13 13:13:22 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:16:47 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,17 +263,17 @@ int	Channel::getUserNb() const
 
 void	Channel::setUserLimit(int limit, char Flag)
 {
-	if (limit <= 0)
+	if (limit < 0)
 		return ; // Invalid value
-	if (Flag == '+')
-	{
-		this->_HasUserLimit = true;
-		this->_UserLimit = limit;
-	}
-	else if (Flag == '-')
+	if (limit == 0 || Flag == '-')
 	{
 		this->_HasUserLimit = false;
 		this->_UserLimit = 0;
+	}
+	else if (Flag == '+')
+	{
+		this->_HasUserLimit = true;
+		this->_UserLimit = limit;
 	}
 }
 

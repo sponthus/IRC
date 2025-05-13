@@ -42,11 +42,9 @@ class Builder
 	public:
 		// Commands
 		static std::string Nick(const std::string &OldNick, const std::string &Username, const std::string &NewNick);
-		static std::string Ping();
 		static std::string PrivMsg(Client *Sender, const std::string &Msg, const std::string *ChannelName, const Client *Recipient);
 		static std::string Join(const std::string &Nickname, const std::string &Username, const std::string &Channel);
 		static std::string Part(const std::string &Nickname, const std::string &Username, const std::string &Channel, const std::string *Msg);
-		// static std::string PartChan(std::string client, std::string ChanName);
 		static std::string Kick(const std::string &KickerNick, const std::string &KickedNick, const std::string &Channel, const std::string *Msg);
 		static std::string Invite(Client *Inviter, const std::string &InvitedNick, const std::string &Channel);
 		static std::string Mode(const std::string &Nickname, const std::string &Channel, const std::string &RecapModes, const std::string &RecapOptions);
@@ -66,13 +64,12 @@ class Builder
 		// Errors
 		/* 401*/ static std::string ErrNoSuchNick(const std::string &TargetNick, const std::string &InvalidNick);
 		/* 403*/ static std::string ErrNoSuchChannel(const std::string &RequestingNick, const std::string &Channel);
-		/* 404*/ static std::string ErrCannotSendToChan(const std::string &RequestingNick, const std::string &Channel);
 		/* 407*/ static std::string ErrTooManyTargets(const std::string &RequestingNick, const std::string &Targets);
 		/* 411*/ static std::string ErrNoRecipient(const std::string &RequestingNick, const std::string &Command);
 		/* 412*/ static std::string ErrNoTextToSend(const std::string &RequestingNick);
 		/* 421*/ static std::string ErrUnknownCommand(const std::string &RequestingNick, const std::string &Command);
 		/* 431*/ static std::string ErrNoNickGiven(const std::string &RequestingNick);
-		/* 432*/ static std::string ErrOneUsNick(const std::string &RequestingNick, const std::string &RequestedNick);
+		/* 432*/ static std::string ErrErroneusNickname(const std::string &RequestingNick, const std::string &RequestedNick);
 		/* 433*/ static std::string ErrNickInUse(const std::string &ClientID, const std::string &ExistingNick);
 		/* 436*/ static std::string ErrNickCollision(const std::string &CollisionNick, const std::string &Username);
 		/* 441*/ static std::string ErrUserNotInChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel);
@@ -84,7 +81,6 @@ class Builder
 		/* 464*/ static std::string ErrPasswdMismatch(const std::string &RequestingNick);
 		/* 467*/ static std::string ErrKeySet(const std::string &RequestingNick, const std::string &Channel);
 		/* 471*/ static std::string ErrChannelIsFull(const std::string &RequestingNick, const std::string &Channel);
-		/* 472*/ static std::string ErrUModeUnknownMod(const char &RequestedMode);
 		/* 472*/ static std::string ErrUnknownMode(const std::string &RequestingNick, const std::string &Mode, const std::string &Channel);
 		/* 473*/ static std::string ErrInviteOnlyChan(const std::string &RequestingNick, const std::string &Channel);
 		/* 475*/ static std::string BadChannelKey(const std::string &RequestingNick, const std::string &Channel);

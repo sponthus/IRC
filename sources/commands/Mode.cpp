@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CommandMode.cpp                                    :+:      :+:    :+:   */
+/*   Mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 10:51:56 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:09:56 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 void	Command::Mode(std::vector<std::string> *arg)
 {
-	std::cout << "Mode function called " << std::endl;
-	PrintArg(*arg);
 	if (!parsingCmd(this->_client, this->_server, *arg, "MODE"))
 		return ;
 	std::vector<std::string>::iterator it = arg->begin();
@@ -144,7 +142,8 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 		Channel->setUserLimit(0, '-');
 	else
 	{
-		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
+		server->SendToClient(client, Builder::ErrUnknownMode(client->getNick(), "" + it->first, Channel->getName()));
+		// server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 		return (false);
 	}
 	return (true);
@@ -185,7 +184,8 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	}
 	else
 	{
-		server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
+		// server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
+		server->SendToClient(client, Builder::ErrUnknownMode(client->getNick(), "" + it->first, Channel->getName()));
 		return (false);
 	}
 	if (isModWhitOption(it->first) && !it->second)

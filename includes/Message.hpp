@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 14:41:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/02/07 16:51:50 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:03:47 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,8 @@
 # define MESSAGE_HPP
 
 #include <string>
-// #include "Builder.hpp" // necessary ?
 
 class Message {
-
-	// friend class Builder; // Necessary ?
 
 	private:
 		std::string _prefix;

@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 13:39:00 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:02:21 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 void	Command::join(std::vector<std::string> *arg)
 {
-	std::cout << "join function called " << std::endl;
-	PrintArg(*arg);
 	if (!CheckArgAndRegister(this->_client, this->_server, *arg, "JOIN"))
 		return ;
 	if ((*arg).size() == 2 && (*arg)[1].size() == 1 && (*arg)[1][0] == '0')

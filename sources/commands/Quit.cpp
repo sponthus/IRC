@@ -2,8 +2,6 @@
 
 void	Command::quit(std::vector<std::string> *arg)
 {
-	std::cout << "quit function called " << std::endl;
-	PrintArg(*arg);
 	if (!this->_client->isRegistered() || this->_client->getNick().empty())
 	{
 		this->_server->SendToClient(this->_client, Builder::ErrNotRegistered());

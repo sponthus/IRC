@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 11:18:10 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:04:51 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,6 @@ Command::Command(Server *server, Client *client, std::string msg) : _server(serv
 
 Command::~Command()
 {
-	return ;
-}
-
-/*							debug									*/
-void PrintArg(std::vector<std::string> arg)
-{
-	for (std::vector<std::string>::iterator it = arg.begin(); it != arg.end(); it++)
-		std::cout << "arg function = " << *it << std::endl;
 	return ;
 }
 
@@ -75,7 +67,6 @@ bool	IsCmd(std::string input)
 
 std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
 {
-	//ToPushed.erase(0, 1);
 	std::string _ToPushed = ToPushed;
 	*ss >> ToPushed;
 	while (!ss->eof() && !IsCmd(ToPushed))

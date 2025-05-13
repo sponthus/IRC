@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 11:53:12 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:04:28 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ void	Server::initSocket()
 	}
 
 	int	val = 1;
-	// IPPROTO_IP for IP protocols or SOL_SOCKET for general configuration ?
 	if (setsockopt(this->_socketFD, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) == -1) // Parameters to allow immediate reuse of the port without waiting time
 	{
 		throw std::runtime_error("setsockopt failed on socket");
