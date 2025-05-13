@@ -493,22 +493,9 @@ std::string Builder::ErrNickInUse(const std::string &ClientID, const std::string
 		.toString();
 }
 
-// TODO = Not used
-// 436 ERR_NICKCOLLISION
-// ":<server> 436 <user> <collisionNick> :Nickname collision KILL"
-std::string Builder::ErrNickCollision(const std::string &CollisionNick, const std::string &Username = "*")
-{
-	return create()
-		.setPrefix(SERVER)
-		.setCode("436")
-		.setContent(Username + " " + CollisionNick)
-		.setSuffix("Nickname collision KILL")
-		.build()
-		.toString();
-}
-
 // 441 ERR_USERNOTINCHANNEL
 // ":<server> 441 <requestingNick> <targetNick> #<channel> :They aren't on that channel"
+// Returned by the server to indicate that the target user of the command is not on the given channel.
 std::string Builder::ErrUserNotInChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel)
 {
 	return create()
@@ -522,6 +509,7 @@ std::string Builder::ErrUserNotInChannel(const std::string &RequestingNick, cons
 
 // 442 ERR_NOTONCHANNEL
 // ":<server> 442 <requestingNick> #<channel> :You're not on that channel"
+// Returned by the server whenever a client tries to perform a channel affecting command for which the client isn't a member.
 std::string Builder::ErrNotOnChannel(const std::string &RequestingNick, const std::string &Channel)
 {
 	return create()

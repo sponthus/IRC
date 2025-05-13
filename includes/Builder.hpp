@@ -71,7 +71,6 @@ class Builder
 		/* 431*/ static std::string ErrNoNickGiven(const std::string &RequestingNick);
 		/* 432*/ static std::string ErrErroneusNickname(const std::string &RequestingNick, const std::string &RequestedNick);
 		/* 433*/ static std::string ErrNickInUse(const std::string &ClientID, const std::string &ExistingNick);
-		/* 436*/ static std::string ErrNickCollision(const std::string &CollisionNick, const std::string &Username);
 		/* 441*/ static std::string ErrUserNotInChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel);
 		/* 442*/ static std::string ErrNotOnChannel(const std::string &RequestingNick, const std::string &Channel);
 		/* 443*/ static std::string ErrUserOnChannel(const std::string &RequestingNick, const std::string &TargetNick, const std::string &Channel);
