@@ -636,7 +636,7 @@ std::string Builder::ErrKeySet(const std::string &RequestingNick, const std::str
 	return create()
 		.setPrefix(SERVER)
 		.setCode("467")
-		.setContent(RequestingNick + " " + Channel)
+		.setContent(RequestingNick + " #" + Channel)
 		.setSuffix("Channel key already set")
 		.build()
 		.toString();
@@ -649,13 +649,12 @@ std::string Builder::ErrChannelIsFull(const std::string &RequestingNick, const s
 	return create()
 			.setPrefix(SERVER)
 			.setCode("471")
-			.setContent(RequestingNick + " " + Channel)
+			.setContent(RequestingNick + " #" + Channel)
 			.setSuffix("Cannot join channel (+l)")
 			.build()
 			.toString();
 }
 
-// TODO = Double !
 // 472 ERR_UNKNOWNMODE
 // ":<server> 472 <requestingNick> <mode> :is unknown mode char to me for #<channel>"
 std::string Builder::ErrUnknownMode(const std::string &RequestingNick, const std::string &Mode, const std::string &Channel)
@@ -664,7 +663,7 @@ std::string Builder::ErrUnknownMode(const std::string &RequestingNick, const std
 			.setPrefix(SERVER)
 			.setCode("472")
 			.setContent(RequestingNick + " " + Mode)
-			.setSuffix("is unknown mode char to me for " + Channel)
+			.setSuffix("is unknown mode char to me for #" + Channel)
 			.build()
 			.toString();
 }
@@ -691,7 +690,7 @@ std::string Builder::ErrInviteOnlyChan(const std::string &RequestingNick, const 
 	return create()
 			.setPrefix(SERVER)
 			.setCode("473")
-			.setContent(RequestingNick + " " + Channel)
+			.setContent(RequestingNick + " #" + Channel)
 			.setSuffix("Cannot join channel (+i)")
 			.build()
 			.toString();
@@ -704,7 +703,7 @@ std::string Builder::BadChannelKey(const std::string &RequestingNick, const std:
 	return create()
 			.setPrefix(SERVER)
 			.setCode("475")
-			.setContent(RequestingNick + " " + Channel)
+			.setContent(RequestingNick + " #" + Channel)
 			.setSuffix("Cannot join channel (+k)")
 			.build()
 			.toString();
