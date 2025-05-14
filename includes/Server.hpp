@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:07:27 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 10:54:02 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/14 11:18:16 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Server {
 
 		std::string	recieveData(int fd, std::string msg);
 		bool	messageIsFull(Client *cl, std::string *message);
+		void	printMessage(Client *cl, std::string message, size_t i);
 		void	handleData(Client *cl, std::string message);
 		std::vector<std::string> splitMessages(const std::string& raw);
 		void		connectClient();
