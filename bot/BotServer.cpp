@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 14:21:21 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/12 14:13:58 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/14 10:59:39 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,6 +162,10 @@ void	Bot::parseQuestions(std::string filename)
 	{
 		Questions *qa = new Questions(filename);
 		std::string theme = qa->getTheme();
+		if (qa->getNbQuestions() == 0)
+			throw (std::invalid_argument(filename + std::string(" is empty")));
+		if (theme.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890") == std::string::npos)
+			throw (std::invalid_argument("theme is empty in " + filename));
 		pthread_mutex_lock(&_questionsMutex);
 		if (_questions.find(theme) != _questions.end())
 		{

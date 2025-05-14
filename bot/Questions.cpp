@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 13:08:51 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/07 14:03:25 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/14 11:27:42 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	Questions::parseLine(std::string line)
 		throw std::invalid_argument(std::string("Question should follow [question]|[answerA]/[answerB] format : ") + line);
 	}
 	question = line.substr(0, pipe);
+	if (question.size() < 2 || question.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890") == std::string::npos)
+		throw std::invalid_argument(std::string("Invalid question : ") + line);
 	allAnswers = line.substr(pipe + 1, line.size() - pipe - 1);
 	size_t sep = allAnswers.find_first_of("/");
 	if (sep == std::string::npos)
