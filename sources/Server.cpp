@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/14 11:21:15 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/14 11:31:05 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,13 +207,13 @@ void	Server::connectClient()
     }
 }
 
-void	Server::sendData(int fd, std::string response) const // A surcharger avec tout un channel au lien de 1 FD
+void	Server::sendData(int fd, std::string response) const
 {
 	if (send(fd, response.c_str(), response.size(), 0) == -1)
 	{
 		std::cerr << RED "send failed on response : " << response << RESET << std::endl;
 	}
-	std::cout << CYAN << "Sent data: //" << response << "// to " << fd << RESET << std::endl;
+	std::cout << CYAN << "Sent data to " << fd << ": " << response << RESET;
 }
 
 void	Server::handleData(Client *cl, std::string message)

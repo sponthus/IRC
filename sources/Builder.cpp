@@ -401,7 +401,6 @@ std::string Builder::ErrNoSuchChannel(const std::string &RequestingNick, const s
 
 // 407 ERR_TOOMANYTARGETS
 // :<server> 407 <requestingNick> <targets> :Too many recipients
-// TODO : Function to get list of targets in 1 string with "," separator
 std::string Builder::ErrTooManyTargets(const std::string &RequestingNick, const std::string &Targets)
 {
 	return create()
