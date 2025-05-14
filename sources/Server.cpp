@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/13 16:04:28 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/14 11:21:15 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,6 +273,17 @@ std::vector<std::string> Server::splitMessages(const std::string& raw)
 	return messages;
 }
 
+void	Server::printMessage(Client *cl, std::string message, size_t i)
+{
+	if (cl && cl->getNick().empty())
+		std::cout << MAGENTA << this->_fds[i].fd;
+	else if (cl)
+		std::cout << MAGENTA << cl->getNick();
+	std::cout << MAGENTA << " sent: " << message << RESET;
+	if (message.empty() || *(message.end() - 1) != '\n')
+		std::cout << std::endl;
+}
+
 void	Server::run()
 {
 	if (poll(&(this->_fds[0]), this->_fds.size(), -1) == -1 && g_shutdown == false)
@@ -292,17 +303,14 @@ void	Server::run()
 			{
 				std::string message = recieveData(this->_fds[i].fd, "");
 				Client* cl = this->_ClientsByFD[this->_fds[i].fd];
-				if (cl && cl->getNick().empty())
-					std::cout << MAGENTA << this->_fds[i].fd;
-				else if (cl)
-					std::cout << MAGENTA << cl->getNick();
-				std::cout << MAGENTA << " sent: " << RESET << std::endl;
+				printMessage(cl, message, i);
 				if (messageIsFull(cl, &message))
 				{
 					std::vector<std::string> messages = splitMessages(message);
 					for (size_t i = 0; i < messages.size(); ++i)
 					{
-						std::cout << MAGENTA << " - " << messages[i] << RESET;
+						if (!messages[i].empty() && messages[i].size() > 2)
+							std::cout << MAGENTA << " - " << messages[i] << RESET;
 						handleData(cl, messages[i]);
 					}
 				}
