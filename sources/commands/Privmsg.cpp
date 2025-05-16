@@ -35,7 +35,7 @@ void	Command::privmsg(std::vector<std::string> *arg)
 				it->erase(0,1);
 				Channel *Channel = this->_server->getChannel(*it);
 				if (noText)
-					Channel->SendToAll(Builder::ErrNoTextToSend(*it));
+					this->_server->SendToClient(this->_client, Builder::ErrNoTextToSend("#" + *it));
 				else
 					Channel->SendToAllBut(this->_client, Builder::PrivMsg(this->_client, *msg, &(Channel->getName()), NULL));
 			}
@@ -44,10 +44,7 @@ void	Command::privmsg(std::vector<std::string> *arg)
 		{
 			const Client *TargetUser = this->_server->getClientByNick(*it);
 			if (noText)
-			{
 				this->_server->SendToClient(this->_client, Builder::ErrNoTextToSend(*it));
-				this->_server->SendToClient(TargetUser, Builder::ErrNoTextToSend(this->_client->getNick()));
-			}
 			else
 				this->_server->SendToClient(TargetUser, Builder::PrivMsg(this->_client, *msg, NULL, TargetUser));
 		}

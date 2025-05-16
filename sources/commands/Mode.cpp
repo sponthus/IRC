@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 16:22:11 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/16 13:06:44 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,6 @@ bool	removemod(Client *client, Server *server, Channel *Channel, std::map<char, 
 	else
 	{
 		server->SendToClient(client, Builder::ErrUnknownMode(client->getNick(), std::string(1, it->first), Channel->getName()));
-		// server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 		return (false);
 	}
 	return (true);
@@ -184,7 +183,6 @@ bool	addmod(Client *client, Server *server, Channel *Channel, std::map<char, std
 	}
 	else
 	{
-		// server->SendToClient(client, Builder::ErrUModeUnknownMod(it->first));
 		server->SendToClient(client, Builder::ErrUnknownMode(client->getNick(), std::string(1, it->first), Channel->getName()));
 		return (false);
 	}

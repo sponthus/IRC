@@ -6,7 +6,7 @@
 /*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:00:24 by sponthus          #+#    #+#             */
-/*   Updated: 2025/05/14 11:31:05 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/16 13:28:29 by sponthus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ Server::~Server()
 	}
 	_Clients.clear();
 	_ClientsByNick.clear();
+	for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); it++)
+	{
+		close((*it).fd);
+	}
 	for (std::map<std::string, Channel*>::iterator it = _ChannelsByName.begin(); it != _ChannelsByName.end(); ++it)
     {
         if (it->second)
@@ -184,12 +188,14 @@ void	Server::connectClient()
 	if (fd == -1)
 	{
 		std::cerr << RED << "Accept failed" << RESET << std::endl;
+		close(fd);
 		return ;
 	}
 	std::cout << CYAN << "New connection accepted on fd " << fd << RESET << std::endl;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << RED << "fcntl failed on new client" << RESET << std::endl;
+		close(fd);
 		return ;
 	}
 	try
