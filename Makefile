@@ -25,7 +25,7 @@ BOT_OBJ = $(patsubst $(BOT_DIR)%.cpp, $(BOT_OBJ_DIR)%.o, $(BOT_SRC))
 DEP = $(OBJ:%.o=%.d) $(BOT_OBJ:%.o=%.d)
 
 CC = c++
-CFLAGS =  -g -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
+CFLAGS = -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
 
 ## Compilation rules
 
@@ -38,7 +38,7 @@ server: $(NAME)
 bot: $(BOT)
 
 clean: 
-	rm -rf $(OBJ_DIR) $(BON_OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(BOT_OBJ_DIR)
 	@echo "clean done"
 
 fclean: clean
@@ -60,7 +60,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 ## Bot compilation rules
 
 $(BOT): $(BOT_OBJ)
-	$(CC) $(CFLAGS) -pthread $(BOT_OBJ) -o $@
+	$(CC) $(CFLAGS) $(BOT_OBJ) -o $@
 	@echo "$(BOT) done"
 
 $(BOT_OBJ_DIR)%.o: $(BOT_DIR)%.cpp
