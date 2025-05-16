@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sponthus <sponthus@student.42.fr>          +#+  +:+       +#+        */
+/*   By: endoliam <endoliam@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 13:34:36 by endoliam          #+#    #+#             */
-/*   Updated: 2025/05/13 16:42:31 by sponthus         ###   ########.fr       */
+/*   Updated: 2025/05/16 11:53:23 by endoliam         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ std::string	JoinMsg(std::string ToPushed,std::stringstream *ss)
 {
 	std::string _ToPushed = ToPushed;
 	*ss >> ToPushed;
-	while (!ss->eof() && !IsCmd(ToPushed))
+	while (!ss->eof())
 	{
 		_ToPushed += " " + ToPushed;
 		*ss >> ToPushed;
