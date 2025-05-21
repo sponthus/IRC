@@ -25,7 +25,7 @@ BOT_OBJ = $(patsubst $(BOT_DIR)%.cpp, $(BOT_OBJ_DIR)%.o, $(BOT_SRC))
 DEP = $(OBJ:%.o=%.d) $(BOT_OBJ:%.o=%.d)
 
 CC = c++
-CFLAGS = -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
+CFLAGS = -g -MMD -MP -Wall -Wextra -Werror -std=c++98 -Iincludes
 
 ## Compilation rules
 

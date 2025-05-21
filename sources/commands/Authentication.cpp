@@ -62,7 +62,7 @@ void	Command::user(std::vector<std::string> *arg)
 		return ;
 	}
 	this->_client->setHostname(*i);
-	if (++i != arg->end())
+	if (++i == arg->end())
 	{
 		SetVoidUser(this->_client, this->_server);
 		return ;
